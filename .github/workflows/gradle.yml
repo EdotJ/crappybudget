@@ -9,10 +9,11 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  run-checks:
 
     runs-on: ubuntu-latest
-
+    env:
+      working-directory: ./api
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 11
@@ -21,5 +22,16 @@ jobs:
         java-version: 11.0.10
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-    - name: Build with Gradle
-      run: ./gradlew check
+      working-directory: ${{env.working-directory}}
+    - name: Run checkstyle 
+      run: ./gradlew checkstyleMain
+      working-directory: ${{env.working-directory}}
+    - name: Run Tests
+      run: ./gradlew test
+      working-directory: ${{env.working-directory}}
+    - name: Publish Unit Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v1.7
+      if: always()
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        files: ./api/build/test-results/**/*.xml
