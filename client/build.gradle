@@ -1,0 +1,25 @@
+plugins {
+    id "com.github.node-gradle.node" version "3.0.0"
+}
+
+buildDir = "dist"
+
+node {
+    version = '15.8.0' // https://nodejs.org/en/
+    download = true
+}
+
+task start(type: NpmTask) {
+    group = 'application'
+    args = ['run', 'serve']
+}
+
+task build(type: NpmTask) {
+    group = 'application'
+    args = ['run', 'build']
+}
+
+task lint(type: NpmTask) {
+    group = 'application'
+    args = ['run', 'lint']
+}

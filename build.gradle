@@ -1,0 +1,13 @@
+task copyClientResources(type: Copy, dependsOn: ':client:build') {
+    group = 'build'
+    description = 'Copy client resources to the server'
+    project(':client').buildDir = 'dist'
+    from project(':client').buildDir.absolutePath
+    into "${project(':api').buildDir}/resources/main/public"
+}
+
+task assembleServerAndClient(dependsOn: ['copyClientResources', ':api:shadowJar']) {
+    group = 'build'
+    description = 'Build combined server and client JAR'
+}
+
