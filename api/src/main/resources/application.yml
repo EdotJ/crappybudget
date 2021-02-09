@@ -10,3 +10,25 @@ micronaut:
         enabled: true
         mapping: "/**"
         paths: "classpath:public"
+
+datasources:
+  default:
+    # TODO: figure out how to configure url by OS
+    url: ${JDBC_URL:`jdbc:h2:./data/db:default;DB_CLOSE_DELAY=1;DB_CLOSE_ON_EXIT=FALSE;cipher=AES;database_to_upper=false`}
+    username: ${JDBC_USER:dev_user}
+    password: ${JDBC_PASSWORD:dev_filepswd dev_dbpswd}
+    driverClassName: ${JDBC_DRIVER:org.h2.Driver}
+
+jpa:
+  default:
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: none
+        show_sql: true
+
+flyway:
+  datasources:
+    default:
+      enabled: true
+      locations: classpath:migrations
