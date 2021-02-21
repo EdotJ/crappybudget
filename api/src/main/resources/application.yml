@@ -10,6 +10,17 @@ micronaut:
         enabled: true
         mapping: "/**"
         paths: "classpath:public"
+  security:
+    enabled: false
+    authentication: bearer
+    token:
+      jwt:
+        signatures:
+          secret:
+            generator:
+              secret: ${JWT_SIGNATURE_SECRET:CHANGEME}
+              jws-algorithm: HS256
+    reject-not-found: false
 
 datasources:
   default:
@@ -34,7 +45,8 @@ flyway:
       enabled: true
       locations: classpath:migrations
 
-jooq:
-  datasources:
-    default:
-      sql-dialect: 'H2'
+jackson:
+  date-format: ${DATE_FORMAT:yyyy-MM-dd'T'HH:mm:ss}
+
+api:
+  base-path: /api
