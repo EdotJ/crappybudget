@@ -39,9 +39,9 @@ public class Goal {
     }
 
     public Goal(@NotNull String name,
-                 @Size(max = 140) String description,
-                 @NotNull LocalDate date,
-                 @NotNull BigDecimal value) {
+                @Size(max = 140) String description,
+                @NotNull LocalDate date,
+                @NotNull BigDecimal value) {
         this.name = name;
         this.description = description;
         this.date = date;
@@ -82,5 +82,21 @@ public class Goal {
 
     public void setValue(BigDecimal value) {
         this.value = value;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Account getAccount() {
+        return account;
+    }
+
+    public void setAccount(Account account) {
+        this.account = account;
     }
 }
