@@ -20,6 +20,6 @@ public class TestingConfigurationTest {
         String[] strings = datasourceUrl.split(":");
         assertTrue(strings.length > 2);
         assertEquals("mem", strings[2]);
-        assertFalse(isSecurityEnabled);
+        assertTrue(isSecurityEnabled);
     }
 }

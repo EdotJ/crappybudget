@@ -10,6 +10,8 @@ import com.budgeteer.api.model.Entry;
 import com.budgeteer.api.model.User;
 import com.budgeteer.api.repository.EntryRepository;
 import io.micronaut.core.util.StringUtils;
+import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.authentication.AuthorizationException;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -42,7 +44,7 @@ public class EntryService {
     }
 
     public List<Entry> getAllByUser(Long userId) {
-        User user = userService.getSingle(userId);
+        User user = userService.getById(userId);
         return entryRepository.findByUserId(user.getId());
     }
 
@@ -56,7 +58,6 @@ public class EntryService {
 
     public Entry create(SingleEntryDto request) {
         validateEntryRequest(request);
-        // TODO: should use account user or user supplied by id?
         Account account = accountService.getSingle(request.getAccountId());
         User user = account.getUser();
         Category category = categoryService.getSingle(request.getCategoryId());
@@ -73,12 +74,13 @@ public class EntryService {
         return entryRepository.save(entry);
     }
 
-    public Entry update(Long id, SingleEntryDto request) {
+    public Entry update(Long id, SingleEntryDto request, Authentication principal) {
         validateEntryRequest(request);
         Entry entry = getSingle(id);
         User user = entry.getUser();
-        if (!request.getUserId().equals(user.getId())) {
-            user = userService.getSingle(request.getUserId());
+        Long userId = (Long) principal.getAttributes().get("id");
+        if (!userId.equals(user.getId())) {
+            throw new AuthorizationException(principal);
         }
         Category category = entry.getCategory();
         if (!request.getCategoryId().equals(category.getId())) {
@@ -91,7 +93,7 @@ public class EntryService {
         entry.setName(request.getName());
         entry.setDescription(request.getDescription());
         entry.setValue(request.getValue());
-        entry.setIsExpense(request.isExpense());
+        entry.setIsExpense(request.isExpense() == null || request.isExpense());
         entry.setUser(user);
         entry.setAccount(account);
         entry.setCategory(category);

@@ -8,12 +8,20 @@ import java.time.LocalDate;
 public class TestUtils {
 
     public static final String TEST_USER_EMAIL = "email@email.com";
+    public static final String TEST_USER_USERNAME = "username";
+    public static final String TEST_USER_PASSWORD = "unsecurepassword";
 
     public static User createTestUser() {
         User testUser = new User();
         testUser.setEmail(TEST_USER_EMAIL);
-        testUser.setPassword("unsecurepassword");
-        testUser.setUsername("username");
+        testUser.setPassword(TEST_USER_PASSWORD);
+        testUser.setUsername(TEST_USER_USERNAME);
+        return testUser;
+    }
+
+    public static User createSecureTestUser() {
+        User testUser = createTestUser();
+        testUser.setPassword("$2a$10$IZ44SyZWqAMgBZZhQ0FE9uUjQYdCpDDoFBDvMcDYn2dCddIq7iGAu");
         return testUser;
     }
 

@@ -11,16 +11,35 @@ micronaut:
         mapping: "/**"
         paths: "classpath:public"
   security:
-    enabled: false
+    enabled: true
     authentication: bearer
+    endpoints:
+      login:
+        enabled: true
+        path: ${api.base-path}/login
     token:
       jwt:
         signatures:
           secret:
             generator:
-              secret: ${JWT_SIGNATURE_SECRET:CHANGEME}
+              secret: ${JWT_SIGNATURE_SECRET:CHANGEMECHANGEMECHANGEMECHANGEME}
               jws-algorithm: HS256
     reject-not-found: false
+    intercept-url-map:
+      -
+        pattern: ${api.base-path}/users
+        http-method: POST
+        access:
+          isAnonymous()
+      -
+        pattern: ${api.base-path}/**
+        access:
+          isAuthenticated()
+      -
+        pattern: /**
+        access:
+          - isAnonymous()
+          - isAuthenticated()
 
 datasources:
   default:

@@ -1,5 +1,6 @@
 package com.budgeteer.api.controller;
 
+import com.budgeteer.api.base.AuthenticationExtension;
 import com.budgeteer.api.base.DatabaseCleanupExtension;
 import com.budgeteer.api.base.TestUtils;
 import com.budgeteer.api.dto.ErrorResponse;
@@ -16,6 +17,7 @@ import com.budgeteer.api.repository.UserRepository;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
+import io.micronaut.http.MutableHttpRequest;
 import io.micronaut.http.client.RxHttpClient;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
@@ -24,6 +26,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -35,6 +38,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @MicronautTest
 @ExtendWith(DatabaseCleanupExtension.class)
 public class EntryControllerTest {
+
+    @RegisterExtension
+    AuthenticationExtension authExtension = new AuthenticationExtension();
 
     @Inject
     UserRepository userRepository;
@@ -49,7 +55,7 @@ public class EntryControllerTest {
     CategoryRepository categoryRepository;
 
     @Inject
-    @Client(value = "/${api.base-path}", errorType = ErrorResponse.class)
+    @Client(value = "/api", errorType = ErrorResponse.class)
     RxHttpClient client;
 
     private User testUser;
@@ -60,7 +66,7 @@ public class EntryControllerTest {
     @BeforeEach
     public void setup() {
         testEntry = TestUtils.createTestEntry();
-        testUser = userRepository.save(TestUtils.createTestUser());
+        testUser = userRepository.save(TestUtils.createSecureTestUser());
         testCategory = categoryRepository.save(TestUtils.createTestCategory(testUser));
         testAccount = accountRepository.save(TestUtils.createTestAccount(testUser));
         testEntry.setCategory(testCategory);
@@ -71,8 +77,9 @@ public class EntryControllerTest {
 
     @Test
     public void shouldReturnListOfOneEntryForUser() {
-        HttpResponse<EntryListDto> response = client.toBlocking()
-                .exchange(HttpRequest.GET("/entries?userId=" + testUser.getId()), EntryListDto.class);
+        MutableHttpRequest<Object> httpRequest = HttpRequest.GET("/entries?userId=" + testUser.getId())
+                .headers(authExtension.getAuthHeader());
+        HttpResponse<EntryListDto> response = client.toBlocking().exchange(httpRequest, EntryListDto.class);
         assertEquals(HttpStatus.OK, response.status());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isPresent());
@@ -81,8 +88,9 @@ public class EntryControllerTest {
 
     @Test
     public void shouldReturnListOfOneEntryForAccount() {
-        HttpResponse<EntryListDto> response = client.toBlocking()
-                .exchange(HttpRequest.GET("/entries?accountId=" + testAccount.getId()), EntryListDto.class);
+        MutableHttpRequest<Object> request = HttpRequest.GET("/entries?accountId=" + testAccount.getId())
+                .headers(authExtension.getAuthHeader());
+        HttpResponse<EntryListDto> response = client.toBlocking().exchange(request, EntryListDto.class);
         assertEquals(HttpStatus.OK, response.status());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isPresent());
@@ -91,8 +99,9 @@ public class EntryControllerTest {
 
     @Test
     public void shouldReturnSingleEntry() {
-        HttpResponse<SingleEntryDto> response = client.toBlocking()
-                .exchange(HttpRequest.GET("/entries/" + testEntry.getId()), SingleEntryDto.class);
+        MutableHttpRequest<Object> request = HttpRequest.GET("/entries/" + testEntry.getId())
+                .headers(authExtension.getAuthHeader());
+        HttpResponse<SingleEntryDto> response = client.toBlocking().exchange(request, SingleEntryDto.class);
         assertEquals(HttpStatus.OK, response.status());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isPresent());
@@ -101,8 +110,11 @@ public class EntryControllerTest {
 
     @Test
     public void shouldReturnNotFound() {
-        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () -> client.toBlocking()
-                .exchange(HttpRequest.GET("/entries/123456789"), SingleEntryDto.class));
+        MutableHttpRequest<Object> request = HttpRequest.GET("/entries/123456789")
+                .headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(request, SingleEntryDto.class)
+        );
         assertEquals(HttpStatus.NOT_FOUND, e.getResponse().status());
         Optional<ErrorResponse> optionalError = e.getResponse().getBody(ErrorResponse.class);
         assertTrue(optionalError.isPresent());
@@ -113,9 +125,34 @@ public class EntryControllerTest {
     @Test
     public void shouldCreateEntry() {
         SingleEntryDto dto = createEntry();
-        HttpResponse<SingleEntryDto> response = client.toBlocking()
-                .exchange(HttpRequest.POST("/entries", dto), SingleEntryDto.class);
+        MutableHttpRequest<SingleEntryDto> request = HttpRequest.POST("/entries", dto)
+                .headers(authExtension.getAuthHeader());
+        HttpResponse<SingleEntryDto> response = client.toBlocking().exchange(request, SingleEntryDto.class);
         assertEquals(HttpStatus.CREATED, response.getStatus());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().isPresent());
+        SingleEntryDto responseDto = response.getBody().get();
+        assertEquals(dto.getName(), responseDto.getName());
+        assertEquals(dto.getDate(), responseDto.getDate());
+        assertEquals(dto.getValue(), responseDto.getValue());
+        assertEquals(dto.getUserId(), responseDto.getUserId());
+        assertEquals(dto.getAccountId(), responseDto.getAccountId());
+    }
+
+    @Test
+    public void shouldUpdateEntry() {
+        Entry entry = TestUtils.createTestEntry();
+        entry.setUser(testUser);
+        entry.setCategory(testCategory);
+        entry.setAccount(testAccount);
+        SingleEntryDto dto = new SingleEntryDto(entry);
+        dto.setName("Another Milk Carton");
+        dto.setValue(BigDecimal.valueOf(10.99));
+        dto.setIsExpense(true);
+        MutableHttpRequest<SingleEntryDto> request = HttpRequest.PUT("/entries/" + testEntry.getId(), dto)
+                .headers(authExtension.getAuthHeader());
+        HttpResponse<SingleEntryDto> response = client.toBlocking().exchange(request, SingleEntryDto.class);
+        assertEquals(HttpStatus.OK, response.getStatus());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isPresent());
         SingleEntryDto responseDto = response.getBody().get();
@@ -142,8 +179,11 @@ public class EntryControllerTest {
     public void shouldFailWhenAccountNotFound() {
         SingleEntryDto dto = createEntry();
         dto.setAccountId(123456789L);
-        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () -> client.toBlocking()
-                .exchange(HttpRequest.POST("/entries", dto), SingleEntryDto.class));
+        MutableHttpRequest<SingleEntryDto> request = HttpRequest.POST("/entries", dto)
+                .headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(request, SingleEntryDto.class)
+        );
         assertEquals(HttpStatus.NOT_FOUND, e.getResponse().status());
         Optional<ErrorResponse> optionalError = e.getResponse().getBody(ErrorResponse.class);
         assertTrue(optionalError.isPresent());
@@ -157,8 +197,11 @@ public class EntryControllerTest {
     public void shouldFailWhenUserNotFound() {
         SingleEntryDto dto = createEntry();
         dto.setUserId(123456789L);
-        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () -> client.toBlocking()
-                .exchange(HttpRequest.POST("/entries", dto), SingleEntryDto.class));
+        MutableHttpRequest<SingleEntryDto> request = HttpRequest.POST("/entries", dto)
+                .headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(request, SingleEntryDto.class)
+        );
         assertEquals(HttpStatus.NOT_FOUND, e.getResponse().status());
         Optional<ErrorResponse> optionalError = e.getResponse().getBody(ErrorResponse.class);
         assertTrue(optionalError.isPresent());
@@ -171,8 +214,10 @@ public class EntryControllerTest {
     public void shouldFailWhenCategoryNotFound() {
         SingleEntryDto dto = createEntry();
         dto.setCategoryId(123456789L);
-        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () -> client.toBlocking()
-                .exchange(HttpRequest.POST("/entries", dto), SingleEntryDto.class));
+        MutableHttpRequest<SingleEntryDto> request = HttpRequest.POST("/entries", dto).headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(request, SingleEntryDto.class)
+        );
         assertEquals(HttpStatus.NOT_FOUND, e.getResponse().status());
         Optional<ErrorResponse> optionalError = e.getResponse().getBody(ErrorResponse.class);
         assertTrue(optionalError.isPresent());
@@ -185,8 +230,11 @@ public class EntryControllerTest {
     public void shouldFailWhenNoNameAdded() {
         SingleEntryDto dto = createEntry();
         dto.setName("");
-        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () -> client.toBlocking()
-                .exchange(HttpRequest.POST("/entries", dto), SingleEntryDto.class));
+        MutableHttpRequest<SingleEntryDto> request = HttpRequest.POST("/entries", dto)
+                .headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(request, SingleEntryDto.class)
+        );
         assertEquals(HttpStatus.BAD_REQUEST, e.getResponse().status());
         Optional<ErrorResponse> optionalError = e.getResponse().getBody(ErrorResponse.class);
         assertTrue(optionalError.isPresent());
@@ -198,8 +246,10 @@ public class EntryControllerTest {
     public void shouldFailWhenNoValueAdded() {
         SingleEntryDto dto = createEntry();
         dto.setValue(null);
-        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () -> client.toBlocking()
-                .exchange(HttpRequest.POST("/entries", dto), SingleEntryDto.class));
+        MutableHttpRequest<SingleEntryDto> request = HttpRequest.POST("/entries", dto).headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(request, SingleEntryDto.class)
+        );
         assertEquals(HttpStatus.BAD_REQUEST, e.getResponse().status());
         Optional<ErrorResponse> optionalError = e.getResponse().getBody(ErrorResponse.class);
         assertTrue(optionalError.isPresent());
@@ -211,8 +261,10 @@ public class EntryControllerTest {
     public void shouldFailWhenNegativeValue() {
         SingleEntryDto dto = createEntry();
         dto.setValue(BigDecimal.valueOf(-1617));
-        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () -> client.toBlocking()
-                .exchange(HttpRequest.POST("/entries", dto), SingleEntryDto.class));
+        MutableHttpRequest<SingleEntryDto> request = HttpRequest.POST("/entries", dto).headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(request, SingleEntryDto.class)
+        );
         assertEquals(HttpStatus.BAD_REQUEST, e.getResponse().status());
         Optional<ErrorResponse> optionalError = e.getResponse().getBody(ErrorResponse.class);
         assertTrue(optionalError.isPresent());
@@ -224,8 +276,11 @@ public class EntryControllerTest {
     public void shouldFailWhenNoDateAdded() {
         SingleEntryDto dto = createEntry();
         dto.setDate(null);
-        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () -> client.toBlocking()
-                .exchange(HttpRequest.POST("/entries", dto), SingleEntryDto.class));
+        MutableHttpRequest<SingleEntryDto> request = HttpRequest.POST("/entries", dto)
+                .headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(request, SingleEntryDto.class)
+        );
         assertEquals(HttpStatus.BAD_REQUEST, e.getResponse().status());
         Optional<ErrorResponse> optionalError = e.getResponse().getBody(ErrorResponse.class);
         assertTrue(optionalError.isPresent());
@@ -237,8 +292,10 @@ public class EntryControllerTest {
     public void shouldFailWhenNoCategoryAdded() {
         SingleEntryDto dto = createEntry();
         dto.setCategoryId(null);
-        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () -> client.toBlocking()
-                .exchange(HttpRequest.POST("/entries", dto), SingleEntryDto.class));
+        MutableHttpRequest<SingleEntryDto> request = HttpRequest.POST("/entries", dto).headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(request, SingleEntryDto.class)
+        );
         assertEquals(HttpStatus.BAD_REQUEST, e.getResponse().status());
         Optional<ErrorResponse> optionalError = e.getResponse().getBody(ErrorResponse.class);
         assertTrue(optionalError.isPresent());
@@ -250,8 +307,11 @@ public class EntryControllerTest {
     public void shouldFailWhenNoAccountAdded() {
         SingleEntryDto dto = createEntry();
         dto.setAccountId(null);
-        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () -> client.toBlocking()
-                .exchange(HttpRequest.POST("/entries", dto), SingleEntryDto.class));
+        MutableHttpRequest<SingleEntryDto> request = HttpRequest.POST("/entries", dto)
+                .headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(request, SingleEntryDto.class)
+        );
         assertEquals(HttpStatus.BAD_REQUEST, e.getResponse().status());
         Optional<ErrorResponse> optionalError = e.getResponse().getBody(ErrorResponse.class);
         assertTrue(optionalError.isPresent());

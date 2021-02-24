@@ -1,5 +1,6 @@
 package com.budgeteer.api.controller;
 
+import com.budgeteer.api.base.AuthenticationExtension;
 import com.budgeteer.api.base.DatabaseCleanupExtension;
 import com.budgeteer.api.base.TestUtils;
 import com.budgeteer.api.dto.ErrorResponse;
@@ -12,6 +13,7 @@ import com.budgeteer.api.repository.UserRepository;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
+import io.micronaut.http.MutableHttpRequest;
 import io.micronaut.http.client.RxHttpClient;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
@@ -19,6 +21,7 @@ import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -30,6 +33,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @MicronautTest
 @ExtendWith(DatabaseCleanupExtension.class)
 public class CategoryControllerTest {
+
+    @RegisterExtension
+    AuthenticationExtension authExtension = new AuthenticationExtension();
 
     @Inject
     CategoryRepository categoryRepository;
@@ -47,15 +53,16 @@ public class CategoryControllerTest {
     @BeforeEach
     public void setup() {
         testCategory = TestUtils.createTestCategory();
-        testUser = userRepository.save(TestUtils.createTestUser());
+        testUser = userRepository.save(TestUtils.createSecureTestUser());
         testCategory.setUser(testUser);
         categoryRepository.save(testCategory);
     }
 
     @Test
     public void shouldReturnListOfOneCategory() {
-        HttpResponse<CategoryListDto> response = client.toBlocking()
-                .exchange(HttpRequest.GET("/categories?userId=" + testUser.getId()), CategoryListDto.class);
+        MutableHttpRequest<Object> request = HttpRequest.GET("/categories?userId=" + testUser.getId())
+                .headers(authExtension.getAuthHeader());
+        HttpResponse<CategoryListDto> response = client.toBlocking().exchange(request, CategoryListDto.class);
         assertEquals(HttpStatus.OK, response.status());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isPresent());
@@ -64,8 +71,9 @@ public class CategoryControllerTest {
 
     @Test
     public void shouldReturnSingleCategory() {
-        HttpResponse<SingleCategoryDto> response = client.toBlocking()
-                .exchange(HttpRequest.GET("/categories/" + testCategory.getId()), SingleCategoryDto.class);
+        MutableHttpRequest<Object> request = HttpRequest.GET("/categories/" + testCategory.getId())
+                .headers(authExtension.getAuthHeader());
+        HttpResponse<SingleCategoryDto> response = client.toBlocking().exchange(request, SingleCategoryDto.class);
         assertEquals(HttpStatus.OK, response.status());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isPresent());
@@ -74,8 +82,10 @@ public class CategoryControllerTest {
 
     @Test
     public void shouldReturnNotFound() {
-        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () -> client.toBlocking()
-                .exchange(HttpRequest.GET("/categories/123456789"), SingleCategoryDto.class));
+        MutableHttpRequest<Object> request = HttpRequest.GET("/categories/123456789").headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () -> {
+            client.toBlocking().exchange(request, SingleCategoryDto.class);
+        });
         assertEquals(HttpStatus.NOT_FOUND, e.getResponse().status());
         Optional<ErrorResponse> optionalError = e.getResponse().getBody(ErrorResponse.class);
         assertTrue(optionalError.isPresent());
@@ -88,8 +98,9 @@ public class CategoryControllerTest {
         SingleCategoryDto dto = new SingleCategoryDto();
         dto.setName("new category");
         dto.setUserId(testUser.getId());
-        HttpResponse<SingleCategoryDto> response = client.toBlocking()
-                .exchange(HttpRequest.POST("/categories", dto), SingleCategoryDto.class);
+        MutableHttpRequest<SingleCategoryDto> request = HttpRequest.POST("/categories", dto)
+                .headers(authExtension.getAuthHeader());
+        HttpResponse<SingleCategoryDto> response = client.toBlocking().exchange(request, SingleCategoryDto.class);
         assertEquals(HttpStatus.CREATED, response.getStatus());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isPresent());
@@ -106,8 +117,9 @@ public class CategoryControllerTest {
         dto.setName("cat with parent");
         dto.setUserId(testUser.getId());
         dto.setParentId(testCategory.getId());
-        HttpResponse<SingleCategoryDto> response = client.toBlocking()
-                .exchange(HttpRequest.POST("/categories", dto), SingleCategoryDto.class);
+        MutableHttpRequest<SingleCategoryDto> request = HttpRequest.POST("/categories", dto)
+                .headers(authExtension.getAuthHeader());
+        HttpResponse<SingleCategoryDto> response = client.toBlocking().exchange(request, SingleCategoryDto.class);
         assertEquals(HttpStatus.CREATED, response.getStatus());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isPresent());
@@ -123,8 +135,9 @@ public class CategoryControllerTest {
         SingleCategoryDto dto = new SingleCategoryDto();
         dto.setName("cat with parent");
         dto.setUserId(testUser.getId());
-        HttpResponse<SingleCategoryDto> response = client.toBlocking()
-                .exchange(HttpRequest.PUT("/categories/" + testCategory.getId(), dto), SingleCategoryDto.class);
+        MutableHttpRequest<SingleCategoryDto> request = HttpRequest.PUT("/categories/" + testCategory.getId(), dto)
+                .headers(authExtension.getAuthHeader());
+        HttpResponse<SingleCategoryDto> response = client.toBlocking().exchange(request, SingleCategoryDto.class);
         assertEquals(HttpStatus.OK, response.getStatus());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isPresent());
@@ -136,8 +149,9 @@ public class CategoryControllerTest {
 
     @Test
     public void shouldDeleteCategory() {
-        HttpResponse<SingleCategoryDto> response = client.toBlocking()
-                .exchange(HttpRequest.DELETE("/categories/" + testCategory.getId()), SingleCategoryDto.class);
+        MutableHttpRequest<Object> request = HttpRequest.DELETE("/categories/" + testCategory.getId())
+                .headers(authExtension.getAuthHeader());
+        HttpResponse<SingleCategoryDto> response = client.toBlocking().exchange(request, SingleCategoryDto.class);
         assertEquals(HttpStatus.OK, response.getStatus());
         List<Category> categoryList = categoryRepository.findAll();
         assertEquals(0, categoryList.size());
@@ -148,8 +162,10 @@ public class CategoryControllerTest {
         SingleCategoryDto dto = new SingleCategoryDto();
         dto.setName("");
         dto.setUserId(testCategory.getId());
-        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () -> client.toBlocking()
-                .exchange(HttpRequest.POST("/categories", dto), SingleCategoryDto.class));
+        MutableHttpRequest<SingleCategoryDto> request = HttpRequest.POST("/categories", dto).headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () -> {
+            client.toBlocking().exchange(request, SingleCategoryDto.class);
+        });
         assertEquals(HttpStatus.BAD_REQUEST, e.getResponse().status());
         Optional<ErrorResponse> optionalError = e.getResponse().getBody(ErrorResponse.class);
         assertTrue(optionalError.isPresent());

@@ -9,6 +9,8 @@ import com.budgeteer.api.model.Goal;
 import com.budgeteer.api.model.User;
 import com.budgeteer.api.repository.GoalRepository;
 import io.micronaut.core.util.StringUtils;
+import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.authentication.AuthorizationException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -29,7 +31,7 @@ public class GoalService {
     }
 
     public List<Goal> getAll(Long userId) {
-        User user = userService.getSingle(userId);
+        User user = userService.getById(userId);
         return repository.findByUserId(user.getId());
     }
 
@@ -41,9 +43,10 @@ public class GoalService {
         return goal.get();
     }
 
-    public Goal create(SingleGoalDto request) {
+    public Goal create(SingleGoalDto request, Authentication principal) {
         validateGoalRequest(request);
-        User user = userService.getSingle(request.getUserId());
+        Long userId = (Long) principal.getAttributes().get("id");
+        User user = userService.getById(userId);
         Goal goal = new Goal();
         goal.setName(request.getName());
         if (!StringUtils.isEmpty(request.getDescription()) && StringUtils.hasText(request.getDescription())) {
@@ -59,13 +62,11 @@ public class GoalService {
         return repository.save(goal);
     }
 
-    public Goal update(Long id, SingleGoalDto request) {
+    public Goal update(Long id, SingleGoalDto request, Authentication principal) {
         Goal goal = getSingle(id);
-        // TODO: this check is not necessary after auth
-        User newUser = null;
-        // TODO: should user need to be supplied?
-        if (!request.getUserId().equals(goal.getUser().getId())) {
-            newUser = userService.getSingle(request.getUserId());
+        Long userId = (Long) principal.getAttributes().get("id");
+        if (!userId.equals(goal.getUser().getId())) {
+            throw new AuthorizationException(principal);
         }
         goal.setName(request.getName());
         goal.setDescription(request.getDescription());
@@ -74,10 +75,6 @@ public class GoalService {
         if (request.getAccountId() != null) {
             Account account = accountService.getSingle(request.getAccountId());
             goal.setAccount(account);
-        }
-        // TODO: rework once auth done
-        if (newUser != null) {
-            goal.setUser(newUser);
         }
         return repository.update(goal);
     }

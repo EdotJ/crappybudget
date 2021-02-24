@@ -8,6 +8,8 @@ import com.budgeteer.api.model.Account;
 import com.budgeteer.api.model.User;
 import com.budgeteer.api.repository.AccountRepository;
 import io.micronaut.core.util.StringUtils;
+import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.authentication.AuthorizationException;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -15,9 +17,9 @@ import java.util.Optional;
 @Service
 public class AccountService {
 
-    UserService userService;
+    private final UserService userService;
 
-    AccountRepository accRepository;
+    private final AccountRepository accRepository;
 
     public AccountService(AccountRepository repository, UserService userService) {
         this.accRepository = repository;
@@ -25,7 +27,7 @@ public class AccountService {
     }
 
     public Collection<Account> getAll(Long userId) {
-        User user = userService.getSingle(userId);
+        User user = userService.getById(userId);
         return accRepository.findByUserId(user.getId());
     }
 
@@ -38,26 +40,24 @@ public class AccountService {
         return account.get();
     }
 
-    public Account create(SingleAccountDto request) {
+    public Account create(SingleAccountDto request, Authentication principal) {
         validateAccountRequest(request);
-        User user = userService.getSingle(request.getUserId());
+        Long userId = (Long) principal.getAttributes().get("id");
+        User user = userService.getById(userId);
         Account account = new Account();
         account.setName(request.getName());
         account.setUser(user);
         return accRepository.save(account);
     }
 
-    public Account update(Long id, SingleAccountDto request) {
+    public Account update(Long id, SingleAccountDto request, Authentication principal) {
         validateAccountRequest(request);
         Account account = getSingle(id);
-        User newUser = null;
-        if (!request.getUserId().equals(account.getUser().getId())) {
-            newUser = userService.getSingle(request.getUserId());
+        Long userId = (Long) principal.getAttributes().get("id");
+        if (!userId.equals(account.getUser().getId())) {
+            throw new AuthorizationException(principal);
         }
         account.setName(request.getName());
-        if (newUser != null) {
-            account.setUser(newUser);
-        }
         return accRepository.update(account);
     }
 

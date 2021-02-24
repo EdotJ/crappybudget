@@ -7,6 +7,7 @@ import com.budgeteer.api.exception.BadRequestException;
 import com.budgeteer.api.exception.ResourceNotFoundException;
 import com.budgeteer.api.model.User;
 import com.budgeteer.api.repository.UserRepository;
+import com.budgeteer.api.security.PasswordManager;
 import io.micronaut.core.util.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 
@@ -16,18 +17,37 @@ import java.util.Optional;
 @Service
 public class UserService {
 
-    UserRepository repository;
+    private final UserRepository repository;
 
-    public UserService(UserRepository repository) {
+    private final PasswordManager passwordManager;
+
+    public UserService(UserRepository repository, PasswordManager passwordManager) {
         this.repository = repository;
+        this.passwordManager = passwordManager;
     }
 
     public Collection<User> getAll() {
         return repository.findAll();
     }
 
-    public User getSingle(Long id) {
+    public User getById(Long id) {
         Optional<User> optionalUser = repository.findById(id);
+        if (optionalUser.isEmpty()) {
+            throw new ResourceNotFoundException("NOT_FOUND", "user", "This user does not exist", "User was not found");
+        }
+        return optionalUser.get();
+    }
+
+    public User getByEmail(String email) {
+        Optional<User> optionalUser = repository.findByEmail(email);
+        if (optionalUser.isEmpty()) {
+            throw new ResourceNotFoundException("NOT_FOUND", "user", "This user does not exist", "User was not found");
+        }
+        return optionalUser.get();
+    }
+
+    public User getByUsername(String username) {
+        Optional<User> optionalUser = repository.findByUsername(username);
         if (optionalUser.isEmpty()) {
             throw new ResourceNotFoundException("NOT_FOUND", "user", "This user does not exist", "User was not found");
         }
@@ -39,8 +59,7 @@ public class UserService {
         User user = new User();
         user.setEmail(request.getEmail());
         user.setUsername(request.getUsername());
-        // TODO: don't save passwords in plaintext
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordManager.encode(request.getPassword()));
         user = repository.save(user);
         return user;
     }
@@ -58,7 +77,7 @@ public class UserService {
 
     public User update(Long id, SingleUserDto request) {
         validateUserUpdateRequest(request);
-        User user = this.getSingle(id);
+        User user = this.getById(id);
         user.setEmail(request.getEmail());
         return repository.update(user);
     }
@@ -77,7 +96,7 @@ public class UserService {
     }
 
     public void delete(Long id) {
-        User user = getSingle(id);
+        User user = getById(id);
         repository.delete(user);
     }
 

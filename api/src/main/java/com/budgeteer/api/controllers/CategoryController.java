@@ -6,6 +6,7 @@ import com.budgeteer.api.model.Category;
 import com.budgeteer.api.service.CategoryService;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
+import io.micronaut.security.authentication.Authentication;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -22,7 +23,8 @@ public class CategoryController {
     }
 
     @Get
-    public HttpResponse<CategoryListDto> getAll(@QueryValue Long userId) {
+    public HttpResponse<CategoryListDto> getAll(Authentication principal) {
+        Long userId = (Long) principal.getAttributes().get("id");
         List<SingleCategoryDto> singleCategoryList = service.getAll(userId).stream()
                 .map(SingleCategoryDto::new)
                 .collect(Collectors.toList());
@@ -36,14 +38,14 @@ public class CategoryController {
     }
 
     @Post
-    public HttpResponse<SingleCategoryDto> create(SingleCategoryDto request) {
-        Category category = service.create(request);
+    public HttpResponse<SingleCategoryDto> create(SingleCategoryDto request, Authentication principal) {
+        Category category = service.create(request, principal);
         return HttpResponse.created(new SingleCategoryDto(category));
     }
 
     @Put("/{id}")
-    public HttpResponse<SingleCategoryDto> update(Long id, SingleCategoryDto request) {
-        Category updatedCategory = service.update(id, request);
+    public HttpResponse<SingleCategoryDto> update(Long id, SingleCategoryDto request, Authentication principal) {
+        Category updatedCategory = service.update(id, request, principal);
         return HttpResponse.ok(new SingleCategoryDto(updatedCategory));
     }
 
