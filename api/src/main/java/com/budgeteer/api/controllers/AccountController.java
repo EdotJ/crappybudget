@@ -6,6 +6,7 @@ import com.budgeteer.api.model.Account;
 import com.budgeteer.api.service.AccountService;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
+import io.micronaut.security.authentication.Authentication;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,7 +22,8 @@ public class AccountController {
 
     @Get
     @Produces
-    public HttpResponse<AccountListDto> getAll(@QueryValue Long userId) {
+    public HttpResponse<AccountListDto> getAll(Authentication principal) {
+        Long userId = (Long) principal.getAttributes().get("id");
         List<SingleAccountDto> accounts = accountService.getAll(userId).stream()
                 .map(SingleAccountDto::new)
                 .collect(Collectors.toList());
@@ -37,15 +39,15 @@ public class AccountController {
 
     @Post
     @Produces
-    public HttpResponse<SingleAccountDto> create(@Body SingleAccountDto request) {
-        Account account = accountService.create(request);
+    public HttpResponse<SingleAccountDto> create(@Body SingleAccountDto request, Authentication principal) {
+        Account account = accountService.create(request, principal);
         return HttpResponse.created(new SingleAccountDto(account));
     }
 
     @Put(value = "{id}")
     @Produces
-    public HttpResponse<SingleAccountDto> update(Long id, @Body SingleAccountDto request) {
-        Account account = accountService.update(id, request);
+    public HttpResponse<SingleAccountDto> update(Long id, @Body SingleAccountDto request, Authentication principal) {
+        Account account = accountService.update(id, request, principal);
         return HttpResponse.ok(new SingleAccountDto(account));
     }
 

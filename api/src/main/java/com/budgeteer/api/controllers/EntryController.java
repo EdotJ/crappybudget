@@ -7,6 +7,7 @@ import com.budgeteer.api.model.Entry;
 import com.budgeteer.api.service.EntryService;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
+import io.micronaut.security.authentication.Authentication;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -21,13 +22,14 @@ public class EntryController {
         this.service = entryService;
     }
 
-    @Get("{?accountId,userId}")
-    public HttpResponse<EntryListDto> getAll(@QueryValue @Nullable Long accountId, @QueryValue @Nullable Long userId) {
-        if (accountId == null && userId == null) {
+    @Get("{?accountId}")
+    public HttpResponse<EntryListDto> getAll(@QueryValue @Nullable Long accountId, Authentication principal) {
+        if (accountId == null && principal.getAttributes().get("id") == null) {
             String msg = "No user or account provided for entry";
             String detail = "Account identifier or user identifier is missing";
             throw new BadRequestException("PARAM_MISSING", "entries", msg, detail);
         }
+        Long userId = (Long) principal.getAttributes().get("id");
         List<Entry> entryList = accountId != null ? service.getAllByAccount(accountId) : service.getAllByUser(userId);
         List<SingleEntryDto> singleEntries = entryList.stream().map(SingleEntryDto::new).collect(Collectors.toList());
         return HttpResponse.ok(new EntryListDto(singleEntries));
@@ -46,8 +48,8 @@ public class EntryController {
     }
 
     @Put("/{id}")
-    public HttpResponse<SingleEntryDto> update(Long id, SingleEntryDto request) {
-        Entry entry = service.update(id, request);
+    public HttpResponse<SingleEntryDto> update(Long id, SingleEntryDto request, Authentication principal) {
+        Entry entry = service.update(id, request, principal);
         return HttpResponse.ok(new SingleEntryDto(entry));
     }
 

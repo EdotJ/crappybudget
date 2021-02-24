@@ -1,18 +1,18 @@
 package com.budgeteer.api.base;
 
 import io.micronaut.context.ApplicationContext;
-import io.micronaut.test.extensions.junit5.MicronautJunit5Extension;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
-import org.junit.jupiter.api.extension.*;
-import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
-import org.junit.jupiter.api.extension.ExtensionContext.Store;
+import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
+import org.junit.jupiter.api.extension.BeforeTestExecutionCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import java.util.Optional;
 
 @MicronautTest
-public class DatabaseCleanupExtension implements BeforeTestExecutionCallback, AfterTestExecutionCallback {
+public class DatabaseCleanupExtension extends InjectableExtension
+        implements BeforeTestExecutionCallback, AfterTestExecutionCallback {
 
     @Inject
     private EntityManager entityManager;
@@ -31,21 +31,6 @@ public class DatabaseCleanupExtension implements BeforeTestExecutionCallback, Af
             String testName = context.getTestClass().get().getName();
             throw new RuntimeException("Micronaut context is not available for test: " + testName);
         }
-    }
-
-    private static Optional<ApplicationContext> getMicronautApplicationContext(ExtensionContext extensionContext) {
-        Store store = extensionContext.getRoot().getStore(Namespace.create(MicronautJunit5Extension.class));
-        if (store != null) {
-            try {
-                ApplicationContext appContext = (ApplicationContext) store.get(ApplicationContext.class);
-                if (appContext != null) {
-                    return Optional.of(appContext);
-                }
-            } catch (ClassCastException ignored) {
-
-            }
-        }
-        return Optional.empty();
     }
 
     @Override

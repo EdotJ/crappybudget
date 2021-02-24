@@ -28,6 +28,7 @@ dependencies {
     annotationProcessor("io.micronaut:micronaut-inject-java")
     implementation("io.micronaut.security:micronaut-security-annotations")
     implementation("io.micronaut.security:micronaut-security-jwt")
+    implementation("org.springframework.security:spring-security-crypto:5.4.2")
     implementation("commons-validator:commons-validator:1.7")
     annotationProcessor("io.micronaut.data:micronaut-data-processor:2.2.4")
     implementation("io.micronaut.flyway:micronaut-flyway")

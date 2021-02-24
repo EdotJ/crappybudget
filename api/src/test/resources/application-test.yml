@@ -4,4 +4,4 @@ datasources:
 
 micronaut:
   security:
-    enabled: false
+    enabled: true

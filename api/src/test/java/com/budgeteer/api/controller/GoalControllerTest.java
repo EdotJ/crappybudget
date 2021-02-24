@@ -1,5 +1,6 @@
 package com.budgeteer.api.controller;
 
+import com.budgeteer.api.base.AuthenticationExtension;
 import com.budgeteer.api.base.DatabaseCleanupExtension;
 import com.budgeteer.api.base.TestUtils;
 import com.budgeteer.api.dto.ErrorResponse;
@@ -14,6 +15,7 @@ import com.budgeteer.api.repository.UserRepository;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
+import io.micronaut.http.MutableHttpRequest;
 import io.micronaut.http.client.RxHttpClient;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
@@ -21,6 +23,7 @@ import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -33,6 +36,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @MicronautTest
 @ExtendWith(DatabaseCleanupExtension.class)
 public class GoalControllerTest {
+
+    @RegisterExtension
+    AuthenticationExtension authExtension = new AuthenticationExtension();
 
     @Inject
     private GoalRepository goalRepository;
@@ -54,7 +60,7 @@ public class GoalControllerTest {
     @BeforeEach
     public void setup() {
         testGoal = TestUtils.createTestGoal();
-        testUser = userRepository.save(TestUtils.createTestUser());
+        testUser = userRepository.save(TestUtils.createSecureTestUser());
         testAccount = TestUtils.createTestAccount();
         testAccount.setUser(testUser);
         testAccount = accountRepository.save(testAccount);
@@ -65,8 +71,9 @@ public class GoalControllerTest {
 
     @Test
     public void shouldReturnListOfOneGoal() {
-        HttpResponse<GoalListDto> response = client.toBlocking()
-                .exchange(HttpRequest.GET("/goals?userId=" + testUser.getId()), GoalListDto.class);
+        MutableHttpRequest<Object> request = HttpRequest.GET("/goals?userId=" + testUser.getId())
+                .headers(authExtension.getAuthHeader());
+        HttpResponse<GoalListDto> response = client.toBlocking().exchange(request, GoalListDto.class);
         assertEquals(HttpStatus.OK, response.getStatus());
         assertNotNull(response.body());
         assertTrue(response.getBody().isPresent());
@@ -75,8 +82,9 @@ public class GoalControllerTest {
 
     @Test
     public void shouldReturnSingleGoal() {
-        HttpResponse<SingleGoalDto> response = client.toBlocking()
-                .exchange(HttpRequest.GET("/goals/" + testGoal.getId()), SingleGoalDto.class);
+        MutableHttpRequest<Object> request = HttpRequest.GET("/goals/" + testGoal.getId())
+                .headers(authExtension.getAuthHeader());
+        HttpResponse<SingleGoalDto> response = client.toBlocking().exchange(request, SingleGoalDto.class);
         assertEquals(HttpStatus.OK, response.status());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isPresent());
@@ -87,23 +95,25 @@ public class GoalControllerTest {
 
     @Test
     public void shouldReturnNotFound() {
-        try {
-            client.toBlocking().exchange(HttpRequest.GET("/goals/123456789"), SingleGoalDto.class);
-        } catch (HttpClientResponseException e) {
-            assertEquals(HttpStatus.NOT_FOUND, e.getResponse().status());
-            Optional<ErrorResponse> optionalError = e.getResponse().getBody(ErrorResponse.class);
-            assertTrue(optionalError.isPresent());
-            ErrorResponse errorResponse = optionalError.get();
-            assertEquals("NOT_FOUND", errorResponse.getCode());
-        }
+        MutableHttpRequest<Object> request = HttpRequest.GET("/goals/123456789")
+                .headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(request, SingleGoalDto.class)
+        );
+        assertEquals(HttpStatus.NOT_FOUND, e.getResponse().status());
+        Optional<ErrorResponse> optionalError = e.getResponse().getBody(ErrorResponse.class);
+        assertTrue(optionalError.isPresent());
+        ErrorResponse errorResponse = optionalError.get();
+        assertEquals("NOT_FOUND", errorResponse.getCode());
     }
 
     @Test
     public void shouldCreateGoalWithoutAccount() {
         SingleGoalDto dto = getTestGoalDto();
         dto.setAccountId(null);
-        HttpResponse<SingleGoalDto> response = client.toBlocking()
-                .exchange(HttpRequest.POST("/goals", dto), SingleGoalDto.class);
+        MutableHttpRequest<SingleGoalDto> request = HttpRequest.POST("/goals", dto)
+                .headers(authExtension.getAuthHeader());
+        HttpResponse<SingleGoalDto> response = client.toBlocking().exchange(request, SingleGoalDto.class);
         assertEquals(HttpStatus.CREATED, response.getStatus());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isPresent());
@@ -120,8 +130,9 @@ public class GoalControllerTest {
     @Test
     public void shouldCreateGoalWithAccount() {
         SingleGoalDto dto = getTestGoalDto();
-        HttpResponse<SingleGoalDto> response = client.toBlocking()
-                .exchange(HttpRequest.POST("/goals", dto), SingleGoalDto.class);
+        MutableHttpRequest<SingleGoalDto> request = HttpRequest.POST("/goals", dto)
+                .headers(authExtension.getAuthHeader());
+        HttpResponse<SingleGoalDto> response = client.toBlocking().exchange(request, SingleGoalDto.class);
         assertEquals(HttpStatus.CREATED, response.getStatus());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isPresent());
@@ -138,8 +149,9 @@ public class GoalControllerTest {
     @Test
     public void shouldUpdateGoal() {
         SingleGoalDto dto = getTestGoalDto();
-        HttpResponse<SingleGoalDto> response = client.toBlocking()
-                .exchange(HttpRequest.PUT("/goals/" + testGoal.getId(), dto), SingleGoalDto.class);
+        MutableHttpRequest<SingleGoalDto> request = HttpRequest.PUT("/goals/" + testGoal.getId(), dto)
+                .headers(authExtension.getAuthHeader());
+        HttpResponse<SingleGoalDto> response = client.toBlocking().exchange(request, SingleGoalDto.class);
         assertEquals(HttpStatus.OK, response.getStatus());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isPresent());
@@ -155,8 +167,9 @@ public class GoalControllerTest {
 
     @Test
     public void shouldDeleteGoal() {
-        HttpResponse<SingleGoalDto> response = client.toBlocking()
-                .exchange(HttpRequest.DELETE("/goals/" + testGoal.getId()), SingleGoalDto.class);
+        MutableHttpRequest<Object> request = HttpRequest.DELETE("/goals/" + testGoal.getId())
+                .headers(authExtension.getAuthHeader());
+        HttpResponse<SingleGoalDto> response = client.toBlocking().exchange(request, SingleGoalDto.class);
         assertEquals(HttpStatus.OK, response.getStatus());
         List<Goal> goalList = goalRepository.findAll();
         assertEquals(0, goalList.size());
@@ -166,8 +179,11 @@ public class GoalControllerTest {
     public void shouldFailWhenNoNameSupplied() {
         SingleGoalDto dto = getTestGoalDto();
         dto.setName("");
-        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () -> client.toBlocking()
-                .exchange(HttpRequest.POST("/goals", dto), SingleGoalDto.class));
+        MutableHttpRequest<SingleGoalDto> request = HttpRequest.POST("/goals", dto)
+                .headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(request, SingleGoalDto.class)
+        );
         assertEquals(HttpStatus.BAD_REQUEST, e.getResponse().status());
         Optional<ErrorResponse> optionalError = e.getResponse().getBody(ErrorResponse.class);
         assertTrue(optionalError.isPresent());
@@ -179,8 +195,11 @@ public class GoalControllerTest {
     public void shouldFailWhenNoDateSupplied() {
         SingleGoalDto dto = getTestGoalDto();
         dto.setDate(null);
-        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () -> client.toBlocking()
-                .exchange(HttpRequest.POST("/goals", dto), SingleGoalDto.class));
+        MutableHttpRequest<SingleGoalDto> request = HttpRequest.POST("/goals", dto)
+                .headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(request, SingleGoalDto.class)
+        );
         assertEquals(HttpStatus.BAD_REQUEST, e.getResponse().status());
         Optional<ErrorResponse> optionalError = e.getResponse().getBody(ErrorResponse.class);
         assertTrue(optionalError.isPresent());
@@ -192,8 +211,11 @@ public class GoalControllerTest {
     public void shouldFailWhenDateInPast() {
         SingleGoalDto dto = getTestGoalDto();
         dto.setDate(LocalDate.now().minusDays(10));
-        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () -> client.toBlocking()
-                .exchange(HttpRequest.POST("/goals", dto), SingleGoalDto.class));
+        MutableHttpRequest<SingleGoalDto> request = HttpRequest.POST("/goals", dto)
+                .headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(request, SingleGoalDto.class)
+        );
         assertEquals(HttpStatus.BAD_REQUEST, e.getResponse().status());
         Optional<ErrorResponse> optionalError = e.getResponse().getBody(ErrorResponse.class);
         assertTrue(optionalError.isPresent());

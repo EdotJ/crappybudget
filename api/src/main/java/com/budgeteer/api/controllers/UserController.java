@@ -28,7 +28,7 @@ public class UserController {
 
     @Get(value = "/{id}", produces = MediaType.APPLICATION_JSON)
     public HttpResponse<SingleUserDto> getSingle(Long id) {
-        return HttpResponse.ok(new SingleUserDto(userService.getSingle(id)));
+        return HttpResponse.ok(new SingleUserDto(userService.getById(id)));
     }
 
     @Post(produces = MediaType.APPLICATION_JSON)

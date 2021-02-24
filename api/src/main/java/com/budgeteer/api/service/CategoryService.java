@@ -8,6 +8,8 @@ import com.budgeteer.api.model.Category;
 import com.budgeteer.api.model.User;
 import com.budgeteer.api.repository.CategoryRepository;
 import io.micronaut.core.util.StringUtils;
+import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.authentication.AuthorizationException;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -16,9 +18,9 @@ import java.util.Optional;
 @Service
 public class CategoryService {
 
-    UserService userService;
+    private final UserService userService;
 
-    CategoryRepository categoryRepository;
+    private final CategoryRepository categoryRepository;
 
     public CategoryService(CategoryRepository repository, UserService userService) {
         this.categoryRepository = repository;
@@ -26,7 +28,7 @@ public class CategoryService {
     }
 
     public Collection<Category> getAll(Long userId) {
-        User user = userService.getSingle(userId);
+        User user = userService.getById(userId);
         return categoryRepository.findByUserId(user.getId());
     }
 
@@ -39,9 +41,10 @@ public class CategoryService {
         return category.get();
     }
 
-    public Category create(SingleCategoryDto request) {
+    public Category create(SingleCategoryDto request, Authentication principal) {
         validateCategoryRequest(request);
-        User user = userService.getSingle(request.getUserId());
+        Long userId = (Long) principal.getAttributes().get("id");
+        User user = userService.getById(userId);
         Category category = new Category();
         category.setName(request.getName());
         category.setUser(user);
@@ -53,20 +56,16 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
 
-    public Category update(Long id, SingleCategoryDto request) {
+    public Category update(Long id, SingleCategoryDto request, Authentication principal) {
         Category category = getSingle(id);
         validateCategoryUpdateRequest(request, category);
-        // TODO: this check is not necessary after auth
-        User newUser = null;
-        if (!request.getUserId().equals(category.getUser().getId())) {
-            newUser = userService.getSingle(request.getUserId());
+        Long userId = (Long) principal.getAttributes().get("id");
+        if (!userId.equals(category.getUser().getId())) {
+            throw new AuthorizationException(principal);
         }
         category.setName(request.getName());
         if (request.getBudgeted() != null) {
             category.setBudgeted(request.getBudgeted());
-        }
-        if (newUser != null) {
-            category.setUser(newUser);
         }
         return categoryRepository.update(category);
     }

@@ -1,5 +1,6 @@
 package com.budgeteer.api.controller;
 
+import com.budgeteer.api.base.AuthenticationExtension;
 import com.budgeteer.api.base.DatabaseCleanupExtension;
 import com.budgeteer.api.base.TestUtils;
 import com.budgeteer.api.dto.ErrorResponse;
@@ -10,6 +11,7 @@ import com.budgeteer.api.repository.UserRepository;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
+import io.micronaut.http.MutableHttpRequest;
 import io.micronaut.http.client.RxHttpClient;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
@@ -17,6 +19,7 @@ import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -27,6 +30,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @MicronautTest
 @ExtendWith(DatabaseCleanupExtension.class)
 public class UserControllerTest {
+
+    @RegisterExtension
+    public AuthenticationExtension authExtension = new AuthenticationExtension();
 
     @Inject
     @Client(value = "/${api.base-path}", errorType = ErrorResponse.class)
@@ -39,17 +45,13 @@ public class UserControllerTest {
 
     @BeforeEach
     public void beforeEach() {
-        createTestUser();
-    }
-
-    private void createTestUser() {
-        testUser = repository.save(TestUtils.createTestUser());
+        testUser = repository.save(TestUtils.createSecureTestUser());
     }
 
     @Test
     public void shouldReturnListOfSingleUser() {
-        HttpResponse<UserListDto> response = client.toBlocking()
-                .exchange(HttpRequest.GET("/users"), UserListDto.class);
+        MutableHttpRequest<Object> request = HttpRequest.GET("/users").headers(authExtension.getAuthHeader());
+        HttpResponse<UserListDto> response = client.toBlocking().exchange(request, UserListDto.class);
         assertEquals(HttpStatus.OK, response.getStatus());
         assertNotNull(response.body());
         assertTrue(response.getBody().isPresent());
@@ -58,8 +60,9 @@ public class UserControllerTest {
 
     @Test
     public void shouldReturnSingleUser() {
-        HttpResponse<SingleUserDto> response = client.toBlocking()
-                .exchange(HttpRequest.GET("/users/" + testUser.getId()), SingleUserDto.class);
+        MutableHttpRequest<Object> request = HttpRequest.GET("/users/" + testUser.getId())
+                .headers(authExtension.getAuthHeader());
+        HttpResponse<SingleUserDto> response = client.toBlocking().exchange(request, SingleUserDto.class);
         assertEquals(HttpStatus.OK, response.getStatus());
         assertNotNull(response.body());
         assertTrue(response.getBody().isPresent());
@@ -77,8 +80,10 @@ public class UserControllerTest {
         assertEquals(HttpStatus.CREATED, response.getStatus());
         assertNotNull(response.body());
         assertTrue(response.getBody().isPresent());
-        assertEquals(dto.getEmail(), response.getBody().get().getEmail());
-        assertEquals(dto.getUsername(), response.getBody().get().getUsername());
+        Optional<User> newUser = repository.findById(response.getBody().get().getId());
+        assertTrue(newUser.isPresent());
+        assertEquals(dto.getEmail(), newUser.get().getEmail());
+        assertEquals(dto.getUsername(), newUser.get().getUsername());
     }
 
     @Test
@@ -86,8 +91,10 @@ public class UserControllerTest {
         SingleUserDto dto = new SingleUserDto();
         dto.setUsername("testuser");
         dto.setEmail("email@gmail.com");
+        MutableHttpRequest<SingleUserDto> request = HttpRequest.PUT("/users/" + testUser.getId(), dto)
+                .headers(authExtension.getAuthHeader());
         HttpResponse<SingleUserDto> response = client.toBlocking()
-                .exchange(HttpRequest.PUT("/users" + "/" + testUser.getId(), dto), SingleUserDto.class);
+                .exchange(request, SingleUserDto.class);
         assertEquals(HttpStatus.OK, response.status());
         assertNotNull(response.body());
         assertTrue(response.getBody().isPresent());
@@ -97,8 +104,9 @@ public class UserControllerTest {
 
     @Test
     public void shouldDeleteTestUser() {
-        HttpResponse<Object> response = client.toBlocking()
-                .exchange(HttpRequest.DELETE("/users" + "/" + testUser.getId()), Object.class);
+        MutableHttpRequest<Object> request = HttpRequest.DELETE("/users/" + testUser.getId())
+                .headers(authExtension.getAuthHeader());
+        HttpResponse<Object> response = client.toBlocking().exchange(request, Object.class);
         assertEquals(HttpStatus.OK, response.getStatus());
         List<User> users = repository.findAll();
         assertEquals(0, users.size());
