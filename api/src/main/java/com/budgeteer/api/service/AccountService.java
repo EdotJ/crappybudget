@@ -62,7 +62,7 @@ public class AccountService {
     }
 
     private void validateAccountRequest(SingleAccountDto request) {
-        if (StringUtils.isEmpty(request.getName()) || !StringUtils.hasText(request.getName())) {
+        if (!StringUtils.hasText(request.getName())) {
             String defaultMsg = "Account name cannot be empty";
             throw new BadRequestException("BAD_ACCOUNT_NAME", "empty", defaultMsg, "Account name is empty");
         }

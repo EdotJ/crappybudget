@@ -152,7 +152,7 @@ public class CategoryControllerTest {
         MutableHttpRequest<Object> request = HttpRequest.DELETE("/categories/" + testCategory.getId())
                 .headers(authExtension.getAuthHeader());
         HttpResponse<SingleCategoryDto> response = client.toBlocking().exchange(request, SingleCategoryDto.class);
-        assertEquals(HttpStatus.OK, response.getStatus());
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatus());
         List<Category> categoryList = categoryRepository.findAll();
         assertEquals(0, categoryList.size());
     }

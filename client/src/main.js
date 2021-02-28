@@ -1,23 +1,21 @@
-import Vue from "vue"
+import Vue from "vue";
 import App from "@/App";
-import VueRouter from 'vue-router'
+import VueRouter from "vue-router";
+import routes from "./routes";
+import api from "@/api";
+import store from "@/store";
 
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
 Vue.use(VueRouter);
-const Foo = { template: '<div>foo</div>' }
-const Bar = { template: '<div>bar</div>' }
-
-const routes = [
-    { path: '/foo', component: Foo },
-    { path: '/bar', component: Bar }
-]
+Vue.prototype.$api = api;
 
 const router = new VueRouter({
-    mode: 'history',
-    routes
-})
+  mode: "history",
+  routes,
+});
 
 new Vue({
-    render: h => h(App),
-    router
-}).$mount('#app')
+  render: (h) => h(App),
+  router,
+  store: store,
+}).$mount("#app");

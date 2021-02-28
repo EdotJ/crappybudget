@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller("${api.base-path}/entries")
+@Produces
 public class EntryController {
 
     private final EntryService service;
@@ -56,6 +57,6 @@ public class EntryController {
     @Delete("/{id}")
     public HttpResponse<SingleEntryDto> delete(Long id) {
         service.delete(id);
-        return HttpResponse.ok();
+        return HttpResponse.noContent();
     }
 }

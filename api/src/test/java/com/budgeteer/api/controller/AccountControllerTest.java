@@ -133,7 +133,7 @@ public class AccountControllerTest {
         MutableHttpRequest<Object> request = HttpRequest.DELETE("/accounts/" + testAccount.getId())
                 .headers(authExtension.getAuthHeader());
         HttpResponse<SingleAccountDto> response = client.toBlocking().exchange(request, SingleAccountDto.class);
-        assertEquals(HttpStatus.OK, response.getStatus());
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatus());
         List<Account> accounts = accountRepository.findAll();
         assertEquals(0, accounts.size());
     }

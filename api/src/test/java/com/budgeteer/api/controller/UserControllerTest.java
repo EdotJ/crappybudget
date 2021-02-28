@@ -107,7 +107,7 @@ public class UserControllerTest {
         MutableHttpRequest<Object> request = HttpRequest.DELETE("/users/" + testUser.getId())
                 .headers(authExtension.getAuthHeader());
         HttpResponse<Object> response = client.toBlocking().exchange(request, Object.class);
-        assertEquals(HttpStatus.OK, response.getStatus());
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatus());
         List<User> users = repository.findAll();
         assertEquals(0, users.size());
     }
@@ -175,5 +175,35 @@ public class UserControllerTest {
         ErrorResponse errorResponse = optionalError.get();
         assertEquals("BAD_USERNAME", errorResponse.getCode());
         assertTrue(errorResponse.getDetail().contains("empty"));
+    }
+
+    @Test
+    public void shouldFailWhenNotUniqueEmail() {
+        SingleUserDto dto = new SingleUserDto(TestUtils.createTestUser());
+        dto.setPassword("unsecuredpassword");
+        dto.setUsername("testytesterson");
+        HttpResponse<ErrorResponse> response = client.toBlocking()
+                .exchange(HttpRequest.POST("/users", dto), ErrorResponse.class);
+        assertEquals(HttpStatus.OK, response.status());
+        Optional<ErrorResponse> optionalError = response.getBody(ErrorResponse.class);
+        assertTrue(optionalError.isPresent());
+        ErrorResponse errorResponse = optionalError.get();
+        assertEquals("BAD_EMAIL", errorResponse.getCode());
+        assertTrue(errorResponse.getMessage().contains("use"));
+    }
+
+    @Test
+    public void shouldFailWhenNotUniqueUsername() {
+        SingleUserDto dto = new SingleUserDto(TestUtils.createTestUser());
+        dto.setPassword("unsecuredpassword");
+        dto.setEmail("testytesterson@testy.com");
+        HttpResponse<ErrorResponse> response = client.toBlocking()
+                .exchange(HttpRequest.POST("/users", dto), ErrorResponse.class);
+        assertEquals(HttpStatus.OK, response.status());
+        Optional<ErrorResponse> optionalError = response.getBody(ErrorResponse.class);
+        assertTrue(optionalError.isPresent());
+        ErrorResponse errorResponse = optionalError.get();
+        assertEquals("BAD_USERNAME", errorResponse.getCode());
+        assertTrue(errorResponse.getMessage().contains("use"));
     }
 }

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller("${api.base-path}/goals")
+@Produces
 public class GoalController {
 
     private final GoalService service;
@@ -50,8 +51,6 @@ public class GoalController {
     @Delete("/{id}")
     public HttpResponse<SingleGoalDto> delete(Long id) {
         service.delete(id);
-        return HttpResponse.ok();
+        return HttpResponse.noContent();
     }
-
-
 }

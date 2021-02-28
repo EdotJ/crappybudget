@@ -101,7 +101,7 @@ public class EntryService {
     }
 
     private void validateEntryRequest(SingleEntryDto request) {
-        if (StringUtils.isEmpty(request.getName()) || !StringUtils.hasText(request.getName())) {
+        if (!StringUtils.hasText(request.getName())) {
             throw new BadRequestException("BAD_ENTRY_NAME", "empty", "Please add an entry name", "Entry name is empty");
         }
         if (request.getValue() == null) {
@@ -119,9 +119,6 @@ public class EntryService {
         if (request.getAccountId() == null) {
             String msg = "Please select an account";
             throw new BadRequestException("BAD_ENTRY", "no_account_id", msg, "Account identifier not provided");
-        }
-        if (request.getUserId() == null) {
-            throw new BadRequestException("BAD_ENTRY", "no_user_id", "User not added", "User id not added");
         }
         if (request.getCategoryId() == null) {
             String msg = "Please select a category";
