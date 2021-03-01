@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [10.x, 12.x, 14.x, 15.x]
+        node-version: [15.x]
     env:
       working-directory: ./client
     steps:
@@ -69,4 +69,4 @@ jobs:
       with:
         comment_title: Unit Test Statistics
         github_token: ${{secrets.GITHUB_TOKEN}}
-        files: ./test-results/*.xml
+        files: ./test-results/**/*.xml
