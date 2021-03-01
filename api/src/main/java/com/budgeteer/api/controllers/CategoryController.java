@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller("${api.base-path}/categories")
+@Produces
 public class CategoryController {
 
     @Inject
@@ -52,6 +53,6 @@ public class CategoryController {
     @Delete("/{id}")
     public HttpResponse<SingleCategoryDto> delete(Long id) {
         service.delete(id);
-        return HttpResponse.ok();
+        return HttpResponse.noContent();
     }
 }

@@ -80,13 +80,9 @@ public class CategoryService {
     }
 
     private void validateCategoryRequest(SingleCategoryDto request) {
-        if (StringUtils.isEmpty(request.getName()) || !StringUtils.hasText(request.getName())) {
+        if (!StringUtils.hasText(request.getName())) {
             throw new BadRequestException("BAD_CATEGORY_NAME", "empty",
                     "Category name cannot be empty", "Category name is empty");
-        }
-        if (request.getUserId() == null) {
-            throw new BadRequestException("BAD_CATEGORY", "no_user_id",
-                    "No user identifier provided", "User id was not supplied");
         }
     }
 

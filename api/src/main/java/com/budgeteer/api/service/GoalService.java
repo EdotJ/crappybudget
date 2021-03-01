@@ -49,7 +49,7 @@ public class GoalService {
         User user = userService.getById(userId);
         Goal goal = new Goal();
         goal.setName(request.getName());
-        if (!StringUtils.isEmpty(request.getDescription()) && StringUtils.hasText(request.getDescription())) {
+        if (StringUtils.hasText(request.getDescription())) {
             goal.setDescription(request.getDescription());
         }
         goal.setValue(request.getValue());
@@ -80,13 +80,9 @@ public class GoalService {
     }
 
     private void validateGoalRequest(SingleGoalDto request) {
-        if (StringUtils.isEmpty(request.getName()) || !StringUtils.hasText(request.getName())) {
+        if (!StringUtils.hasText(request.getName())) {
             throw new BadRequestException("BAD_GOAL_NAME", "empty",
                     "Goal name cannot be empty", "Goal name is empty");
-        }
-        if (request.getUserId() == null) {
-            throw new BadRequestException("BAD_GOAL", "no_user_id",
-                    "No user identifier provided", "User id was not supplied");
         }
         if (request.getDate() == null) {
             throw new BadRequestException("BAD_GOAL_DATE", "empty",

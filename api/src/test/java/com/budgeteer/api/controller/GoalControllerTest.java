@@ -170,7 +170,7 @@ public class GoalControllerTest {
         MutableHttpRequest<Object> request = HttpRequest.DELETE("/goals/" + testGoal.getId())
                 .headers(authExtension.getAuthHeader());
         HttpResponse<SingleGoalDto> response = client.toBlocking().exchange(request, SingleGoalDto.class);
-        assertEquals(HttpStatus.OK, response.getStatus());
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatus());
         List<Goal> goalList = goalRepository.findAll();
         assertEquals(0, goalList.size());
     }

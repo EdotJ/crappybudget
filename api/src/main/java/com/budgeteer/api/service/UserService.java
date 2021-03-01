@@ -4,6 +4,7 @@ package com.budgeteer.api.service;
 import com.budgeteer.api.annotation.Service;
 import com.budgeteer.api.dto.user.SingleUserDto;
 import com.budgeteer.api.exception.BadRequestException;
+import com.budgeteer.api.exception.DuplicateResourceException;
 import com.budgeteer.api.exception.ResourceNotFoundException;
 import com.budgeteer.api.model.User;
 import com.budgeteer.api.repository.UserRepository;
@@ -66,12 +67,13 @@ public class UserService {
 
     private void validateUserCreateRequest(SingleUserDto request) {
         validateEmail(request.getEmail());
-        if (StringUtils.isEmpty(request.getUsername()) || !StringUtils.hasText(request.getUsername())) {
+        if (!StringUtils.hasText(request.getUsername())) {
             throw new BadRequestException("BAD_USERNAME", "empty", "Please add a username", "Username is empty");
         }
-        if (StringUtils.isEmpty(request.getPassword()) || !StringUtils.hasText(request.getPassword())) {
+        if (!StringUtils.hasText(request.getPassword())) {
             throw new BadRequestException("BAD_PASSWORD", "empty", "Password is mandatory", "Password is empty");
         }
+        validateUnique(request);
         // TODO: password validation
     }
 
@@ -79,19 +81,34 @@ public class UserService {
         validateUserUpdateRequest(request);
         User user = this.getById(id);
         user.setEmail(request.getEmail());
+        if (StringUtils.hasText(request.getPassword())) {
+            user.setPassword(passwordManager.encode(request.getPassword()));
+        }
         return repository.update(user);
     }
 
     private void validateUserUpdateRequest(SingleUserDto request) {
         validateEmail(request.getEmail());
+        validateUnique(request);
     }
 
     private void validateEmail(String email) {
-        if (StringUtils.isEmpty(email) || !StringUtils.hasText(email)) {
+        if (!StringUtils.hasText(email)) {
             throw new BadRequestException("BAD_EMAIL", "empty", "Please add an email address", "Email is empty");
         }
         if (!EmailValidator.getInstance().isValid(email)) {
             throw new BadRequestException("BAD_EMAIL", "misformatted", "Invalid email format", "Invalid email format");
+        }
+    }
+
+    private void validateUnique(SingleUserDto request) {
+        if (repository.findByEmail(request.getEmail()).isPresent()) {
+            String msg = "Email is already in use. Try another one.";
+            throw new DuplicateResourceException("BAD_EMAIL", "used", msg, "Duplicate email address");
+        }
+        if (repository.findByUsername(request.getUsername()).isPresent()) {
+            String msg = "Username is already in use. Try another one.";
+            throw new DuplicateResourceException("BAD_USERNAME", "used", msg, "Duplicate username");
         }
     }
 

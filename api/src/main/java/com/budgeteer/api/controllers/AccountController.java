@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller("${api.base-path:/api}/accounts")
+@Produces
 public class AccountController {
 
     private final AccountService accountService;
@@ -21,7 +22,6 @@ public class AccountController {
     }
 
     @Get
-    @Produces
     public HttpResponse<AccountListDto> getAll(Authentication principal) {
         Long userId = (Long) principal.getAttributes().get("id");
         List<SingleAccountDto> accounts = accountService.getAll(userId).stream()
@@ -31,30 +31,26 @@ public class AccountController {
     }
 
     @Get(value = "/{id}")
-    @Produces
     public HttpResponse<SingleAccountDto> getSingle(Long id) {
         Account account = accountService.getSingle(id);
         return HttpResponse.ok(new SingleAccountDto(account));
     }
 
     @Post
-    @Produces
     public HttpResponse<SingleAccountDto> create(@Body SingleAccountDto request, Authentication principal) {
         Account account = accountService.create(request, principal);
         return HttpResponse.created(new SingleAccountDto(account));
     }
 
     @Put(value = "{id}")
-    @Produces
     public HttpResponse<SingleAccountDto> update(Long id, @Body SingleAccountDto request, Authentication principal) {
         Account account = accountService.update(id, request, principal);
         return HttpResponse.ok(new SingleAccountDto(account));
     }
 
     @Delete(value = "/{id}")
-    @Produces
     public HttpResponse<Object> delete(Long id) {
         accountService.delete(id);
-        return HttpResponse.ok();
+        return HttpResponse.noContent();
     }
 }

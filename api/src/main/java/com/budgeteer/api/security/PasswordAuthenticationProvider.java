@@ -47,7 +47,7 @@ public class PasswordAuthenticationProvider implements AuthenticationProvider {
     private Optional<AuthenticationFailed> validate(User user, AuthenticationRequest<?, ?> authenticationRequest) {
         AuthenticationFailed authFailed = null;
         if (!passwordManager.matches(authenticationRequest.getSecret().toString(), user.getPassword())) {
-            authFailed = new AuthenticationFailed(AuthenticationFailureReason.CREDENTIALS_DO_NOT_MATCH);
+            authFailed = new AuthenticationFailed(FailReason.not_matching.name());
         }
         return Optional.ofNullable(authFailed);
     }
