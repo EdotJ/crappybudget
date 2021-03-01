@@ -1,0 +1,72 @@
+# Run JUnit and Jest tests and publish results on PR
+
+name: Run and publish JUnit and Jest results
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  jest:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x, 14.x, 15.x]
+    env:
+      working-directory: ./client
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm ci
+      working-directory: ${{env.working-directory}}
+    - run: npm run test:unit -- --ci --testResultsProcessor="jest-junit"
+      working-directory: ${{env.working-directory}}
+    - name: Upload artifacts
+      uses: actions/upload-artifact@master
+      with:
+        name: client-artifact
+        path: ./client/*.xml
+  junit:
+    runs-on: ubuntu-latest
+    env:
+      working-directory: ./api
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 11
+      uses: actions/setup-java@v1
+      with:
+        java-version: 11.0.10
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+      working-directory: ${{env.working-directory}}
+    - name: Run Tests
+      run: ./gradlew test
+      working-directory: ${{env.working-directory}}
+    - name: Upload artifacts
+      uses: actions/upload-artifact@master
+      with:
+        name: api-artifact
+        path: ./api/build/test-results/
+  publish:
+    needs: [jest, junit]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Get artifacts
+      uses: actions/download-artifact@master
+      with:
+        path: test-results/
+    - name: Show structure
+      run: ls -R
+    - name: Publish Unit Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v1.7
+      if: always()
+      with:
+        comment_title: Unit Test Statistics
+        github_token: ${{secrets.GITHUB_TOKEN}}
+        files: ./test-results/*.xml
