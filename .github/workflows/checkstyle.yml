@@ -26,6 +26,3 @@ jobs:
     - name: Run checkstyle 
       run: ./gradlew checkstyleMain
       working-directory: ${{env.working-directory}}
-    - name: Run Tests
-      run: ./gradlew test
-      working-directory: ${{env.working-directory}}
