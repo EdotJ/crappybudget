@@ -7,7 +7,7 @@ const state = {
 
 const getters = {};
 
-const mutations = {
+export const mutations = {
   SET_CATEGORIES(state, categories) {
     state.categories = categories;
   },
@@ -22,7 +22,7 @@ const mutations = {
     });
   },
   UPDATE_CATEGORY(state, category) {
-    state.categories.map((c) =>
+    state.categories = state.categories.map((c) =>
       c.id === category.id
         ? {
             id: category.id,
@@ -33,11 +33,11 @@ const mutations = {
     );
   },
   DELETE_CATEGORY(state, id) {
-    state.categories.filter((c) => c.id === id);
+    state.categories = state.categories.filter((c) => c.id === id);
   },
 };
 
-const actions = {
+export const actions = {
   getAll: async function ({ commit }) {
     try {
       commit("SET_IS_LOADING", true);
@@ -87,7 +87,7 @@ const actions = {
   delete: async function ({ commit }, id) {
     try {
       const response = await api.categories.delete(id);
-      if (response && response.status === 200) {
+      if (response && response.status === 204) {
         commit("DELETE_CATEGORY", id);
       }
     } catch (e) {

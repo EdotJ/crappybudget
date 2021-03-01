@@ -7,19 +7,19 @@ const state = {
 
 const getters = {
   getAccessToken: (state) => state.accessToken,
-  isLoggedIn: (state) => !!state.accessToken
+  isLoggedIn: (state) => !!state.accessToken,
 };
 
-const mutations = {
+export const mutations = {
   SET_ACCESS_TOKEN(state, token) {
     state.accessToken = token;
   },
 };
 
-const actions = {
+export const actions = {
   login: async function ({ commit }, credentials) {
     try {
-      const response = await api.users.login(credentials.username, credentials.password);
+      const response = await api.auth.login(credentials.username, credentials.password);
       if (response.data) {
         commit("SET_ACCESS_TOKEN", response.data.access_token);
       }
@@ -29,7 +29,7 @@ const actions = {
   },
   register: async function (state, body) {
     try {
-      await api.users.register(body.username, body.password, body.email);
+      await api.auth.register(body.username, body.password, body.email);
     } catch (e) {
       return Promise.reject(e);
     }

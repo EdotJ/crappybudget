@@ -7,7 +7,7 @@ const state = {
 
 const getters = {};
 
-const mutations = {
+export const mutations = {
   SET_ENTRIES(state, entries) {
     state.entries = entries;
   },
@@ -21,7 +21,7 @@ const mutations = {
     });
   },
   UPDATE_ENTRY(state, entry) {
-    state.entries.map((c) =>
+    state.entries = state.entries.map((c) =>
       c.id === entry.id
         ? {
             id: entry.id,
@@ -31,11 +31,11 @@ const mutations = {
     );
   },
   DELETE_ENTRY(state, id) {
-    state.entries.filter((c) => c.id === id);
+    state.entries = state.entries.filter((c) => c.id === id);
   },
 };
 
-const actions = {
+export const actions = {
   getAll: async function ({ commit }) {
     try {
       commit("SET_IS_LOADING", true);
@@ -85,7 +85,7 @@ const actions = {
   delete: async function ({ commit }, id) {
     try {
       const response = await api.entries.delete(id);
-      if (response && response.status === 200) {
+      if (response && response.status === 204) {
         commit("DELETE_ENTRY", id);
       }
     } catch (e) {

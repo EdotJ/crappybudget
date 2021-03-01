@@ -7,7 +7,7 @@ const state = {
 
 const getters = {};
 
-const mutations = {
+export const mutations = {
   SET_ACCOUNTS(state, accounts) {
     state.accounts = accounts;
   },
@@ -21,21 +21,21 @@ const mutations = {
     });
   },
   UPDATE_ACCOUNT(state, account) {
-    state.accounts.map((a) =>
-      a.id === account.id
+    state.accounts = state.accounts.map((a) => {
+      return a.id === account.id
         ? {
             id: account.id,
             name: account.name,
           }
-        : a
-    );
+        : a;
+    });
   },
   DELETE_ACCOUNT(state, id) {
-    state.accounts.filter((a) => a.id === id);
+    state.accounts = state.accounts.filter((a) => a.id === id);
   },
 };
 
-const actions = {
+export const actions = {
   getAll: async function ({ commit }) {
     try {
       commit("SET_IS_LOADING", true);
@@ -85,7 +85,7 @@ const actions = {
   delete: async function ({ commit }, id) {
     try {
       const response = await api.accounts.delete(id);
-      if (response && response.status === 200) {
+      if (response && response.status === 204) {
         commit("DELETE_ACCOUNT", id);
       }
     } catch (e) {

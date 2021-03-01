@@ -7,7 +7,7 @@ const state = {
 
 const getters = {};
 
-const mutations = {
+export const mutations = {
   SET_GOALS(state, goals) {
     state.goals = goals;
   },
@@ -21,7 +21,7 @@ const mutations = {
     });
   },
   UPDATE_GOAL(state, goal) {
-    state.goals.map((c) =>
+    state.goals = state.goals.map((c) =>
       c.id === goal.id
         ? {
             id: goal.id,
@@ -31,11 +31,11 @@ const mutations = {
     );
   },
   DELETE_GOAL(state, id) {
-    state.goals.filter((c) => c.id === id);
+    state.goals = state.goals.filter((c) => c.id === id);
   },
 };
 
-const actions = {
+export const actions = {
   getAll: async function ({ commit }) {
     try {
       commit("SET_IS_LOADING", true);
@@ -85,7 +85,7 @@ const actions = {
   delete: async function ({ commit }, id) {
     try {
       const response = await api.goals.delete(id);
-      if (response && response.status === 200) {
+      if (response && response.status === 204) {
         commit("DELETE_GOAL", id);
       }
     } catch (e) {

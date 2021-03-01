@@ -1,11 +1,11 @@
-import users from "./users";
+import auth from "./auth";
 import accounts from "./accounts";
 import categories from "./categories";
 import goals from "./goals";
 import entries from "./entries";
 
 export default {
-  users,
+  auth,
   accounts,
   categories,
   goals,
