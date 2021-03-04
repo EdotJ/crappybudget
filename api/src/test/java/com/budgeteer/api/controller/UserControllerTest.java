@@ -4,6 +4,7 @@ import com.budgeteer.api.base.AuthenticationExtension;
 import com.budgeteer.api.base.DatabaseCleanupExtension;
 import com.budgeteer.api.base.TestUtils;
 import com.budgeteer.api.dto.ErrorResponse;
+import com.budgeteer.api.dto.goal.SingleGoalDto;
 import com.budgeteer.api.dto.user.SingleUserDto;
 import com.budgeteer.api.dto.user.UserListDto;
 import com.budgeteer.api.model.User;
@@ -43,19 +44,22 @@ public class UserControllerTest {
 
     private User testUser;
 
+    private User secondUser;
+
     @BeforeEach
     public void beforeEach() {
         testUser = repository.save(TestUtils.createSecureTestUser());
+        secondUser = repository.save(TestUtils.createAdditionalTestUser());
     }
 
     @Test
-    public void shouldReturnListOfSingleUser() {
+    public void shouldReturnListOfTwoUsers() {
         MutableHttpRequest<Object> request = HttpRequest.GET("/users").headers(authExtension.getAuthHeader());
         HttpResponse<UserListDto> response = client.toBlocking().exchange(request, UserListDto.class);
         assertEquals(HttpStatus.OK, response.getStatus());
         assertNotNull(response.body());
         assertTrue(response.getBody().isPresent());
-        assertEquals(1, response.getBody().get().getCount());
+        assertEquals(2, response.getBody().get().getCount());
     }
 
     @Test
@@ -109,7 +113,7 @@ public class UserControllerTest {
         HttpResponse<Object> response = client.toBlocking().exchange(request, Object.class);
         assertEquals(HttpStatus.NO_CONTENT, response.getStatus());
         List<User> users = repository.findAll();
-        assertEquals(0, users.size());
+        assertEquals(1, users.size());
     }
 
     @Test
@@ -205,5 +209,38 @@ public class UserControllerTest {
         ErrorResponse errorResponse = optionalError.get();
         assertEquals("BAD_USERNAME", errorResponse.getCode());
         assertTrue(errorResponse.getMessage().contains("use"));
+    }
+
+    @Test
+    public void shouldFailFetchingOtherUserInfo() {
+        MutableHttpRequest<Object> request = HttpRequest.GET("/users/" + secondUser.getId())
+                .headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(request, ErrorResponse.class)
+        );
+        assertEquals(HttpStatus.FORBIDDEN, e.getStatus());
+    }
+
+    @Test
+    public void shouldFailUpdatingOtherUserInfo() {
+        SingleUserDto dto = new SingleUserDto();
+        dto.setUsername("testuser");
+        dto.setEmail("email@gmail.com");
+        MutableHttpRequest<SingleUserDto> request = HttpRequest.PUT("/users/" + secondUser.getId(), dto)
+                .headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(request, ErrorResponse.class)
+        );
+        assertEquals(HttpStatus.FORBIDDEN, e.getStatus());
+    }
+
+    @Test
+    public void shouldFailDeletingOtherUserInfo() {
+        MutableHttpRequest<Object> request = HttpRequest.DELETE("/users/" + secondUser.getId())
+                .headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(request, ErrorResponse.class)
+        );
+        assertEquals(HttpStatus.FORBIDDEN, e.getStatus());
     }
 }

@@ -1,6 +1,6 @@
 package com.budgeteer.api.service;
 
-import com.budgeteer.api.annotation.Service;
+import com.budgeteer.api.config.Service;
 import com.budgeteer.api.dto.goal.SingleGoalDto;
 import com.budgeteer.api.exception.BadRequestException;
 import com.budgeteer.api.exception.ResourceNotFoundException;
@@ -8,9 +8,9 @@ import com.budgeteer.api.model.Account;
 import com.budgeteer.api.model.Goal;
 import com.budgeteer.api.model.User;
 import com.budgeteer.api.repository.GoalRepository;
+import com.budgeteer.api.security.RestrictedResourceHandler;
 import io.micronaut.core.util.StringUtils;
-import io.micronaut.security.authentication.Authentication;
-import io.micronaut.security.authentication.AuthorizationException;
+import io.micronaut.security.utils.SecurityService;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -18,35 +18,40 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class GoalService {
+public class GoalService extends RestrictedResourceHandler {
 
     private final UserService userService;
     private final AccountService accountService;
     private final GoalRepository repository;
 
-    public GoalService(UserService userService, AccountService accountService, GoalRepository repository) {
+    public GoalService(UserService userService,
+                       AccountService accountService,
+                       GoalRepository repository,
+                       SecurityService securityService) {
+        super(securityService);
         this.userService = userService;
         this.accountService = accountService;
         this.repository = repository;
     }
 
-    public List<Goal> getAll(Long userId) {
-        User user = userService.getById(userId);
+    public List<Goal> getAll() {
+        User user = userService.getById(getAuthenticatedUserId());
         return repository.findByUserId(user.getId());
     }
 
     public Goal getSingle(Long id) {
-        Optional<Goal> goal = repository.findById(id);
-        if (goal.isEmpty()) {
+        Optional<Goal> optionalGoal = repository.findById(id);
+        if (optionalGoal.isEmpty()) {
             throw new ResourceNotFoundException("NOT_FOUND", "goal", "This goal does not exist", "Goal was not found");
         }
-        return goal.get();
+        Goal goal = optionalGoal.get();
+        checkIfCanAccessResource(goal.getUser());
+        return optionalGoal.get();
     }
 
-    public Goal create(SingleGoalDto request, Authentication principal) {
+    public Goal create(SingleGoalDto request) {
         validateGoalRequest(request);
-        Long userId = (Long) principal.getAttributes().get("id");
-        User user = userService.getById(userId);
+        User user = userService.getById(getAuthenticatedUserId());
         Goal goal = new Goal();
         goal.setName(request.getName());
         if (StringUtils.hasText(request.getDescription())) {
@@ -62,12 +67,9 @@ public class GoalService {
         return repository.save(goal);
     }
 
-    public Goal update(Long id, SingleGoalDto request, Authentication principal) {
+    public Goal update(Long id, SingleGoalDto request) {
         Goal goal = getSingle(id);
-        Long userId = (Long) principal.getAttributes().get("id");
-        if (!userId.equals(goal.getUser().getId())) {
-            throw new AuthorizationException(principal);
-        }
+        checkIfCanAccessResource(goal.getUser());
         goal.setName(request.getName());
         goal.setDescription(request.getDescription());
         goal.setDate(request.getDate());
@@ -104,6 +106,7 @@ public class GoalService {
 
     public void delete(Long id) {
         Goal goal = getSingle(id);
+        checkIfCanAccessResource(goal.getUser());
         repository.delete(goal);
     }
 }

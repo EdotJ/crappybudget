@@ -30,7 +30,8 @@ public class CustomAuthenticationExceptionHandler extends AuthenticationExceptio
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setCode("AUTH_ERROR");
         String defaultMessage = "Authorization error occured. Please check credentials or try again later";
-        String msg = messageSource.getMessageWithDefaultLocale(errorResponse.getCode() + "." + exception.getMessage(), defaultMessage);
+        String property = errorResponse.getCode() + "." + exception.getMessage();
+        String msg = messageSource.getMessageWithDefaultLocale(property, defaultMessage);
         errorResponse.setMessage(msg);
         errorResponse.setDetail(exception.getMessage());
         return HttpResponse.unauthorized().body(errorResponse);

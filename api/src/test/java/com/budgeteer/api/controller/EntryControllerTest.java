@@ -4,6 +4,8 @@ import com.budgeteer.api.base.AuthenticationExtension;
 import com.budgeteer.api.base.DatabaseCleanupExtension;
 import com.budgeteer.api.base.TestUtils;
 import com.budgeteer.api.dto.ErrorResponse;
+import com.budgeteer.api.dto.account.SingleAccountDto;
+import com.budgeteer.api.dto.category.SingleCategoryDto;
 import com.budgeteer.api.dto.entry.EntryListDto;
 import com.budgeteer.api.dto.entry.SingleEntryDto;
 import com.budgeteer.api.model.Account;
@@ -31,6 +33,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -62,17 +65,24 @@ public class EntryControllerTest {
     private Account testAccount;
     private Category testCategory;
     private Entry testEntry;
+    private Entry additionalTestEntry;
 
     @BeforeEach
     public void setup() {
         testEntry = TestUtils.createTestEntry();
+        additionalTestEntry = TestUtils.createTestEntry();
         testUser = userRepository.save(TestUtils.createSecureTestUser());
+        User secondTestUser = userRepository.save(TestUtils.createAdditionalTestUser());
         testCategory = categoryRepository.save(TestUtils.createTestCategory(testUser));
         testAccount = accountRepository.save(TestUtils.createTestAccount(testUser));
         testEntry.setCategory(testCategory);
         testEntry.setAccount(testAccount);
         testEntry.setUser(testUser);
-        entryRepository.save(testEntry);
+        testEntry = entryRepository.save(testEntry);
+        additionalTestEntry.setCategory(testCategory);
+        additionalTestEntry.setAccount(testAccount);
+        additionalTestEntry.setUser(secondTestUser);
+        additionalTestEntry = entryRepository.save(additionalTestEntry);
     }
 
     @Test
@@ -87,14 +97,14 @@ public class EntryControllerTest {
     }
 
     @Test
-    public void shouldReturnListOfOneEntryForAccount() {
+    public void shouldReturnListOfOneEntriesForAccount() {
         MutableHttpRequest<Object> request = HttpRequest.GET("/entries?accountId=" + testAccount.getId())
                 .headers(authExtension.getAuthHeader());
         HttpResponse<EntryListDto> response = client.toBlocking().exchange(request, EntryListDto.class);
         assertEquals(HttpStatus.OK, response.status());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isPresent());
-        assertEquals(1, response.getBody().get().getCount());
+        assertEquals(2, response.getBody().get().getCount());
     }
 
     @Test
@@ -106,6 +116,16 @@ public class EntryControllerTest {
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isPresent());
         assertEquals("Milk", response.getBody().get().getName());
+    }
+
+    @Test
+    public void shouldFailFetchingOtherUserEntry() {
+        MutableHttpRequest<Object> request = HttpRequest.GET("/entries/" + additionalTestEntry.getId())
+                .headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(request, ErrorResponse.class)
+        );
+        assertEquals(HttpStatus.FORBIDDEN, e.getStatus());
     }
 
     @Test
@@ -161,6 +181,37 @@ public class EntryControllerTest {
         assertEquals(dto.getValue(), responseDto.getValue());
         assertEquals(dto.getUserId(), responseDto.getUserId());
         assertEquals(dto.getAccountId(), responseDto.getAccountId());
+    }
+
+    @Test
+    public void shouldFailUpdatingOtherUserCategory() {
+        SingleEntryDto dto = createEntry();
+        MutableHttpRequest<SingleEntryDto> req = HttpRequest.PUT("/entries/" + additionalTestEntry.getId(), dto)
+                .headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(req, ErrorResponse.class)
+        );
+        assertEquals(HttpStatus.FORBIDDEN, e.getStatus());
+    }
+
+    @Test
+    public void shouldDeleteEntry() {
+        MutableHttpRequest<Object> request = HttpRequest.DELETE("/entries/" + testEntry.getId())
+                .headers(authExtension.getAuthHeader());
+        HttpResponse<Object> response = client.toBlocking().exchange(request, Object.class);
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatus());
+        List<Entry> entryList = entryRepository.findByUserId(testUser.getId());
+        assertEquals(0, entryList.size());
+    }
+
+    @Test
+    public void shouldFailDeletingOtherUserCategory() {
+        MutableHttpRequest<Object> req = HttpRequest.DELETE("/entries/" + additionalTestEntry.getId())
+                .headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(req, ErrorResponse.class)
+        );
+        assertEquals(HttpStatus.FORBIDDEN, e.getStatus());
     }
 
     private SingleEntryDto createEntry() {

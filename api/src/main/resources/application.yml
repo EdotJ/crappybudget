@@ -65,6 +65,10 @@ jpa:
         hbm2ddl:
           auto: none
         show_sql: true
+        jdbc:
+          batch_size: 50
+          order_inserts: true
+          order_updates: true
 
 flyway:
   datasources:

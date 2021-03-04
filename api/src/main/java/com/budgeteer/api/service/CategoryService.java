@@ -1,50 +1,54 @@
 package com.budgeteer.api.service;
 
-import com.budgeteer.api.annotation.Service;
+import com.budgeteer.api.config.Service;
 import com.budgeteer.api.dto.category.SingleCategoryDto;
 import com.budgeteer.api.exception.BadRequestException;
 import com.budgeteer.api.exception.ResourceNotFoundException;
 import com.budgeteer.api.model.Category;
 import com.budgeteer.api.model.User;
 import com.budgeteer.api.repository.CategoryRepository;
+import com.budgeteer.api.security.RestrictedResourceHandler;
 import io.micronaut.core.util.StringUtils;
-import io.micronaut.security.authentication.Authentication;
-import io.micronaut.security.authentication.AuthorizationException;
+import io.micronaut.security.utils.SecurityService;
 
 import java.math.BigDecimal;
-import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Service
-public class CategoryService {
+public class CategoryService extends RestrictedResourceHandler {
 
     private final UserService userService;
 
     private final CategoryRepository categoryRepository;
 
-    public CategoryService(CategoryRepository repository, UserService userService) {
+    public CategoryService(CategoryRepository repository, UserService userService, SecurityService securityService) {
+        super(securityService);
         this.categoryRepository = repository;
         this.userService = userService;
     }
 
-    public Collection<Category> getAll(Long userId) {
+    public List<Category> getAll(Long userId) {
         User user = userService.getById(userId);
+        checkIfCanAccessResource(user);
         return categoryRepository.findByUserId(user.getId());
     }
 
     public Category getSingle(Long id) {
-        Optional<Category> category = categoryRepository.findById(id);
-        if (category.isEmpty()) {
+        Optional<Category> optionalCategory = categoryRepository.findById(id);
+        if (optionalCategory.isEmpty()) {
             String defaultMsg = "This category does not exist";
             throw new ResourceNotFoundException("NOT_FOUND", "category", defaultMsg, "Category was not found");
         }
-        return category.get();
+        Category category = optionalCategory.get();
+        checkIfCanAccessResource(category.getUser());
+        return category;
     }
 
-    public Category create(SingleCategoryDto request, Authentication principal) {
+    public Category create(SingleCategoryDto request) {
         validateCategoryRequest(request);
-        Long userId = (Long) principal.getAttributes().get("id");
-        User user = userService.getById(userId);
+
+        User user = userService.getById(getAuthenticatedUserId());
         Category category = new Category();
         category.setName(request.getName());
         category.setUser(user);
@@ -56,13 +60,10 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
 
-    public Category update(Long id, SingleCategoryDto request, Authentication principal) {
+    public Category update(Long id, SingleCategoryDto request) {
         Category category = getSingle(id);
         validateCategoryUpdateRequest(request, category);
-        Long userId = (Long) principal.getAttributes().get("id");
-        if (!userId.equals(category.getUser().getId())) {
-            throw new AuthorizationException(principal);
-        }
+        checkIfCanAccessResource(category.getUser());
         category.setName(request.getName());
         if (request.getBudgeted() != null) {
             category.setBudgeted(request.getBudgeted());
@@ -96,6 +97,7 @@ public class CategoryService {
 
     public void delete(Long id) {
         Category category = getSingle(id);
+        checkIfCanAccessResource(category.getUser());
         categoryRepository.delete(category);
     }
 }

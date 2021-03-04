@@ -1,27 +1,28 @@
 package com.budgeteer.api.service;
 
-import com.budgeteer.api.annotation.Service;
+import com.budgeteer.api.config.Service;
 import com.budgeteer.api.dto.account.SingleAccountDto;
 import com.budgeteer.api.exception.BadRequestException;
 import com.budgeteer.api.exception.ResourceNotFoundException;
 import com.budgeteer.api.model.Account;
 import com.budgeteer.api.model.User;
 import com.budgeteer.api.repository.AccountRepository;
+import com.budgeteer.api.security.RestrictedResourceHandler;
 import io.micronaut.core.util.StringUtils;
-import io.micronaut.security.authentication.Authentication;
-import io.micronaut.security.authentication.AuthorizationException;
+import io.micronaut.security.utils.SecurityService;
 
 import java.util.Collection;
 import java.util.Optional;
 
 @Service
-public class AccountService {
+public class AccountService extends RestrictedResourceHandler {
 
     private final UserService userService;
 
     private final AccountRepository accRepository;
 
-    public AccountService(AccountRepository repository, UserService userService) {
+    public AccountService(AccountRepository repository, UserService userService, SecurityService securityService) {
+        super(securityService);
         this.accRepository = repository;
         this.userService = userService;
     }
@@ -32,17 +33,19 @@ public class AccountService {
     }
 
     public Account getSingle(Long id) {
-        Optional<Account> account = accRepository.findById(id);
-        if (account.isEmpty()) {
+        Optional<Account> optionalAccount = accRepository.findById(id);
+        if (optionalAccount.isEmpty()) {
             String defaultMsg = "This account does not exist";
             throw new ResourceNotFoundException("NOT_FOUND", "account", defaultMsg, "Account was not found");
         }
-        return account.get();
+        Account account = optionalAccount.get();
+        checkIfCanAccessResource(account.getUser());
+        return account;
     }
 
-    public Account create(SingleAccountDto request, Authentication principal) {
+    public Account create(SingleAccountDto request) {
         validateAccountRequest(request);
-        Long userId = (Long) principal.getAttributes().get("id");
+        Long userId = this.getAuthenticatedUserId();
         User user = userService.getById(userId);
         Account account = new Account();
         account.setName(request.getName());
@@ -50,13 +53,10 @@ public class AccountService {
         return accRepository.save(account);
     }
 
-    public Account update(Long id, SingleAccountDto request, Authentication principal) {
+    public Account update(Long id, SingleAccountDto request) {
         validateAccountRequest(request);
         Account account = getSingle(id);
-        Long userId = (Long) principal.getAttributes().get("id");
-        if (!userId.equals(account.getUser().getId())) {
-            throw new AuthorizationException(principal);
-        }
+        checkIfCanAccessResource(account.getUser());
         account.setName(request.getName());
         return accRepository.update(account);
     }
@@ -70,6 +70,7 @@ public class AccountService {
 
     public void delete(Long id) {
         Account account = getSingle(id);
+        checkIfCanAccessResource(account.getUser());
         accRepository.delete(account);
     }
 }

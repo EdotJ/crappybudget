@@ -1,4 +1,4 @@
-package com.budgeteer.api.annotation;
+package com.budgeteer.api.config;
 
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.DefaultScope;

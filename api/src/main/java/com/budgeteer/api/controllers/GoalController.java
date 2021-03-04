@@ -6,7 +6,6 @@ import com.budgeteer.api.model.Goal;
 import com.budgeteer.api.service.GoalService;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
-import io.micronaut.security.authentication.Authentication;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,9 +21,8 @@ public class GoalController {
     }
 
     @Get
-    public HttpResponse<GoalListDto> getAll(Authentication principal) {
-        Long userId = (Long) principal.getAttributes().get("id");
-        List<SingleGoalDto> goalList = service.getAll(userId).stream()
+    public HttpResponse<GoalListDto> getAll() {
+        List<SingleGoalDto> goalList = service.getAll().stream()
                 .map(SingleGoalDto::new)
                 .collect(Collectors.toList());
         return HttpResponse.ok(new GoalListDto(goalList));
@@ -37,14 +35,14 @@ public class GoalController {
     }
 
     @Post
-    public HttpResponse<SingleGoalDto> create(SingleGoalDto request, Authentication principal) {
-        Goal goal = service.create(request, principal);
+    public HttpResponse<SingleGoalDto> create(SingleGoalDto request) {
+        Goal goal = service.create(request);
         return HttpResponse.created(new SingleGoalDto(goal));
     }
 
     @Put("/{id}")
-    public HttpResponse<SingleGoalDto> update(Long id, SingleGoalDto request, Authentication principal) {
-        Goal goal = service.update(id, request, principal);
+    public HttpResponse<SingleGoalDto> update(Long id, SingleGoalDto request) {
+        Goal goal = service.update(id, request);
         return HttpResponse.ok(new SingleGoalDto(goal));
     }
 

@@ -37,14 +37,14 @@ public class AccountController {
     }
 
     @Post
-    public HttpResponse<SingleAccountDto> create(@Body SingleAccountDto request, Authentication principal) {
-        Account account = accountService.create(request, principal);
+    public HttpResponse<SingleAccountDto> create(@Body SingleAccountDto request) {
+        Account account = accountService.create(request);
         return HttpResponse.created(new SingleAccountDto(account));
     }
 
     @Put(value = "{id}")
-    public HttpResponse<SingleAccountDto> update(Long id, @Body SingleAccountDto request, Authentication principal) {
-        Account account = accountService.update(id, request, principal);
+    public HttpResponse<SingleAccountDto> update(Long id, @Body SingleAccountDto request) {
+        Account account = accountService.update(id, request);
         return HttpResponse.ok(new SingleAccountDto(account));
     }
 

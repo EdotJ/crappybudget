@@ -4,6 +4,7 @@ import com.budgeteer.api.base.AuthenticationExtension;
 import com.budgeteer.api.base.DatabaseCleanupExtension;
 import com.budgeteer.api.base.TestUtils;
 import com.budgeteer.api.dto.ErrorResponse;
+import com.budgeteer.api.dto.account.SingleAccountDto;
 import com.budgeteer.api.dto.category.CategoryListDto;
 import com.budgeteer.api.dto.category.SingleCategoryDto;
 import com.budgeteer.api.model.Category;
@@ -49,13 +50,18 @@ public class CategoryControllerTest {
 
     private User testUser;
     private Category testCategory;
+    private Category additionalCategory;
 
     @BeforeEach
     public void setup() {
         testCategory = TestUtils.createTestCategory();
+        additionalCategory = TestUtils.createTestCategory();
         testUser = userRepository.save(TestUtils.createSecureTestUser());
+        User secondUser = userRepository.save(TestUtils.createAdditionalTestUser());
         testCategory.setUser(testUser);
-        categoryRepository.save(testCategory);
+        testCategory = categoryRepository.save(testCategory);
+        additionalCategory.setUser(secondUser);
+        additionalCategory = categoryRepository.save(additionalCategory);
     }
 
     @Test
@@ -78,6 +84,16 @@ public class CategoryControllerTest {
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isPresent());
         assertEquals("Example Category", response.getBody().get().getName());
+    }
+
+    @Test
+    public void shouldFailFetchingOtherUserCategory() {
+        MutableHttpRequest<Object> request = HttpRequest.GET("/categories/" + additionalCategory.getId())
+                .headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(request, ErrorResponse.class)
+        );
+        assertEquals(HttpStatus.FORBIDDEN, e.getStatus());
     }
 
     @Test
@@ -148,13 +164,36 @@ public class CategoryControllerTest {
     }
 
     @Test
+    public void shouldFailUpdatingOtherUserCategory() {
+        SingleAccountDto dto = new SingleAccountDto();
+        dto.setName("New Category");
+        dto.setUserId(testUser.getId());
+        MutableHttpRequest<SingleAccountDto> req = HttpRequest.PUT("/categories/" + additionalCategory.getId(), dto)
+                .headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(req, ErrorResponse.class)
+        );
+        assertEquals(HttpStatus.FORBIDDEN, e.getStatus());
+    }
+
+    @Test
     public void shouldDeleteCategory() {
         MutableHttpRequest<Object> request = HttpRequest.DELETE("/categories/" + testCategory.getId())
                 .headers(authExtension.getAuthHeader());
         HttpResponse<SingleCategoryDto> response = client.toBlocking().exchange(request, SingleCategoryDto.class);
         assertEquals(HttpStatus.NO_CONTENT, response.getStatus());
-        List<Category> categoryList = categoryRepository.findAll();
+        List<Category> categoryList = categoryRepository.findByUserId(testUser.getId());
         assertEquals(0, categoryList.size());
+    }
+
+    @Test
+    public void shouldFailDeletingOtherUserCategory() {
+        MutableHttpRequest<Object> req = HttpRequest.DELETE("/categories/" + additionalCategory.getId())
+                .headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(req, ErrorResponse.class)
+        );
+        assertEquals(HttpStatus.FORBIDDEN, e.getStatus());
     }
 
     @Test

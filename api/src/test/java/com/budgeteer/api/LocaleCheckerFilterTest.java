@@ -1,4 +1,4 @@
-package com.budgeteer.api.filter;
+package com.budgeteer.api;
 
 import io.micronaut.context.annotation.Property;
 import io.micronaut.core.convert.DefaultConversionService;

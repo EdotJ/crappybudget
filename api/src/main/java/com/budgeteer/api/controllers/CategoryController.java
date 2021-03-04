@@ -39,14 +39,14 @@ public class CategoryController {
     }
 
     @Post
-    public HttpResponse<SingleCategoryDto> create(SingleCategoryDto request, Authentication principal) {
-        Category category = service.create(request, principal);
+    public HttpResponse<SingleCategoryDto> create(SingleCategoryDto request) {
+        Category category = service.create(request);
         return HttpResponse.created(new SingleCategoryDto(category));
     }
 
     @Put("/{id}")
-    public HttpResponse<SingleCategoryDto> update(Long id, SingleCategoryDto request, Authentication principal) {
-        Category updatedCategory = service.update(id, request, principal);
+    public HttpResponse<SingleCategoryDto> update(Long id, SingleCategoryDto request) {
+        Category updatedCategory = service.update(id, request);
         return HttpResponse.ok(new SingleCategoryDto(updatedCategory));
     }
 
