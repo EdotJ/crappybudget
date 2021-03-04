@@ -1,7 +1,7 @@
 package com.budgeteer.api.service;
 
 
-import com.budgeteer.api.annotation.Service;
+import com.budgeteer.api.config.Service;
 import com.budgeteer.api.dto.user.SingleUserDto;
 import com.budgeteer.api.exception.BadRequestException;
 import com.budgeteer.api.exception.DuplicateResourceException;
@@ -9,20 +9,24 @@ import com.budgeteer.api.exception.ResourceNotFoundException;
 import com.budgeteer.api.model.User;
 import com.budgeteer.api.repository.UserRepository;
 import com.budgeteer.api.security.PasswordManager;
+import com.budgeteer.api.security.RestrictedResourceHandler;
 import io.micronaut.core.util.StringUtils;
+import io.micronaut.security.authentication.AuthorizationException;
+import io.micronaut.security.utils.SecurityService;
 import org.apache.commons.validator.routines.EmailValidator;
 
 import java.util.Collection;
 import java.util.Optional;
 
 @Service
-public class UserService {
+public class UserService extends RestrictedResourceHandler {
 
     private final UserRepository repository;
 
     private final PasswordManager passwordManager;
 
-    public UserService(UserRepository repository, PasswordManager passwordManager) {
+    public UserService(UserRepository repository, PasswordManager passwordManager, SecurityService securityService) {
+        super(securityService);
         this.repository = repository;
         this.passwordManager = passwordManager;
     }
@@ -32,6 +36,9 @@ public class UserService {
     }
 
     public User getById(Long id) {
+        if (!getAuthenticatedUserId().equals(id)) {
+            throw new AuthorizationException(securityService.getAuthentication().orElse(null));
+        }
         Optional<User> optionalUser = repository.findById(id);
         if (optionalUser.isEmpty()) {
             throw new ResourceNotFoundException("NOT_FOUND", "user", "This user does not exist", "User was not found");
@@ -78,7 +85,7 @@ public class UserService {
     }
 
     public User update(Long id, SingleUserDto request) {
-        validateUserUpdateRequest(request);
+        validateUserUpdateRequest(request, id);
         User user = this.getById(id);
         user.setEmail(request.getEmail());
         if (StringUtils.hasText(request.getPassword())) {
@@ -87,7 +94,10 @@ public class UserService {
         return repository.update(user);
     }
 
-    private void validateUserUpdateRequest(SingleUserDto request) {
+    private void validateUserUpdateRequest(SingleUserDto request, Long id) {
+        if (!getAuthenticatedUserId().equals(id)) {
+            throw new AuthorizationException(securityService.getAuthentication().orElse(null));
+        }
         validateEmail(request.getEmail());
         validateUnique(request);
     }
@@ -113,6 +123,9 @@ public class UserService {
     }
 
     public void delete(Long id) {
+        if (!getAuthenticatedUserId().equals(id)) {
+            throw new AuthorizationException(securityService.getAuthentication().orElse(null));
+        }
         User user = getById(id);
         repository.delete(user);
     }

@@ -4,6 +4,7 @@ import io.micronaut.context.MessageSource;
 import io.micronaut.context.i18n.ResourceBundleMessageSource;
 
 import javax.inject.Singleton;
+import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -22,9 +23,9 @@ public class TranslatedMessageSource {
         return messageSource;
     }
 
-    public String getMessageWithDefaultLocale(String property, String defaultMessage) {
+    public String getMessageWithDefaultLocale(String property, String defaultMessage, Object... args) {
         MessageSource.MessageContext messageContext = MessageSource.MessageContext.of(Locale.getDefault());
-        Optional<String> localized = messageSource.getMessage(property, messageContext);
-        return localized.orElse(defaultMessage);
+        String localized = messageSource.getRawMessage(property, messageContext, defaultMessage);
+        return MessageFormat.format(localized, args);
     }
 }

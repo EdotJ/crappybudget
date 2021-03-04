@@ -25,6 +25,13 @@ public class TestUtils {
         return testUser;
     }
 
+    public static User createAdditionalTestUser() {
+        User user = createSecureTestUser();
+        user.setUsername("secondTestUser");
+        user.setEmail("secondTestUser@mail.com");
+        return user;
+    }
+
     public static Account createTestAccount(User user) {
         Account account = createTestAccount();
         account.setUser(user);

@@ -1,6 +1,6 @@
 package com.budgeteer.api.service;
 
-import com.budgeteer.api.annotation.Service;
+import com.budgeteer.api.config.Service;
 import com.budgeteer.api.dto.entry.SingleEntryDto;
 import com.budgeteer.api.exception.BadRequestException;
 import com.budgeteer.api.exception.ResourceNotFoundException;
@@ -9,16 +9,16 @@ import com.budgeteer.api.model.Category;
 import com.budgeteer.api.model.Entry;
 import com.budgeteer.api.model.User;
 import com.budgeteer.api.repository.EntryRepository;
+import com.budgeteer.api.security.RestrictedResourceHandler;
 import io.micronaut.core.util.StringUtils;
-import io.micronaut.security.authentication.Authentication;
-import io.micronaut.security.authentication.AuthorizationException;
+import io.micronaut.security.utils.SecurityService;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class EntryService {
+public class EntryService extends RestrictedResourceHandler {
 
     private final EntryRepository entryRepository;
 
@@ -31,7 +31,9 @@ public class EntryService {
     public EntryService(EntryRepository entryRepository,
                         UserService userService,
                         AccountService accountService,
-                        CategoryService categoryService) {
+                        CategoryService categoryService,
+                        SecurityService securityService) {
+        super(securityService);
         this.entryRepository = entryRepository;
         this.userService = userService;
         this.accountService = accountService;
@@ -40,26 +42,30 @@ public class EntryService {
 
     public List<Entry> getAllByAccount(Long accountId) {
         Account account = accountService.getSingle(accountId);
+        checkIfCanAccessResource(account.getUser());
         return entryRepository.findByAccountId(account.getId());
     }
 
-    public List<Entry> getAllByUser(Long userId) {
-        User user = userService.getById(userId);
+    public List<Entry> getAllByUser() {
+        User user = userService.getById(getAuthenticatedUserId());
         return entryRepository.findByUserId(user.getId());
     }
 
     public Entry getSingle(Long id) {
-        Optional<Entry> entry = entryRepository.findById(id);
-        if (entry.isEmpty()) {
+        Optional<Entry> optionalEntry = entryRepository.findById(id);
+        if (optionalEntry.isEmpty()) {
             throw new ResourceNotFoundException("NOT_FOUND", "entry", "This entry does not exist", "Entry not found");
         }
-        return entry.get();
+        Entry entry = optionalEntry.get();
+        checkIfCanAccessResource(entry.getUser());
+        return optionalEntry.get();
     }
 
     public Entry create(SingleEntryDto request) {
         validateEntryRequest(request);
         Account account = accountService.getSingle(request.getAccountId());
         User user = account.getUser();
+        checkIfCanAccessResource(user);
         Category category = categoryService.getSingle(request.getCategoryId());
         // TODO: reduce ridiculous construction
         Entry entry = new Entry();
@@ -74,14 +80,11 @@ public class EntryService {
         return entryRepository.save(entry);
     }
 
-    public Entry update(Long id, SingleEntryDto request, Authentication principal) {
+    public Entry update(Long id, SingleEntryDto request) {
         validateEntryRequest(request);
         Entry entry = getSingle(id);
         User user = entry.getUser();
-        Long userId = (Long) principal.getAttributes().get("id");
-        if (!userId.equals(user.getId())) {
-            throw new AuthorizationException(principal);
-        }
+        checkIfCanAccessResource(user);
         Category category = entry.getCategory();
         if (!request.getCategoryId().equals(category.getId())) {
             category = categoryService.getSingle(request.getCategoryId());
@@ -98,6 +101,10 @@ public class EntryService {
         entry.setAccount(account);
         entry.setCategory(category);
         return entryRepository.update(entry);
+    }
+
+    public void saveAllEntries(List<Entry> entries) {
+        entryRepository.saveAll(entries);
     }
 
     private void validateEntryRequest(SingleEntryDto request) {
@@ -128,6 +135,7 @@ public class EntryService {
 
     public void delete(Long id) {
         Entry entry = getSingle(id);
+        checkIfCanAccessResource(entry.getUser());
         entryRepository.delete(entry);
     }
 }

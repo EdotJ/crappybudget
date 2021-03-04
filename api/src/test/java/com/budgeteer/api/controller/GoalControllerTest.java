@@ -54,19 +54,25 @@ public class GoalControllerTest {
     private RxHttpClient client;
 
     private Goal testGoal;
+    private Goal additionalGoal;
     private User testUser;
     private Account testAccount;
 
     @BeforeEach
     public void setup() {
         testGoal = TestUtils.createTestGoal();
+        additionalGoal = TestUtils.createTestGoal();
         testUser = userRepository.save(TestUtils.createSecureTestUser());
+        User secondUser = userRepository.save(TestUtils.createAdditionalTestUser());
         testAccount = TestUtils.createTestAccount();
         testAccount.setUser(testUser);
         testAccount = accountRepository.save(testAccount);
         testGoal.setUser(testUser);
         testGoal.setAccount(testAccount);
         testGoal = goalRepository.save(testGoal);
+        additionalGoal.setAccount(testAccount);
+        additionalGoal.setUser(secondUser);
+        additionalGoal = goalRepository.save(additionalGoal);
     }
 
     @Test
@@ -91,6 +97,16 @@ public class GoalControllerTest {
         assertEquals("Tesla #2060", response.getBody().get().getName());
         assertEquals(LocalDate.parse("2060-01-01"), response.getBody().get().getDate());
         assertEquals(BigDecimal.valueOf(53990), response.getBody().get().getValue());
+    }
+
+    @Test
+    public void shouldFailFetchingOtherUserGoal() {
+        MutableHttpRequest<Object> request = HttpRequest.GET("/goals/" + additionalGoal.getId())
+                .headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(request, ErrorResponse.class)
+        );
+        assertEquals(HttpStatus.FORBIDDEN, e.getStatus());
     }
 
     @Test
@@ -166,13 +182,34 @@ public class GoalControllerTest {
     }
 
     @Test
+    public void shouldFailUpdatingOtherUserGoal() {
+        SingleGoalDto dto = getTestGoalDto();
+        MutableHttpRequest<SingleGoalDto> request = HttpRequest.PUT("/goals/" + additionalGoal.getId(), dto)
+                .headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(request, ErrorResponse.class)
+        );
+        assertEquals(HttpStatus.FORBIDDEN, e.getStatus());
+    }
+
+    @Test
     public void shouldDeleteGoal() {
         MutableHttpRequest<Object> request = HttpRequest.DELETE("/goals/" + testGoal.getId())
                 .headers(authExtension.getAuthHeader());
         HttpResponse<SingleGoalDto> response = client.toBlocking().exchange(request, SingleGoalDto.class);
         assertEquals(HttpStatus.NO_CONTENT, response.getStatus());
-        List<Goal> goalList = goalRepository.findAll();
+        List<Goal> goalList = goalRepository.findByUserId(testUser.getId());
         assertEquals(0, goalList.size());
+    }
+
+    @Test
+    public void shouldFailDeletingOtherUserGoal() {
+        MutableHttpRequest<Object> request = HttpRequest.DELETE("/goals/" + additionalGoal.getId())
+                .headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(request, ErrorResponse.class)
+        );
+        assertEquals(HttpStatus.FORBIDDEN, e.getStatus());
     }
 
     @Test

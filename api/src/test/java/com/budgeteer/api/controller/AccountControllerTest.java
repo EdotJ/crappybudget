@@ -6,6 +6,7 @@ import com.budgeteer.api.base.TestUtils;
 import com.budgeteer.api.dto.ErrorResponse;
 import com.budgeteer.api.dto.account.AccountListDto;
 import com.budgeteer.api.dto.account.SingleAccountDto;
+import com.budgeteer.api.dto.goal.SingleGoalDto;
 import com.budgeteer.api.model.Account;
 import com.budgeteer.api.model.User;
 import com.budgeteer.api.repository.AccountRepository;
@@ -47,14 +48,19 @@ public class AccountControllerTest {
     private AccountRepository accountRepository;
 
     private Account testAccount;
+    private Account additionalAccount;
     private User testUser;
 
     @BeforeEach
     public void setup() {
         testAccount = TestUtils.createTestAccount();
+        additionalAccount = TestUtils.createTestAccount();
         testUser = userRepository.save(TestUtils.createSecureTestUser());
+        User secondUser = userRepository.save(TestUtils.createAdditionalTestUser());
         testAccount.setUser(testUser);
-        accountRepository.save(testAccount);
+        testAccount = accountRepository.save(testAccount);
+        additionalAccount.setUser(secondUser);
+        additionalAccount = accountRepository.save(additionalAccount);
     }
 
     @Test
@@ -82,6 +88,16 @@ public class AccountControllerTest {
         assertNotNull(account);
         assertEquals("Test Account", account.getName());
         assertEquals(testAccount.getId(), account.getUserId());
+    }
+
+    @Test
+    public void shouldFailFetchingOtherUserAccount() {
+        MutableHttpRequest<Object> request = HttpRequest.GET("/accounts/" + additionalAccount.getId())
+                .headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(request, ErrorResponse.class)
+        );
+        assertEquals(HttpStatus.FORBIDDEN, e.getStatus());
     }
 
     @Test
@@ -113,6 +129,19 @@ public class AccountControllerTest {
     }
 
     @Test
+    public void shouldFailUpdatingOtherUserAccount() {
+        SingleAccountDto dto = new SingleAccountDto();
+        dto.setName("New Account Renamed");
+        dto.setUserId(testUser.getId());
+        MutableHttpRequest<SingleAccountDto> request = HttpRequest.PUT("/accounts/" + additionalAccount.getId(), dto)
+                .headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(request, ErrorResponse.class)
+        );
+        assertEquals(HttpStatus.FORBIDDEN, e.getStatus());
+    }
+
+    @Test
     public void shouldInsertNewAccount() {
         SingleAccountDto dto = new SingleAccountDto();
         dto.setName("New Account");
@@ -134,8 +163,18 @@ public class AccountControllerTest {
                 .headers(authExtension.getAuthHeader());
         HttpResponse<SingleAccountDto> response = client.toBlocking().exchange(request, SingleAccountDto.class);
         assertEquals(HttpStatus.NO_CONTENT, response.getStatus());
-        List<Account> accounts = accountRepository.findAll();
+        List<Account> accounts = accountRepository.findByUserId(testUser.getId());
         assertEquals(0, accounts.size());
+    }
+
+    @Test
+    public void shouldFailDeletingOtherUserAccount() {
+        MutableHttpRequest<Object> request = HttpRequest.DELETE("/accounts/" + additionalAccount.getId())
+                .headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () ->
+                client.toBlocking().exchange(request, ErrorResponse.class)
+        );
+        assertEquals(HttpStatus.FORBIDDEN, e.getStatus());
     }
 
     @Test
