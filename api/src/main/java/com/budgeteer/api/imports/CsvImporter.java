@@ -10,6 +10,7 @@ import com.budgeteer.api.service.EntryService;
 import com.opencsv.CSVReader;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.HeaderColumnNameTranslateMappingStrategy;
+import io.micronaut.context.annotation.Value;
 import io.micronaut.core.type.Argument;
 import io.micronaut.core.util.StringUtils;
 import io.micronaut.security.authentication.AuthenticationException;
@@ -39,6 +40,9 @@ import java.util.stream.Collectors;
 public class CsvImporter implements Importer<CsvImportRequest, CsvImporterData> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Value("${importer.batchSize:1000}")
+    private int importBatchSize;
 
     @Inject
     private EntryService entryService;
@@ -142,6 +146,10 @@ public class CsvImporter implements Importer<CsvImportRequest, CsvImporterData> 
             }
             entry.setUser(account.getUser());
             entries.add(entry);
+            if (entries.size() % importBatchSize == 0 && entries.size() > 0) {
+                entryService.saveAllEntries(entries);
+                entries.clear();
+            }
         }
         entryService.saveAllEntries(entries);
     }
