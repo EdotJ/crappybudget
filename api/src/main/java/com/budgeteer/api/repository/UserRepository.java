@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public abstract class UserRepository implements CrudRepository<User, Long> {
+public interface UserRepository extends CrudRepository<User, Long> {
 
     @NonNull
-    public abstract List<User> findAll();
+    List<User> findAll();
 
-    public abstract Optional<User> findByEmail(String email);
+    Optional<User> findByEmail(String email);
 
-    public abstract Optional<User> findByUsername(String username);
+    Optional<User> findByUsername(String username);
 }

@@ -16,7 +16,15 @@ export default {
     };
     return request.post("users", body);
   },
-  getUserInfo(userId) {
-    return request.get(`users/${userId}`);
+  refreshToken(token) {
+    const body = {
+      grant_type: "refresh_token",
+      refresh_token: token,
+    };
+    return request.post("refresh_token", body, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
   },
 };

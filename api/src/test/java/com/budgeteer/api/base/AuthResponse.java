@@ -15,6 +15,9 @@ public class AuthResponse {
     @JsonProperty("expires_in")
     private Long expiresIn;
 
+    @JsonProperty("refresh_token")
+    private String refreshToken;
+
     public String getUsername() {
         return username;
     }
@@ -45,5 +48,13 @@ public class AuthResponse {
 
     public void setExpiresIn(Long expiresIn) {
         this.expiresIn = expiresIn;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 }
