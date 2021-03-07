@@ -8,11 +8,11 @@ import io.micronaut.data.repository.CrudRepository;
 import java.util.List;
 
 @Repository
-public abstract class CategoryRepository implements CrudRepository<Category, Long> {
+public interface CategoryRepository extends CrudRepository<Category, Long> {
 
     @NonNull
-    public abstract List<Category> findAll();
+    List<Category> findAll();
 
     @NonNull
-    public abstract List<Category> findByUserId(Long id);
+    List<Category> findByUserId(Long id);
 }

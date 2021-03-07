@@ -10,18 +10,18 @@ import io.micronaut.data.repository.CrudRepository;
 import java.util.List;
 
 @Repository
-public abstract class EntryRepository implements CrudRepository<Entry, Long> {
+public interface EntryRepository extends CrudRepository<Entry, Long> {
 
     @NonNull
-    public abstract List<Entry> findAll();
+    List<Entry> findAll();
 
     @Join(value = "account", type = Join.Type.FETCH)
     @Join(value = "user", type = Join.Type.FETCH)
     @Join(value = "category", type = Join.Type.FETCH)
-    public abstract List<Entry> findByUserId(Long id);
+    List<Entry> findByUserId(Long id);
 
     @Join(value = "account", type = Join.Type.FETCH)
     @Join(value = "user", type = Join.Type.FETCH)
     @Join(value = "category", type = Join.Type.FETCH)
-    public abstract List<Entry> findByAccountId(Long accountId);
+    List<Entry> findByAccountId(Long accountId);
 }

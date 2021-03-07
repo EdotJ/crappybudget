@@ -10,7 +10,7 @@ import javax.inject.Inject;
 
 @MicronautTest
 @Property(name = "flyway.enabled", value = "false")
-class ApiTest {
+class ApplicationTest {
 
     @Inject
     EmbeddedApplication<?> application;

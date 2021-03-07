@@ -19,7 +19,7 @@ public class InternalServerExceptionHandler extends BaseExceptionHandler<Interna
     public HttpResponse<ErrorResponse> handle(HttpRequest request, InternalServerException exception) {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setCode("INTERNAL_ERROR");
-        String defaultMessage = "Internal server error has occured. Contact administrator";
+        String defaultMessage = "Internal server error has occurred. Contact administrator";
         String msg = messageSource.getMessageWithDefaultLocale("INTERNAL_ERROR.text", defaultMessage);
         errorResponse.setMessage(msg);
         errorResponse.setDetail(exception.getMessage());

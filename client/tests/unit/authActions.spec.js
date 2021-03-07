@@ -4,7 +4,7 @@ import { testAction } from "../helpers";
 
 jest.mock("@/api");
 
-api.auth.login.mockResolvedValue({ data: { access_token: "AccessToken" } });
+api.auth.login.mockResolvedValue({ data: { access_token: "AccessToken", refresh_token: "RefreshToken" } });
 api.auth.register.mockResolvedValue({ data: { id: 5, username: "TestUser", email: "TestEmail@Gmail.com" } });
 
 describe("auth actions", () => {
@@ -13,7 +13,10 @@ describe("auth actions", () => {
       actions.login,
       { username: "TestUser", password: "UnsecurePassword" },
       {},
-      [{ type: "SET_ACCESS_TOKEN", payload: "AccessToken" }],
+      [
+        { type: "SET_ACCESS_TOKEN", payload: "AccessToken" },
+        { type: "SET_REFRESH_TOKEN", payload: "RefreshToken" },
+      ],
       done
     );
   });

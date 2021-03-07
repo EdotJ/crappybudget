@@ -29,7 +29,7 @@ public class CustomAuthenticationExceptionHandler extends AuthenticationExceptio
     public MutableHttpResponse<?> handle(HttpRequest request, AuthenticationException exception) {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setCode("AUTH_ERROR");
-        String defaultMessage = "Authorization error occured. Please check credentials or try again later";
+        String defaultMessage = "Authorization error occurred. Please check credentials and try again later";
         String property = errorResponse.getCode() + "." + exception.getMessage();
         String msg = messageSource.getMessageWithDefaultLocale(property, defaultMessage);
         errorResponse.setMessage(msg);
