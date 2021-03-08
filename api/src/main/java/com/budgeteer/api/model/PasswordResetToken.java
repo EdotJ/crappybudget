@@ -4,8 +4,8 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "verification_tokens")
-public class VerificationToken {
+@Table(name = "password_reset_tokens")
+public class PasswordResetToken {
     private static final int EXPIRATION = 60 * 24;
 
     @Id
@@ -20,7 +20,13 @@ public class VerificationToken {
 
     private LocalDateTime expiration;
 
-    public VerificationToken() {
+    public PasswordResetToken() {
+        expiration = calculateExpiryDate();
+    }
+
+    public PasswordResetToken(User user, String token) {
+        this.user = user;
+        this.value = token;
         expiration = calculateExpiryDate();
     }
 
@@ -52,7 +58,7 @@ public class VerificationToken {
         return expiration;
     }
 
-    public void setExpiration(LocalDateTime expiration) {
-        this.expiration = expiration;
+    public void setExpiration(LocalDateTime expiryDate) {
+        this.expiration = expiryDate;
     }
 }

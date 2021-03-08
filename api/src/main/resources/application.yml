@@ -56,6 +56,10 @@ micronaut:
         access:
           isAnonymous()
       -
+        pattern: ${api.base-path}/passwordReset
+        access:
+          isAnonymous()
+      -
         pattern: ${api.base-path}/**
         access:
           - ROLE_VERIFIED
@@ -110,3 +114,4 @@ emailprovider:
     username: ${EMAIL_USERNAME}
     password: ${EMAIL_PASSWORD}
     emailaddress: budgetboi@mailtrap.io
+  enabled: false

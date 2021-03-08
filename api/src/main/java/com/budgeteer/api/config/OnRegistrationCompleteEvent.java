@@ -3,8 +3,6 @@ package com.budgeteer.api.config;
 import com.budgeteer.api.model.User;
 import io.micronaut.context.event.ApplicationEvent;
 
-import java.util.Locale;
-
 public class OnRegistrationCompleteEvent extends ApplicationEvent {
 
     private String appUrl;

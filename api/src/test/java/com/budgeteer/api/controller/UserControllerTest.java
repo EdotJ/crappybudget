@@ -4,13 +4,10 @@ import com.budgeteer.api.base.AuthenticationExtension;
 import com.budgeteer.api.base.DatabaseCleanupExtension;
 import com.budgeteer.api.base.TestUtils;
 import com.budgeteer.api.dto.ErrorResponse;
-import com.budgeteer.api.dto.goal.SingleGoalDto;
 import com.budgeteer.api.dto.user.SingleUserDto;
 import com.budgeteer.api.dto.user.UserListDto;
 import com.budgeteer.api.model.User;
-import com.budgeteer.api.model.VerificationToken;
 import com.budgeteer.api.repository.UserRepository;
-import com.budgeteer.api.repository.VerificationTokenRepository;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -25,8 +22,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import javax.inject.Inject;
-import javax.transaction.Transactional;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 

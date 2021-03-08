@@ -28,9 +28,9 @@ public class RegistrationListener implements ApplicationEventListener<OnRegistra
         String recipientEmail = user.getEmail();
         String subject = "Registration Confirmation on Budget Site";
         String confirmationUrl = "<a>" + event.getAppUrl() + "confirm?token=" + token + "</a>";
-        String message = "<h1> You're one step closer to managing your finances... </h1>" +
-                "<b>Confirm your registration on " + confirmationUrl + "</b>" +
-                "<p><i>This message is absolutely shady on purpose </i></p>";
+        String message = "<h1> You're one step closer to managing your finances... </h1>"
+                + "<b>Confirm your registration on " + confirmationUrl + "</b>"
+                + "<p><i>This message is absolutely shady on purpose </i></p>";
 
         emailService.sendEmail(recipientEmail, subject, message);
     }

@@ -1,7 +1,7 @@
 package com.budgeteer.api.service;
 
+import com.budgeteer.api.config.EmailConfig;
 import com.budgeteer.api.config.Service;
-import io.micronaut.context.annotation.Property;
 import io.micronaut.context.annotation.Value;
 import org.simplejavamail.api.email.Email;
 import org.simplejavamail.api.mailer.Mailer;
@@ -13,23 +13,39 @@ public class EmailService {
 
     private final Mailer mailer;
 
-    @Value("${emailprovider.server.emailaddress}")
-    protected String fromEmail;
+    private final String fromEmail;
 
-    public EmailService(@Value("${emailprovider.server.host}") String host,
-                        @Value("${emailprovider.server.port}") int port,
-                        @Value("${emailprovider.server.username}") String username,
-                        @Value("${emailprovider.server.password}") String password) {
-        mailer = MailerBuilder.withSMTPServer(host, port, username, password).buildMailer();
+    private final boolean isEnabled;
+
+    public EmailService(EmailConfig emailConfig) {
+        isEnabled = emailConfig.isEnabled();
+        if (emailConfig.isEnabled()) {
+            EmailConfig.ServerConfig serverConfig = emailConfig.getServerConfig();
+            fromEmail = serverConfig.getEmailAddress();
+            mailer = MailerBuilder
+                    .withSMTPServer(serverConfig.getHost(),
+                            serverConfig.getPort(),
+                            serverConfig.getUsername(),
+                            serverConfig.getPassword()).buildMailer();
+        } else {
+            fromEmail = "budgetsite@genericmail.com";
+            mailer = null;
+        }
     }
 
     public void sendEmail(String recipient, String subject, String message) {
-        Email email = EmailBuilder.startingBlank()
-                .from(fromEmail)
-                .to(recipient)
-                .withSubject(subject)
-                .withHTMLText(message)
-                .buildEmail();
-        mailer.sendMail(email);
+        if (mailer != null) {
+            Email email = EmailBuilder.startingBlank()
+                    .from(fromEmail)
+                    .to(recipient)
+                    .withSubject(subject)
+                    .withHTMLText(message)
+                    .buildEmail();
+            mailer.sendMail(email);
+        }
+    }
+
+    public boolean isEnabled() {
+        return isEnabled;
     }
 }

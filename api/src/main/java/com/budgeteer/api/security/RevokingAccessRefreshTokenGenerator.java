@@ -34,15 +34,7 @@ public class RevokingAccessRefreshTokenGenerator extends DefaultAccessRefreshTok
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     RefreshTokenRepository tokenRepository;
-    /**
-     * @param accessTokenConfiguration The access token generator config
-     * @param tokenRenderer            The token renderer
-     * @param tokenGenerator           The token generator
-     * @param beanContext              Bean Context
-     * @param refreshTokenGenerator    The refresh token generator
-     * @param claimsGenerator          Claims generator
-     * @param eventPublisher           The Application event publisher
-     */
+
     public RevokingAccessRefreshTokenGenerator(AccessTokenConfiguration accessTokenConfiguration,
                                                TokenRenderer tokenRenderer,
                                                TokenGenerator tokenGenerator,
@@ -51,14 +43,16 @@ public class RevokingAccessRefreshTokenGenerator extends DefaultAccessRefreshTok
                                                ClaimsGenerator claimsGenerator,
                                                ApplicationEventPublisher eventPublisher,
                                                RefreshTokenRepository tokenRepository) {
-        super(accessTokenConfiguration, tokenRenderer, tokenGenerator, beanContext, refreshTokenGenerator, claimsGenerator, eventPublisher);
+        super(accessTokenConfiguration, tokenRenderer, tokenGenerator,
+                beanContext, refreshTokenGenerator, claimsGenerator, eventPublisher);
         this.tokenRepository = tokenRepository;
     }
 
     @NonNull
     @Override
     public Optional<AccessRefreshToken> generate(@Nullable String refreshToken, @NonNull UserDetails userDetails) {
-        Optional<String> optionalAccessToken = tokenGenerator.generateToken(userDetails, accessTokenExpiration(userDetails));
+        Integer expiration = accessTokenExpiration(userDetails);
+        Optional<String> optionalAccessToken = tokenGenerator.generateToken(userDetails, expiration);
         if (optionalAccessToken.isEmpty()) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Failed to generate access token for user {}", userDetails.getUsername());
@@ -78,7 +72,8 @@ public class RevokingAccessRefreshTokenGenerator extends DefaultAccessRefreshTok
         refreshToken = optionalRefreshToken.get();
         eventPublisher.publishEvent(new RefreshTokenGeneratedEvent(userDetails, key));
         eventPublisher.publishEvent(new AccessTokenGeneratedEvent(accessToken));
-        return Optional.of(tokenRenderer.render(userDetails, accessTokenExpiration(userDetails), accessToken, refreshToken));
+        expiration = accessTokenExpiration(userDetails);
+        return Optional.of(tokenRenderer.render(userDetails, expiration, accessToken, refreshToken));
     }
 
     private void revokeOldToken(String refreshToken) {
