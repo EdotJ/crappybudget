@@ -10,6 +10,7 @@ import org.apache.commons.validator.routines.EmailValidator;
 import org.reactivestreams.Publisher;
 
 import javax.inject.Singleton;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,7 +40,11 @@ public class PasswordAuthenticationProvider implements AuthenticationProvider {
             if (authFailed.isPresent()) {
                 emitter.onError(new AuthenticationException(authFailed.get()));
             } else {
-                emitter.onSuccess(new IdentifierUserDetails(user.getUsername(), List.of(), user.getId()));
+                List<String> roles = new ArrayList<>();
+                if (user.isVerified()) {
+                    roles.add("ROLE_VERIFIED");
+                }
+                emitter.onSuccess(new IdentifierUserDetails(user.getUsername(), roles, user.getId()));
             }
         }).toFlowable();
     }

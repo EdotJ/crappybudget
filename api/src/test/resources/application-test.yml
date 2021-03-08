@@ -5,3 +5,11 @@ datasources:
 micronaut:
   security:
     enabled: true
+
+email:
+  server:
+    host: ${EMAIL_HOST:smtp.mailtrap.io}
+    port: ${EMAIL_PORT:2525}
+    username: ${EMAIL_USERNAME}
+    password: ${EMAIL_PASSWORD}
+    emailaddress: budgetboi@mailtrap.io

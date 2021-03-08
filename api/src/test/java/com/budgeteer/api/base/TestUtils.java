@@ -16,6 +16,7 @@ public class TestUtils {
         testUser.setEmail(TEST_USER_EMAIL);
         testUser.setPassword(TEST_USER_PASSWORD);
         testUser.setUsername(TEST_USER_USERNAME);
+        testUser.setIsVerified(true);
         return testUser;
     }
 
@@ -29,6 +30,7 @@ public class TestUtils {
         User user = createSecureTestUser();
         user.setUsername("secondTestUser");
         user.setEmail("secondTestUser@mail.com");
+        user.setIsVerified(false);
         return user;
     }
 

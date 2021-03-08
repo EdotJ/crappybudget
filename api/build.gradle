@@ -37,6 +37,7 @@ dependencies {
     runtimeOnly("com.h2database:h2")
     runtimeOnly("ch.qos.logback:logback-classic")
     implementation("com.opencsv:opencsv:5.3")
+    implementation("org.simplejavamail:simple-java-mail:6.5.0")
 
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.1.0'
     testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '2.23.0'
