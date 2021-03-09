@@ -3,5 +3,16 @@ datasources:
     url: "jdbc:h2:mem:default;DB_CLOSE_ON_EXIT=true;database_to_upper=false"
 
 micronaut:
+  server:
+    port: 65114
   security:
     enabled: true
+
+emailprovider:
+  server:
+    host: ${EMAIL_HOST:smtp.mailtrap.io}
+    port: ${EMAIL_PORT:2525}
+    username: ${EMAIL_USERNAME}
+    password: ${EMAIL_PASSWORD}
+    emailaddress: budgetboi@mailtrap.io
+  enabled: false

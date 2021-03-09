@@ -4,7 +4,6 @@ import com.budgeteer.api.base.AuthenticationExtension;
 import com.budgeteer.api.base.DatabaseCleanupExtension;
 import com.budgeteer.api.base.TestUtils;
 import com.budgeteer.api.dto.ErrorResponse;
-import com.budgeteer.api.dto.goal.SingleGoalDto;
 import com.budgeteer.api.dto.user.SingleUserDto;
 import com.budgeteer.api.dto.user.UserListDto;
 import com.budgeteer.api.model.User;

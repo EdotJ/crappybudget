@@ -22,8 +22,12 @@ public class User {
     @NotNull
     private String password;
 
-    public User() {
+    @NotNull
+    @Column(name = "verified")
+    private Boolean isVerified;
 
+    public User() {
+        isVerified = false;
     }
 
     public User(@NotNull @Email String email, @NotNull String username, @NotNull String password) {
@@ -58,5 +62,13 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Boolean isVerified() {
+        return isVerified;
+    }
+
+    public void setIsVerified(Boolean verified) {
+        this.isVerified = verified;
     }
 }

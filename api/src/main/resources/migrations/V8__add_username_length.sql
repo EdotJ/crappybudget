@@ -1,0 +1,1 @@
+ALTER TABLE `users` ALTER COLUMN `username` VARCHAR(60) NOT NULL;

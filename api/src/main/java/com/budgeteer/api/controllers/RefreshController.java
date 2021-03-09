@@ -51,7 +51,8 @@ public class RefreshController implements RefreshTokenPersistence {
                 handleToken(emitter, tokenOpt);
             } else {
                 String msg = "Refresh token not found";
-                emitter.onError(new OauthErrorResponseException(IssuingAnAccessTokenErrorCode.INVALID_GRANT, msg, null));
+                IssuingAnAccessTokenErrorCode errorCode = IssuingAnAccessTokenErrorCode.INVALID_GRANT;
+                emitter.onError(new OauthErrorResponseException(errorCode, msg, null));
             }
         }, BackpressureStrategy.ERROR);
     }

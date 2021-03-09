@@ -4,6 +4,7 @@ import com.budgeteer.api.config.TranslatedMessageSource;
 import com.budgeteer.api.dto.ErrorResponse;
 import com.budgeteer.api.exception.BaseException;
 import io.micronaut.context.annotation.Requires;
+import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.server.exceptions.ExceptionHandler;
@@ -17,6 +18,14 @@ public abstract class BaseExceptionHandler<EXC extends Throwable>
 
     @Inject
     TranslatedMessageSource messageSource;
+
+    @Override
+    public HttpResponse<ErrorResponse> handle(HttpRequest request, EXC exception) {
+        if (exception instanceof BaseException) {
+            return HttpResponse.badRequest().body(getErrorResponse((BaseException) exception));
+        }
+        return HttpResponse.badRequest();
+    }
 
     protected ErrorResponse getErrorResponse(BaseException exception) {
         ErrorResponse errorResponse = new ErrorResponse();
