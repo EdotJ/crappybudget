@@ -19,24 +19,26 @@ public interface EntryRepository extends PageableRepository<Entry, Long> {
 
     @Join(value = "account", type = Join.Type.FETCH)
     @Join(value = "user", type = Join.Type.FETCH)
-    List<Entry>  findByUserIdOrderByDateDesc(Long id);
+    List<Entry> findByUserIdOrderByDateDesc(Long id);
 
     @Join(value = "account", type = Join.Type.FETCH)
     @Join(value = "user", type = Join.Type.FETCH)
-    Page<Entry>  findByUserIdOrderByDateDesc(Long id, @Nullable Pageable pageable);
+    Page<Entry> findByUserIdOrderByDateDesc(Long id, @Nullable Pageable pageable);
 
     @Join(value = "account", type = Join.Type.FETCH)
     @Join(value = "user", type = Join.Type.FETCH)
-    Page<Entry>  findByAccountIdOrderByDateDesc(Long accountId, @Nullable Pageable pageable);
+    Page<Entry> findByAccountIdOrderByDateDesc(Long accountId, @Nullable Pageable pageable);
 
     Page<Entry> findByAccountIdAndDateBetweenOrderByDateDesc(Long accountId,
                                                              LocalDate start,
                                                              LocalDate end,
                                                              @Nullable Pageable pageable);
 
-    @Query("select sum(case when e.isExpense = true then (e.value * -1) else e.value end)  from Entry e where e.user.id = :userId")
+    @Query("select sum(case when e.isExpense = true then (e.value * -1) else e.value end)  from Entry e "
+            + "where e.user.id = :userId")
     Optional<BigDecimal> findSumValueByUserId(Long userId);
 
-    @Query("select sum(case when e.isExpense = true then (e.value * -1) else e.value end)  from Entry e where e.account.id = :accountId")
+    @Query("select sum(case when e.isExpense = true then (e.value * -1) else e.value end)  from Entry e "
+            + "where e.account.id = :accountId")
     Optional<BigDecimal> findSumValueByAccountId(Long accountId);
 }

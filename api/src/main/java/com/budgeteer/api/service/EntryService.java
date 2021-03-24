@@ -48,7 +48,7 @@ public class EntryService extends RestrictedResourceHandler {
         return this.getAllByAccount(accountId, null).getContent();
     }
 
-    public Page<Entry>getAllByAccount(Long accountId, Pageable page) {
+    public Page<Entry> getAllByAccount(Long accountId, Pageable page) {
         return this.getAllByAccount(accountId, null, null, page);
     }
 
@@ -62,7 +62,8 @@ public class EntryService extends RestrictedResourceHandler {
         if (from != null && to != null) {
             return entryRepository.findByAccountIdAndDateBetweenOrderByDateDesc(account.getId(), from, to, page);
         } else if (from != null) {
-            return entryRepository.findByAccountIdAndDateBetweenOrderByDateDesc(account.getId(), from, LocalDate.now(), page);
+            return entryRepository
+                    .findByAccountIdAndDateBetweenOrderByDateDesc(account.getId(), from, LocalDate.now(), page);
         } else {
             return entryRepository.findByAccountIdOrderByDateDesc(account.getId(), page);
         }
@@ -171,7 +172,7 @@ public class EntryService extends RestrictedResourceHandler {
         LocalDate end = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
         List<Entry> entries = this.getAllByAccount(id, start, end);
         Pair<BigDecimal, BigDecimal> pair = new Pair<>(BigDecimal.ZERO, BigDecimal.ZERO);
-        for (Entry entry: entries) {
+        for (Entry entry : entries) {
             if (entry.isExpense()) {
                 pair.setFirst(pair.getFirst().add(entry.getValue()));
             } else {

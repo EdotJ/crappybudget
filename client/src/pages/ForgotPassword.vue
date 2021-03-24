@@ -37,9 +37,7 @@ export default {
     };
   },
   methods: {
-    execute() {
-      console.log(this.email);
-    },
+    execute() {},
   },
 };
 </script>

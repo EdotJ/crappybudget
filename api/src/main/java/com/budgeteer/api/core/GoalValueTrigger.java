@@ -24,7 +24,12 @@ public class GoalValueTrigger implements Trigger {
     private Connection conn;
 
     @Override
-    public void init(Connection conn, String schemaName, String triggerName, String tableName, boolean before, int type) throws SQLException {
+    public void init(Connection conn,
+                     String schemaName,
+                     String triggerName,
+                     String tableName,
+                     boolean before,
+                     int type) {
         this.conn = conn;
     }
 
@@ -137,7 +142,6 @@ public class GoalValueTrigger implements Trigger {
         return value;
     }
 
-
     private void handleDelete(Object[] oldRow) throws SQLException {
         ResultSet rs = getGoals(oldRow);
         while (rs.next()) {
@@ -156,12 +160,12 @@ public class GoalValueTrigger implements Trigger {
     }
 
     @Override
-    public void close() throws SQLException {
+    public void close() {
 
     }
 
     @Override
-    public void remove() throws SQLException {
+    public void remove() {
 
     }
 }

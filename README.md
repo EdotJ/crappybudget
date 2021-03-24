@@ -24,3 +24,6 @@ https://iconmonstr.com/eraser-1-svg/ - Eraser Icon
 https://iconmonstr.com/arrow-63-svg/ - Right Arrow
 https://iconmonstr.com/arrow-64-svg/ - Left Arrow
 https://iconmonstr.com/pencil-8-svg/ - Edit Icon
+
+Some cool CSS-only loading spinners:
+https://loading.io/css/

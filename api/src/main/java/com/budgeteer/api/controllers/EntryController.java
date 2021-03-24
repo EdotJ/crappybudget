@@ -72,13 +72,13 @@ public class EntryController {
     }
 
     @Get("/currentMonth")
-    public HttpResponse<AccountBalanceDto> getStatsForCurrentMonth(Long accountId) {
+    public HttpResponse<AccountBalanceDto> getCurrentMonthBalanceSummary(Long accountId) {
         Pair<BigDecimal, BigDecimal> pair = service.getMonthlyBalance(accountId);
         return HttpResponse.ok(new AccountBalanceDto(pair.getSecond(), pair.getFirst()));
     }
 
     @Get("/balance")
-    public HttpResponse<BalanceDto> getBalance() {
+    public HttpResponse<BalanceDto> getTotalBalance() {
         return HttpResponse.ok(new BalanceDto(service.getBalance()));
     }
 }

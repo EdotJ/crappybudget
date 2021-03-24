@@ -80,7 +80,9 @@ public class AccountService extends RestrictedResourceHandler {
             entry.setValue(request.getBalance());
             entry.setIsExpense(false);
             entry.setDate(LocalDate.now());
-            entry.setName(translatedMessageSource.getMessageWithDefaultLocale("DEFAULT_ACCOUNT_ENTRY_NAME", "Starting balance"));
+            String defaultNameProp = "DEFAULT_ACCOUNT_ENTRY_NAME";
+            String defaultName = "Starting balance";
+            entry.setName(translatedMessageSource.getMessageWithDefaultLocale(defaultNameProp, defaultName));
             entryRepository.save(entry);
         }
 

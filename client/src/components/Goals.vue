@@ -139,10 +139,6 @@ h1 {
   border: 2px solid var(--accent-main-lighter);
 }
 
-.submit-container {
-  padding-right: 8px;
-}
-
 @media only screen and (min-width: 961px) and (max-width: 1100px) {
   .goals {
     width: 25%;

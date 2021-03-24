@@ -38,11 +38,4 @@ export default {
   color: red;
   padding: 0 8px 0 0;
 }
-
-/* Tablet Styles */
-@media only screen and (min-width: 415px) and (max-width: 960px) {
-}
-/* Desktop Styles */
-@media only screen and (min-width: 961px) {
-}
 </style>

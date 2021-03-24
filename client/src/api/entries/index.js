@@ -23,7 +23,6 @@ export default {
     return request.get(`/entries/${id}`);
   },
   create(entry) {
-    console.log(entry);
     const body = getEntryBody(entry);
     return request.post("/entries", body);
   },

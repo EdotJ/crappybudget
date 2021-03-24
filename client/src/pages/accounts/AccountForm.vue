@@ -110,11 +110,5 @@ form {
     margin-top: 20%;
     width: 60%;
   }
-
-  .action {
-    width: 48px;
-    height: 48px;
-    margin: 0 16px;
-  }
 }
 </style>

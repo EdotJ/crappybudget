@@ -184,23 +184,6 @@ h1 {
   font-size: 1.5rem;
 }
 
-.buttons {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  padding: 1rem 1rem;
-}
-
-/* Tablet Styles */
-@media only screen and (min-width: 600px) and (max-width: 960px) {
-  .buttons {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    padding: 1rem 3rem;
-  }
-}
-
 /* Smaller Desktop Styles */
 @media only screen and (min-width: 961px) and (max-width: 1100px) {
 }
@@ -218,13 +201,6 @@ h1 {
   .entry-data {
     display: flex;
     flex-direction: column;
-  }
-
-  .buttons {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    padding: 1rem 3rem;
   }
 }
 </style>

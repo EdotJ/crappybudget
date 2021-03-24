@@ -70,7 +70,7 @@ public class ExportController {
             StringBuilder sb = new StringBuilder(entry.getDate().format(formatter));
             sb.append(",").append(entry.getName()).append(",").append(entry.getValue()).append(",");
             if (entry.getCategory() != null) {
-                sb.append(entry.getCategory().getName());
+                sb.append(entry.getCategory().getName()).append(",");
             }
             sb.append(entry.getAccount().getName());
 

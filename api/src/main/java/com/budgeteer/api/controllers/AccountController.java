@@ -26,7 +26,8 @@ public class AccountController {
     }
 
     @Get
-    public HttpResponse<AccountListDto> getAll(Authentication principal, @QueryValue(value = "balances", defaultValue = "false") boolean withBalance) {
+    public HttpResponse<AccountListDto> getAll(Authentication principal,
+                                       @QueryValue(value = "balances", defaultValue = "false") boolean withBalance) {
         Long userId = (Long) principal.getAttributes().get("id");
         List<SingleAccountDto> accounts = accountService.getAll(userId, withBalance).stream()
                 .map(SingleAccountDto::new)
