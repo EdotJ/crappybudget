@@ -378,6 +378,6 @@ public class EntryControllerTest {
         HttpResponse<BalanceDto> response = client.toBlocking().exchange(request, BalanceDto.class);
         assertEquals(HttpStatus.OK, response.getStatus());
         assertTrue(response.getBody().isPresent());
-        assertEquals(new BigDecimal("1.39"), response.getBody().get().getBalance());
+        assertEquals(new BigDecimal("-1.39"), response.getBody().get().getBalance());
     }
 }
