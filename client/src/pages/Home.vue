@@ -29,7 +29,7 @@
             v-on:click.native.self="toggleEdit(entry)"
           />
         </div>
-        <div class="page-selector">
+        <div class="page-selector" v-if="totalPages > 1">
           <IconBase class="page-selector-icon" icon-name="left" v-on:click.native="handlePageChange(page - 1)">
             <LeftArrowIcon />
           </IconBase>

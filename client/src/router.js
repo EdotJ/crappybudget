@@ -10,6 +10,8 @@ import Accounts from "@/pages/accounts/Accounts";
 import Import from "@/pages/Import";
 import Settings from "@/pages/Settings";
 import AccountForm from "@/pages/accounts/AccountForm";
+import Categories from "@/pages/categories/Categories";
+import CategoriesForm from "@/pages/categories/CategoriesForm";
 
 const routes = [
   { path: "/", component: Home },
@@ -17,6 +19,9 @@ const routes = [
   { path: "/accounts", component: Accounts },
   { path: "/accounts/create", component: AccountForm },
   { path: "/accounts/edit/:id", component: AccountForm },
+  { path: "/categories", component: Categories },
+  { path: "/categories/create", component: CategoriesForm },
+  { path: "/categories/edit/:id", component: CategoriesForm },
   { path: "/import", component: Import },
   { path: "/settings", component: Settings },
   { path: "/login", component: Login, meta: { noAuth: true } },
@@ -37,7 +42,9 @@ router.beforeEach((to, from, next) => {
     next({ path: "/login" });
   } else {
     if (store.getters["auth/getAccessToken"]) {
-      store.dispatch("entries/getBalance");
+      store.dispatch("entries/getBalance").catch((e) => {
+        console.log(e);
+      });
     }
     next();
   }

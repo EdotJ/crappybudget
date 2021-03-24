@@ -107,7 +107,7 @@ export const actions = {
   getBalance: async function ({ commit }) {
     try {
       const response = await api.entries.getBalance();
-      if (response && response.status === 200 && response.data.balance) {
+      if (response && response.status === 200 && (response.data.balance || response.data.balance === 0)) {
         commit("SET_BALANCE", response.data.balance);
         return Promise.resolve();
       } else {

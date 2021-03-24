@@ -31,6 +31,14 @@
         </span>
         <span class="link-title">Accounts</span>
       </router-link>
+      <router-link to="/categories" class="sidebar-url">
+        <span class="link-icon">
+          <IconBase icon-name="categories" view-box="0 0 24 24" width="24" height="24">
+            <CategoriesIcon />
+          </IconBase>
+        </span>
+        <span class="link-title">Categories</span>
+      </router-link>
       <router-link to="/import" class="sidebar-url">
         <span class="link-icon">
           <IconBase icon-name="charts" view-box="0 0 24 24" width="24" height="24">
@@ -68,10 +76,11 @@ import ImportIcon from "./icons/Import";
 import SettingsIcon from "./icons/Settings";
 import LogoutIcon from "./icons/LogOut";
 import IconBase from "@/components/IconBase";
+import CategoriesIcon from "./icons/CategoriesIcon";
 
 export default {
   name: "SideBar",
-  components: { IconBase, BudgetIcon, ChartsIcon, AccountsIcon, ImportIcon, SettingsIcon, LogoutIcon },
+  components: { IconBase, BudgetIcon, ChartsIcon, AccountsIcon, ImportIcon, SettingsIcon, LogoutIcon, CategoriesIcon },
   computed: {
     ...mapGetters({
       isLoggedIn: "auth/isLoggedIn",

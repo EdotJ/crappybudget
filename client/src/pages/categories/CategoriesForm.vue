@@ -1,11 +1,26 @@
 <template>
   <div class="root">
-    <IconBase class="icon-left" @click.native="$router.go(-1)"><LeftArrowIcon /> </IconBase>
+    <IconBase class="icon-left" @click.native="$router.go(-1)">
+      <LeftArrowIcon />
+    </IconBase>
     <FormError :value="error" />
     <form v-on:submit.prevent="$route.params.id ? submitUpdate() : submitCreate()">
       <div class="input-group">
         <label for="name">Name</label>
-        <input id="name" type="text" required placeholder="Name" v-model="currentAccount.name" />
+        <input id="name" type="text" required placeholder="Name" v-model="currentCategory.name" />
+      </div>
+      <div class="input-group">
+        <label for="parent">Parent</label>
+        <select id="parent" v-model="currentCategory.parentId">
+          <option value="" :selected="!currentCategory.parentId ? 'selected' : ''">None</option>
+          <option
+            v-for="category in sortedCategories.filter((c) => c.id !== currentCategory.id)"
+            :key="category.id"
+            :value="category.id"
+          >
+            {{ category.name }}
+          </option>
+        </select>
       </div>
       <div class="submit-container">
         <AccentedSubmitButton />
@@ -17,44 +32,61 @@
 <script>
 import FormError from "@/components/FormError";
 import AccentedSubmitButton from "@/components/AccentedSubmitButton";
-import { mapActions } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 import IconBase from "@/components/IconBase";
 import LeftArrowIcon from "@/components/icons/LeftArrowIcon";
 
 export default {
-  name: "AccountForm",
+  name: "CategoriesForm",
   components: { LeftArrowIcon, IconBase, FormError, AccentedSubmitButton },
   data() {
     return {
       error: "",
-      currentAccount: {
+      currentCategory: {
         name: "",
+        parentId: "",
       },
     };
   },
+  computed: {
+    ...mapGetters({
+      sortedCategories: "categories/getSortedCategories",
+    }),
+  },
   methods: {
     ...mapActions({
-      createAccount: "accounts/create",
-      updateAccount: "accounts/update",
-      getSingle: "accounts/getSingle",
+      createCategory: "categories/create",
+      updateCategory: "categories/update",
+      getSingle: "categories/getSingle",
+      getAll: "categories/getAll",
     }),
     submitUpdate() {
-      this.updateAccount(this.currentAccount)
-        .then(() => this.$router.push("/accounts"))
-        .catch((e) => (this.error = e.response.data));
+      console.log(this.currentCategory);
+      this.updateCategory(this.currentCategory)
+        .then(() => this.$router.push("/categories"))
+        .catch((e) => {
+          this.error = e.response.data.message;
+        });
     },
     submitCreate() {
-      this.createAccount(this.currentAccount)
-        .then(() => this.$router.push("/accounts"))
-        .catch((e) => (this.error = e.response.data));
+      console.log(this.currentCategory);
+      this.createCategory(this.currentCategory)
+        .then(() => this.$router.push("/categories"))
+        .catch((e) => {
+          this.error = e.response.data.message;
+        });
     },
   },
   mounted() {
     if (this.$route.params.id) {
       this.getSingle(this.$route.params.id).then((resp) => {
-        this.currentAccount = resp;
+        this.currentCategory = { ...resp };
+        if (this.currentCategory.parentId == null) {
+          this.currentCategory.parentId = "";
+        }
       });
     }
+    this.getAll();
   },
 };
 </script>
@@ -82,6 +114,7 @@ export default {
   background: var(--accent-main-darker);
   color: var(--foreground-accent);
 }
+
 form {
   width: 100%;
 }

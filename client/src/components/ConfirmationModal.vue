@@ -3,9 +3,10 @@
     <template v-slot:header>Confirm Deletion</template>
     <template v-slot:content>
       <div class="title">Are you sure you want to delete {{ entityName }} '{{ name }}'?</div>
+      <div class="warning" v-if="warning">{{ warning }}</div>
       <div class="buttons">
-        <button type="button" class="delete-cancel" @click="toggleConfirmationModal">Cancel</button>
-        <button type="button" class="delete-confirm" @click="handleConfirm">Proceed</button>
+        <button type="button" class="button delete-cancel" @click="toggleConfirmationModal">Cancel</button>
+        <button type="button" class="button delete-confirm" @click="handleConfirm">Proceed</button>
       </div>
     </template>
   </Modal>
@@ -17,7 +18,7 @@ import Modal from "@/components/Modal";
 export default {
   name: "ConfirmationModal",
   components: { Modal },
-  props: { show: Boolean, entityName: String, name: String },
+  props: { show: Boolean, entityName: String, name: String, warning: String },
   methods: {
     toggleConfirmationModal() {
       this.$emit("close-modal");
@@ -34,7 +35,7 @@ export default {
 .delete-confirm {
   border: 2px solid var(--accent-main);
   border-radius: 8px;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   height: 2rem;
 }
 
@@ -62,6 +63,12 @@ export default {
   display: flex;
   justify-content: space-between;
   padding: 1rem 1rem;
+}
+
+.warning {
+  color: red;
+  font-weight: bold;
+  padding: 1rem 0;
 }
 
 /* Tablet Styles */

@@ -48,6 +48,7 @@ export const actions = {
       const response = await api.categories.getAll();
       if (response && response.data && response.data.categories) {
         commit("SET_CATEGORIES", response.data.categories);
+        return Promise.resolve();
       }
     } catch (e) {
       return Promise.reject(e);
@@ -93,6 +94,7 @@ export const actions = {
       const response = await api.categories.delete(id);
       if (response && response.status === 204) {
         commit("DELETE_CATEGORY", id);
+        return Promise.resolve();
       }
     } catch (e) {
       return Promise.reject(e);
