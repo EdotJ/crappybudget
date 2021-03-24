@@ -1,8 +1,8 @@
 package com.budgeteer.api.service;
 
 
-import com.budgeteer.api.config.OnRegistrationCompleteEvent;
-import com.budgeteer.api.config.Service;
+import com.budgeteer.api.core.OnRegistrationCompleteEvent;
+import com.budgeteer.api.core.Service;
 import com.budgeteer.api.dto.user.ResendEmailRequest;
 import com.budgeteer.api.dto.user.ResetPasswordRequest;
 import com.budgeteer.api.dto.user.SingleUserDto;

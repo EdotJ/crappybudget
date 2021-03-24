@@ -1,6 +1,6 @@
 package com.budgeteer.api.service;
 
-import com.budgeteer.api.config.Service;
+import com.budgeteer.api.core.Service;
 import com.budgeteer.api.dto.category.SingleCategoryDto;
 import com.budgeteer.api.exception.BadRequestException;
 import com.budgeteer.api.exception.ResourceNotFoundException;

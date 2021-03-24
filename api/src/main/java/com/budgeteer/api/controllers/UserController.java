@@ -5,7 +5,6 @@ import com.budgeteer.api.dto.user.ResetPasswordRequest;
 import com.budgeteer.api.dto.user.SingleUserDto;
 import com.budgeteer.api.dto.user.UserListDto;
 import com.budgeteer.api.exception.ServiceDisabledException;
-import com.budgeteer.api.model.PasswordResetToken;
 import com.budgeteer.api.model.User;
 import com.budgeteer.api.service.EmailService;
 import com.budgeteer.api.service.UserService;

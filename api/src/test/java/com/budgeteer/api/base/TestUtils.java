@@ -63,7 +63,8 @@ public class TestUtils {
         Goal goal = new Goal();
         goal.setName("Tesla #2060");
         goal.setDate(LocalDate.parse("2060-01-01"));
-        goal.setValue(BigDecimal.valueOf(53990));
+        goal.setCurrentValue(BigDecimal.ZERO);
+        goal.setGoalValue(BigDecimal.valueOf(53990));
         goal.setDescription("A Tesla to be bought in 2060. Hopefully it's cheaper by then");
         return goal;
     }
@@ -73,8 +74,15 @@ public class TestUtils {
         entry.setName("Milk");
         entry.setDescription("Just a carton of milk");
         entry.setValue(BigDecimal.valueOf(1.39));
-        entry.setDate(LocalDate.parse("2021-02-21"));
+        entry.setDate(LocalDate.now());
         entry.setIsExpense(true);
         return entry;
+    }
+
+    public static GoalType createTestGoalType() {
+        GoalType goalType = new GoalType();
+        goalType.setId(1L);
+        goalType.setName("SAVE");
+        return goalType;
     }
 }

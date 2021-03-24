@@ -1,5 +1,6 @@
 package com.budgeteer.api;
 
+import com.budgeteer.api.core.LocaleCheckerFilter;
 import io.micronaut.context.annotation.Property;
 import io.micronaut.core.convert.DefaultConversionService;
 import io.micronaut.http.HttpHeaders;

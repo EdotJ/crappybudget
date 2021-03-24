@@ -3,9 +3,8 @@ package com.budgeteer.api.controller;
 import com.budgeteer.api.base.AuthenticationExtension;
 import com.budgeteer.api.base.DatabaseCleanupExtension;
 import com.budgeteer.api.base.TestUtils;
+import com.budgeteer.api.dto.BalanceDto;
 import com.budgeteer.api.dto.ErrorResponse;
-import com.budgeteer.api.dto.account.SingleAccountDto;
-import com.budgeteer.api.dto.category.SingleCategoryDto;
 import com.budgeteer.api.dto.entry.EntryListDto;
 import com.budgeteer.api.dto.entry.SingleEntryDto;
 import com.budgeteer.api.model.Account;
@@ -16,6 +15,7 @@ import com.budgeteer.api.repository.AccountRepository;
 import com.budgeteer.api.repository.CategoryRepository;
 import com.budgeteer.api.repository.EntryRepository;
 import com.budgeteer.api.repository.UserRepository;
+import io.micronaut.data.model.Page;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -74,7 +74,8 @@ public class EntryControllerTest {
         testUser = userRepository.save(TestUtils.createSecureTestUser());
         User secondTestUser = userRepository.save(TestUtils.createAdditionalTestUser());
         testCategory = categoryRepository.save(TestUtils.createTestCategory(testUser));
-        testAccount = accountRepository.save(TestUtils.createTestAccount(testUser));
+        testAccount = TestUtils.createTestAccount(testUser);
+        testAccount = accountRepository.save(testAccount);
         testEntry.setCategory(testCategory);
         testEntry.setAccount(testAccount);
         testEntry.setUser(testUser);
@@ -200,7 +201,7 @@ public class EntryControllerTest {
                 .headers(authExtension.getAuthHeader());
         HttpResponse<Object> response = client.toBlocking().exchange(request, Object.class);
         assertEquals(HttpStatus.NO_CONTENT, response.getStatus());
-        List<Entry> entryList = entryRepository.findByUserId(testUser.getId());
+        List<Entry> entryList = entryRepository.findByUserIdOrderByDateDesc(testUser.getId());
         assertEquals(0, entryList.size());
     }
 
@@ -368,5 +369,15 @@ public class EntryControllerTest {
         assertTrue(optionalError.isPresent());
         ErrorResponse errorResponse = optionalError.get();
         assertEquals("BAD_ENTRY", errorResponse.getCode());
+    }
+
+    @Test
+    public void shouldReturnBalance() {
+        MutableHttpRequest<Object> request = HttpRequest.GET("/entries/balance")
+                .headers(authExtension.getAuthHeader());
+        HttpResponse<BalanceDto> response = client.toBlocking().exchange(request, BalanceDto.class);
+        assertEquals(HttpStatus.OK, response.getStatus());
+        assertTrue(response.getBody().isPresent());
+        assertEquals(new BigDecimal("1.39"), response.getBody().get().getBalance());
     }
 }

@@ -33,7 +33,7 @@ describe("accounts actions", () => {
     testAction(
       actions.getAll,
       null,
-      {},
+      { accounts: [] },
       [
         { type: "SET_IS_LOADING", payload: true },
         { type: "SET_ACCOUNTS", payload: getAllResponse.data.accounts },

@@ -3,6 +3,7 @@ package com.budgeteer.api.controllers;
 import com.budgeteer.api.dto.goal.GoalListDto;
 import com.budgeteer.api.dto.goal.SingleGoalDto;
 import com.budgeteer.api.model.Goal;
+import com.budgeteer.api.model.GoalType;
 import com.budgeteer.api.service.GoalService;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
@@ -50,5 +51,10 @@ public class GoalController {
     public HttpResponse<SingleGoalDto> delete(Long id) {
         service.delete(id);
         return HttpResponse.noContent();
+    }
+
+    @Get("/types")
+    public HttpResponse<List<GoalType>> getGoalTypes() {
+        return HttpResponse.ok(service.getGoalTypes());
     }
 }

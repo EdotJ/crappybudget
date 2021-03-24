@@ -1,4 +1,4 @@
-package com.budgeteer.api;
+package com.budgeteer.api.core;
 
 import io.micronaut.core.util.StringUtils;
 import io.micronaut.http.HttpRequest;

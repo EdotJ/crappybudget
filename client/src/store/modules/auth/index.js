@@ -1,8 +1,10 @@
 import api from "@/api";
+import router from "@/router";
 
 const state = {
   accessToken: "",
   refreshToken: "",
+  isLoading: true,
 };
 
 const getters = {
@@ -22,35 +24,46 @@ export const mutations = {
     state.accessToken = "";
     state.refreshToken = "";
   },
+  SET_IS_LOADING(state, loading) {
+    state.isLoading = loading;
+  },
 };
 
 export const actions = {
   login: async function ({ commit }, credentials) {
+    commit("SET_IS_LOADING", true);
     try {
       const response = await api.auth.login(credentials.username, credentials.password);
-      if (response.data) {
+      if (response && response.data) {
         commit("SET_ACCESS_TOKEN", response.data.access_token);
         commit("SET_REFRESH_TOKEN", response.data.refresh_token);
       }
+      return Promise.resolve();
     } catch (e) {
       return Promise.reject(e);
+    } finally {
+      commit("SET_IS_LOADING", false);
     }
   },
-  register: async function (state, body) {
+  register: async function ({ commit }, body) {
+    commit("SET_IS_LOADING", true);
     try {
       await api.auth.register(body.username, body.password, body.email);
+      return Promise.resolve();
     } catch (e) {
       return Promise.reject(e);
+    } finally {
+      commit("SET_IS_LOADING", false);
     }
   },
   refreshToken: async function ({ commit, state }) {
     try {
       const response = await api.auth.refreshToken(state.refreshToken);
-      if (response.data) {
+      if (response && response.data) {
         commit("SET_ACCESS_TOKEN", response.data.access_token);
         commit("SET_REFRESH_TOKEN", response.data.refresh_token);
+        return Promise.resolve(true);
       }
-      return Promise.resolve();
     } catch (e) {
       return Promise.reject(e);
     }
@@ -58,7 +71,7 @@ export const actions = {
   deleteTokens: function ({ commit }) {
     commit("CLEAR_TOKENS");
     localStorage.clear();
-    window.location = "/login";
+    router.push("/login");
   },
 };
 

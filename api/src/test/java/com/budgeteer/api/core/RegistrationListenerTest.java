@@ -1,14 +1,12 @@
-package com.budgeteer.api.config;
+package com.budgeteer.api.core;
 
 import com.budgeteer.api.model.User;
-import com.budgeteer.api.repository.VerificationTokenRepository;
 import com.budgeteer.api.service.EmailService;
 import com.budgeteer.api.service.UserService;
 import io.micronaut.context.event.ApplicationEventPublisher;
 import io.micronaut.core.util.StringUtils;
 import io.micronaut.test.annotation.MockBean;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 

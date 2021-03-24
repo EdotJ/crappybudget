@@ -160,8 +160,7 @@ public class UserControllerTest {
         Optional<ErrorResponse> optionalError = e.getResponse().getBody(ErrorResponse.class);
         assertTrue(optionalError.isPresent());
         ErrorResponse errorResponse = optionalError.get();
-        assertEquals("BAD_PASSWORD", errorResponse.getCode());
-        assertTrue(errorResponse.getDetail().contains("empty"));
+        assertEquals("PASSWORD_VALIDATION", errorResponse.getCode());
     }
 
     @Test

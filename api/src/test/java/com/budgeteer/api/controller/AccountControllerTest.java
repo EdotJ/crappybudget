@@ -6,11 +6,13 @@ import com.budgeteer.api.base.TestUtils;
 import com.budgeteer.api.dto.ErrorResponse;
 import com.budgeteer.api.dto.account.AccountListDto;
 import com.budgeteer.api.dto.account.SingleAccountDto;
-import com.budgeteer.api.dto.goal.SingleGoalDto;
 import com.budgeteer.api.model.Account;
+import com.budgeteer.api.model.Entry;
 import com.budgeteer.api.model.User;
 import com.budgeteer.api.repository.AccountRepository;
+import com.budgeteer.api.repository.EntryRepository;
 import com.budgeteer.api.repository.UserRepository;
+import io.micronaut.data.model.Page;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -25,6 +27,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,6 +49,9 @@ public class AccountControllerTest {
 
     @Inject
     private AccountRepository accountRepository;
+
+    @Inject
+    EntryRepository entryRepository;
 
     private Account testAccount;
     private Account additionalAccount;
@@ -146,6 +152,7 @@ public class AccountControllerTest {
         SingleAccountDto dto = new SingleAccountDto();
         dto.setName("New Account");
         dto.setUserId(testUser.getId());
+        dto.setBalance(new BigDecimal("123.45"));
         MutableHttpRequest<SingleAccountDto> request = HttpRequest.POST("/accounts", dto)
                 .headers(authExtension.getAuthHeader());
         HttpResponse<SingleAccountDto> response = client.toBlocking().exchange(request, SingleAccountDto.class);
@@ -154,7 +161,6 @@ public class AccountControllerTest {
         assertTrue(response.getBody().isPresent());
         assertEquals(dto.getName(), response.getBody().get().getName());
         assertEquals(dto.getUserId(), response.getBody().get().getUserId());
-        accountRepository.deleteById(response.getBody().get().getId());
     }
 
     @Test

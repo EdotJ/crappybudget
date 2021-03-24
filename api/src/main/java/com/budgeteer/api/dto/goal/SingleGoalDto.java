@@ -11,9 +11,12 @@ public class SingleGoalDto {
     private String name;
     private String description;
     private LocalDate date;
-    private BigDecimal value;
+    private BigDecimal currentValue;
+    private BigDecimal goalValue;
     private Long userId;
     private Long accountId;
+    private Long categoryId;
+    private Long goalType;
 
     public SingleGoalDto() {
 
@@ -24,11 +27,16 @@ public class SingleGoalDto {
         this.name = goal.getName();
         this.description = goal.getDescription();
         this.date = goal.getDate();
-        this.value = goal.getValue();
+        this.currentValue = goal.getCurrentValue();
+        this.goalValue = goal.getGoalValue();
         this.userId = goal.getUser().getId();
         if (goal.getAccount() != null) {
             this.accountId = goal.getAccount().getId();
         }
+        if (goal.getCategory() != null) {
+            this.categoryId = goal.getCategory().getId();
+        }
+        this.goalType = goal.getGoalType().getId();
     }
 
     public Long getId() {
@@ -59,12 +67,21 @@ public class SingleGoalDto {
         this.date = date;
     }
 
-    public BigDecimal getValue() {
-        return value;
+    public BigDecimal getCurrentValue() {
+        return currentValue;
     }
 
-    public void setValue(BigDecimal value) {
-        this.value = value;
+    public void setCurrentValue(BigDecimal currentValue) {
+        this.currentValue = currentValue;
+    }
+
+
+    public BigDecimal getGoalValue() {
+        return goalValue;
+    }
+
+    public void setGoalValue(BigDecimal goalValue) {
+        this.goalValue = goalValue;
     }
 
     public Long getUserId() {
@@ -81,5 +98,21 @@ public class SingleGoalDto {
 
     public void setAccountId(Long accountId) {
         this.accountId = accountId;
+    }
+
+    public Long getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public Long getGoalType() {
+        return goalType;
+    }
+
+    public void setGoalType(Long goalType) {
+        this.goalType = goalType;
     }
 }

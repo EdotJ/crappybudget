@@ -1,6 +1,7 @@
 package com.budgeteer.api.dto.entry;
 
 import com.budgeteer.api.model.Entry;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -29,7 +30,9 @@ public class SingleEntryDto {
         this.isExpense = e.isExpense();
         this.userId = e.getUser().getId();
         this.accountId = e.getAccount().getId();
-        this.categoryId = e.getCategory().getId();
+        if (e.getCategory() != null) {
+            this.categoryId = e.getCategory().getId();
+        }
     }
 
     public Long getId() {
@@ -68,6 +71,7 @@ public class SingleEntryDto {
         this.date = date;
     }
 
+    @JsonProperty("isExpense")
     public Boolean isExpense() {
         return isExpense;
     }

@@ -1,12 +1,16 @@
 package com.budgeteer.api.dto.user;
 
 import com.budgeteer.api.model.User;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 
 public class SingleUserDto {
 
     private Long id;
     private String email;
     private String username;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String password;
 
     public SingleUserDto() {

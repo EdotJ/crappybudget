@@ -13,13 +13,17 @@ const getEntryBody = (entry) => {
 };
 
 export default {
-  getAll() {
-    return request.get("/entries");
+  getAll(page) {
+    return request.get(`/entries?size=8${page ? "&page=" + page : ""}`);
+  },
+  async getAllForAccount(accountId, page) {
+    return request.get(`/entries?accountId=${accountId}&size=8${page ? "&page=" + page : ""}`);
   },
   getSingle(id) {
     return request.get(`/entries/${id}`);
   },
   create(entry) {
+    console.log(entry);
     const body = getEntryBody(entry);
     return request.post("/entries", body);
   },
@@ -29,5 +33,8 @@ export default {
   },
   delete(id) {
     return request.delete(`/entries/${id}`);
+  },
+  getBalance() {
+    return request.get(`/entries/balance`);
   },
 };

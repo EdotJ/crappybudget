@@ -1,16 +1,21 @@
 package com.budgeteer.api.service;
 
-import com.budgeteer.api.config.Service;
+import com.budgeteer.api.core.Service;
+import com.budgeteer.api.core.TranslatedMessageSource;
 import com.budgeteer.api.dto.account.SingleAccountDto;
 import com.budgeteer.api.exception.BadRequestException;
 import com.budgeteer.api.exception.ResourceNotFoundException;
 import com.budgeteer.api.model.Account;
+import com.budgeteer.api.model.Entry;
 import com.budgeteer.api.model.User;
 import com.budgeteer.api.repository.AccountRepository;
+import com.budgeteer.api.repository.EntryRepository;
 import com.budgeteer.api.security.RestrictedResourceHandler;
 import io.micronaut.core.util.StringUtils;
 import io.micronaut.security.utils.SecurityService;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -21,15 +26,31 @@ public class AccountService extends RestrictedResourceHandler {
 
     private final AccountRepository accRepository;
 
-    public AccountService(AccountRepository repository, UserService userService, SecurityService securityService) {
+    private final TranslatedMessageSource translatedMessageSource;
+
+    EntryRepository entryRepository;
+
+    public AccountService(AccountRepository repository,
+                          UserService userService,
+                          SecurityService securityService,
+                          TranslatedMessageSource translatedMessageSource,
+                          EntryRepository entryRepository) {
         super(securityService);
         this.accRepository = repository;
         this.userService = userService;
+        this.translatedMessageSource = translatedMessageSource;
+        this.entryRepository = entryRepository;
     }
 
     public Collection<Account> getAll(Long userId) {
+        return this.getAll(userId, false);
+    }
+
+    public Collection<Account> getAll(Long userId, boolean withBalance) {
         User user = userService.getById(userId);
-        return accRepository.findByUserId(user.getId());
+        return withBalance
+                ? accRepository.findByUserIdWithBalance(user.getId())
+                : accRepository.findByUserId(user.getId());
     }
 
     public Account getSingle(Long id) {
@@ -50,7 +71,20 @@ public class AccountService extends RestrictedResourceHandler {
         Account account = new Account();
         account.setName(request.getName());
         account.setUser(user);
-        return accRepository.save(account);
+
+        account = accRepository.save(account);
+        if (request.getBalance() != null && request.getBalance().compareTo(BigDecimal.ZERO) > 0) {
+            Entry entry = new Entry();
+            entry.setAccount(account);
+            entry.setUser(user);
+            entry.setValue(request.getBalance());
+            entry.setIsExpense(false);
+            entry.setDate(LocalDate.now());
+            entry.setName(translatedMessageSource.getMessageWithDefaultLocale("DEFAULT_ACCOUNT_ENTRY_NAME", "Starting balance"));
+            entryRepository.save(entry);
+        }
+
+        return account;
     }
 
     public Account update(Long id, SingleAccountDto request) {

@@ -16,12 +16,9 @@ public class RefreshToken {
     @NonNull
     private Long id;
 
-    @NonNull
-    private Long userId;
-
-    @NonNull
-    @NotBlank
-    private String username;
+    @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
+    @JoinColumn(nullable = false, name = "user_id")
+    private User user;
 
     @NonNull
     @NotBlank
@@ -39,27 +36,23 @@ public class RefreshToken {
     public RefreshToken() {
     }
 
+    public RefreshToken(User user, String refreshToken, Boolean revoked) {
+        this.user = user;
+        this.refreshToken = refreshToken;
+        this.revoked = revoked;
+    }
+
     @NonNull
     public Long getId() {
         return id;
     }
 
-    @NonNull
-    public Long getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserId(@NonNull Long userId) {
-        this.userId = userId;
-    }
-
-    @NonNull
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(@NonNull String username) {
-        this.username = username;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @NonNull

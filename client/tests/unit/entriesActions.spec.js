@@ -10,6 +10,7 @@ const getAllResponse = {
       { id: 3, name: "Test Entry" },
       { id: 5, name: "Test Entry 2" },
     ],
+    totalPages: 1,
   },
 };
 
@@ -32,11 +33,12 @@ describe("entries actions", () => {
   it("gets all entries", (done) => {
     testAction(
       actions.getAll,
-      null,
+      {},
       {},
       [
         { type: "SET_IS_LOADING", payload: true },
         { type: "SET_ENTRIES", payload: getAllResponse.data.entries },
+        { type: "SET_TOTAL_PAGES", payload: 1 },
         { type: "SET_IS_LOADING", payload: false },
       ],
       done

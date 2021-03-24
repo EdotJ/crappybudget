@@ -1,5 +1,7 @@
 package com.budgeteer.api.controllers;
 
+import com.budgeteer.api.core.Pair;
+import com.budgeteer.api.dto.account.AccountBalanceDto;
 import com.budgeteer.api.dto.account.AccountListDto;
 import com.budgeteer.api.dto.account.SingleAccountDto;
 import com.budgeteer.api.model.Account;
@@ -8,6 +10,8 @@ import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
 import io.micronaut.security.authentication.Authentication;
 
+import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,9 +26,9 @@ public class AccountController {
     }
 
     @Get
-    public HttpResponse<AccountListDto> getAll(Authentication principal) {
+    public HttpResponse<AccountListDto> getAll(Authentication principal, @QueryValue(value = "balances", defaultValue = "false") boolean withBalance) {
         Long userId = (Long) principal.getAttributes().get("id");
-        List<SingleAccountDto> accounts = accountService.getAll(userId).stream()
+        List<SingleAccountDto> accounts = accountService.getAll(userId, withBalance).stream()
                 .map(SingleAccountDto::new)
                 .collect(Collectors.toList());
         return HttpResponse.ok(new AccountListDto(accounts));

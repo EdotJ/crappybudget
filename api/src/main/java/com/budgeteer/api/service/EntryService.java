@@ -1,6 +1,7 @@
 package com.budgeteer.api.service;
 
-import com.budgeteer.api.config.Service;
+import com.budgeteer.api.core.Pair;
+import com.budgeteer.api.core.Service;
 import com.budgeteer.api.dto.entry.SingleEntryDto;
 import com.budgeteer.api.exception.BadRequestException;
 import com.budgeteer.api.exception.ResourceNotFoundException;
@@ -11,9 +12,12 @@ import com.budgeteer.api.model.User;
 import com.budgeteer.api.repository.EntryRepository;
 import com.budgeteer.api.security.RestrictedResourceHandler;
 import io.micronaut.core.util.StringUtils;
+import io.micronaut.data.model.Page;
+import io.micronaut.data.model.Pageable;
 import io.micronaut.security.utils.SecurityService;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,14 +45,37 @@ public class EntryService extends RestrictedResourceHandler {
     }
 
     public List<Entry> getAllByAccount(Long accountId) {
+        return this.getAllByAccount(accountId, null).getContent();
+    }
+
+    public Page<Entry>getAllByAccount(Long accountId, Pageable page) {
+        return this.getAllByAccount(accountId, null, null, page);
+    }
+
+    public List<Entry> getAllByAccount(Long accountId, LocalDate from, LocalDate to) {
+        return this.getAllByAccount(accountId, from, to, null).getContent();
+    }
+
+    public Page<Entry> getAllByAccount(Long accountId, LocalDate from, LocalDate to, Pageable page) {
         Account account = accountService.getSingle(accountId);
         checkIfCanAccessResource(account.getUser());
-        return entryRepository.findByAccountId(account.getId());
+        if (from != null && to != null) {
+            return entryRepository.findByAccountIdAndDateBetweenOrderByDateDesc(account.getId(), from, to, page);
+        } else if (from != null) {
+            return entryRepository.findByAccountIdAndDateBetweenOrderByDateDesc(account.getId(), from, LocalDate.now(), page);
+        } else {
+            return entryRepository.findByAccountIdOrderByDateDesc(account.getId(), page);
+        }
     }
 
     public List<Entry> getAllByUser() {
         User user = userService.getById(getAuthenticatedUserId());
-        return entryRepository.findByUserId(user.getId());
+        return entryRepository.findByUserIdOrderByDateDesc(user.getId());
+    }
+
+    public Page<Entry> getAllByUser(Pageable page) {
+        User user = userService.getById(getAuthenticatedUserId());
+        return entryRepository.findByUserIdOrderByDateDesc(user.getId(), page);
     }
 
     public Entry getSingle(Long id) {
@@ -69,12 +96,7 @@ public class EntryService extends RestrictedResourceHandler {
         Category category = categoryService.getSingle(request.getCategoryId());
         // TODO: reduce ridiculous construction
         Entry entry = new Entry();
-        entry.setName(request.getName());
-        entry.setDescription(request.getDescription());
-        entry.setValue(request.getValue());
-        entry.setDate(request.getDate());
-        entry.setIsExpense(request.isExpense() == null || request.isExpense());
-        entry.setUser(user);
+        setEntryFromRequest(request, entry, user);
         entry.setCategory(category);
         entry.setAccount(account);
         return entryRepository.save(entry);
@@ -86,21 +108,26 @@ public class EntryService extends RestrictedResourceHandler {
         User user = entry.getUser();
         checkIfCanAccessResource(user);
         Category category = entry.getCategory();
-        if (!request.getCategoryId().equals(category.getId())) {
+        if (category == null || !request.getCategoryId().equals(category.getId())) {
             category = categoryService.getSingle(request.getCategoryId());
         }
         Account account = entry.getAccount();
         if (!request.getAccountId().equals(account.getId())) {
             account = accountService.getSingle(request.getAccountId());
         }
-        entry.setName(request.getName());
-        entry.setDescription(request.getDescription());
-        entry.setValue(request.getValue());
-        entry.setIsExpense(request.isExpense() == null || request.isExpense());
-        entry.setUser(user);
+        setEntryFromRequest(request, entry, user);
         entry.setAccount(account);
         entry.setCategory(category);
         return entryRepository.update(entry);
+    }
+
+    private void setEntryFromRequest(SingleEntryDto request, Entry entry, User user) {
+        entry.setName(request.getName());
+        entry.setDescription(request.getDescription());
+        entry.setValue(request.getValue());
+        entry.setDate(request.getDate());
+        entry.setIsExpense(request.isExpense() == null || request.isExpense());
+        entry.setUser(user);
     }
 
     public void saveAllEntries(List<Entry> entries) {
@@ -137,5 +164,25 @@ public class EntryService extends RestrictedResourceHandler {
         Entry entry = getSingle(id);
         checkIfCanAccessResource(entry.getUser());
         entryRepository.delete(entry);
+    }
+
+    public Pair<BigDecimal, BigDecimal> getMonthlyBalance(Long id) {
+        LocalDate start = LocalDate.now().withDayOfMonth(1);
+        LocalDate end = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
+        List<Entry> entries = this.getAllByAccount(id, start, end);
+        Pair<BigDecimal, BigDecimal> pair = new Pair<>(BigDecimal.ZERO, BigDecimal.ZERO);
+        for (Entry entry: entries) {
+            if (entry.isExpense()) {
+                pair.setFirst(pair.getFirst().add(entry.getValue()));
+            } else {
+                pair.setSecond(pair.getSecond().add(entry.getValue()));
+            }
+        }
+        return pair;
+    }
+
+    public BigDecimal getBalance() {
+        User user = userService.getById(getAuthenticatedUserId());
+        return entryRepository.findSumValueByUserId(user.getId()).orElse(BigDecimal.ZERO);
     }
 }

@@ -1,6 +1,6 @@
 package com.budgeteer.api;
 
-import com.budgeteer.api.config.ProjectEnvironment;
+import com.budgeteer.api.core.ProjectEnvironment;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.runtime.Micronaut;
 

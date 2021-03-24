@@ -1,6 +1,6 @@
 package com.budgeteer.api.exception.handlers;
 
-import com.budgeteer.api.config.TranslatedMessageSource;
+import com.budgeteer.api.core.TranslatedMessageSource;
 import com.budgeteer.api.dto.ErrorResponse;
 import com.budgeteer.api.exception.BaseException;
 import io.micronaut.context.annotation.Requires;
