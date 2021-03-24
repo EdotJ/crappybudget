@@ -8,6 +8,7 @@ export default {
     return request.get(`/categories/${id}`);
   },
   create(category) {
+    console.log(category);
     const body = {
       name: category.name,
       parentId: category.parentId ? category.parentId : null,

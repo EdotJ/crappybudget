@@ -65,6 +65,12 @@ public class CategoryService extends RestrictedResourceHandler {
         validateCategoryUpdateRequest(request, category);
         checkIfCanAccessResource(category.getUser());
         category.setName(request.getName());
+        boolean isDiffCategory = category.getParent() == null
+                || !request.getParentId().equals(category.getParent().getId());
+        if (request.getParentId() != null && isDiffCategory) {
+            Category parent = findParentCategory(request.getParentId());
+            category.setParent(parent);
+        }
         if (request.getBudgeted() != null) {
             category.setBudgeted(request.getBudgeted());
         }
