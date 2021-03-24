@@ -1,5 +1,6 @@
 package com.budgeteer.api.security;
 
+import com.budgeteer.api.core.EmailConfig;
 import com.budgeteer.api.model.User;
 import com.budgeteer.api.service.UserService;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -21,9 +22,14 @@ public class PasswordAuthenticationProvider implements AuthenticationProvider {
 
     private final PasswordManager passwordManager;
 
-    public PasswordAuthenticationProvider(UserService userService, PasswordManager passwordManager) {
+    private final boolean isVerificationEnabled;
+
+    public PasswordAuthenticationProvider(UserService userService,
+                                          PasswordManager passwordManager,
+                                          EmailConfig emailConfig) {
         this.userService = userService;
         this.passwordManager = passwordManager;
+        isVerificationEnabled = emailConfig.isEnabled();
     }
 
     @Override
@@ -41,7 +47,7 @@ public class PasswordAuthenticationProvider implements AuthenticationProvider {
                 emitter.onError(new AuthenticationException(authFailed.get()));
             } else {
                 List<String> roles = new ArrayList<>();
-                if (user.isVerified()) {
+                if (user.isVerified() || !isVerificationEnabled) {
                     roles.add("ROLE_VERIFIED");
                 }
                 emitter.onSuccess(new IdentifierUserDetails(user.getUsername(), roles, user.getId()));

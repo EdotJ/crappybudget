@@ -1,4 +1,4 @@
-package com.budgeteer.api.config;
+package com.budgeteer.api.core;
 
 import com.budgeteer.api.model.User;
 import com.budgeteer.api.service.EmailService;

@@ -4,12 +4,15 @@ const { SET_CATEGORIES, SET_IS_LOADING, ADD_CATEGORY, UPDATE_CATEGORY, DELETE_CA
 
 describe("categories mutations", () => {
   it("set categories", () => {
-    const state = { categories: [] };
-    expect(state.categories.length).toBe(0);
-    const categories = [{ name: "First Test Category" }, { name: "Second Test Category" }];
+    const state = { categories: new Map() };
+    expect(state.categories.size).toBe(0);
+    const categories = [
+      { id: 0, name: "First Test Category" },
+      { id: 1, name: "Second Test Category" },
+    ];
     SET_CATEGORIES(state, categories);
-    expect(state.categories.length).toBe(2);
-    expect(state.categories[0].name).toBe("First Test Category");
+    expect(state.categories.size).toBe(2);
+    expect(state.categories.get(0).name).toBe("First Test Category");
   });
 
   it("set loading", () => {
@@ -19,38 +22,38 @@ describe("categories mutations", () => {
   });
 
   it("add category", () => {
-    const state = { categories: [{ name: "First test category" }] };
-    ADD_CATEGORY(state, { name: "Second test category" });
-    expect(state.categories.length).toBe(2);
-    expect(state.categories[1].name).toBe("Second test category");
+    const state = { categories: new Map([[0, { name: "First test category" }]]) };
+    ADD_CATEGORY(state, { id: 1, name: "Second test category" });
+    expect(state.categories.size).toBe(2);
+    expect(state.categories.get(1).name).toBe("Second test category");
   });
 
   it("update category", () => {
     const state = {
-      categories: [
-        { id: 1, name: "First test category" },
-        { id: 2, name: "Second test category" },
-        { id: 13, name: "13th test category" },
-      ],
+      categories: new Map([
+        [1, { name: "First test category" }],
+        [2, { name: "Second test category" }],
+        [13, { name: "13th test category" }],
+      ]),
     };
     UPDATE_CATEGORY(state, {
       id: 13,
       name: "Updated 13th test category",
     });
-    expect(state.categories.length).toBe(3);
-    expect(state.categories[2].name).toBe("Updated 13th test category");
-    expect(state.categories[0].name).toBe("First test category");
+    expect(state.categories.size).toBe(3);
+    expect(state.categories.get(13).name).toBe("Updated 13th test category");
+    expect(state.categories.get(1).name).toBe("First test category");
   });
 
   it("delete category", () => {
     const state = {
-      categories: [
-        { id: 123, name: "Good category" },
-        { id: 516, name: "Bad category" },
-      ],
+      categories: new Map([
+        [123, { id: 123, name: "Good category" }],
+        [516, { id: 516, name: "Bad category" }],
+      ]),
     };
-    expect(state.categories.length).toBe(2);
+    expect(state.categories.size).toBe(2);
     DELETE_CATEGORY(state, 123);
-    expect(state.categories.length).toBe(1);
+    expect(state.categories.size).toBe(1);
   });
 });

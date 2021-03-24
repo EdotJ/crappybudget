@@ -103,6 +103,7 @@ flyway:
 
 jackson:
   date-format: ${DATE_FORMAT:yyyy-MM-dd'T'HH:mm:ss}
+  serialization-inclusion: always
 
 api:
   base-path: ${API_BASE_PATH:/api}

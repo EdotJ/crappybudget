@@ -24,7 +24,15 @@ public class Goal {
     private LocalDate date;
 
     @NotNull
-    private BigDecimal value;
+    @Column(name = "value")
+    private BigDecimal currentValue;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "goal_type")
+    private GoalType goalType;
+
+    @NotNull
+    private BigDecimal goalValue;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
@@ -34,6 +42,10 @@ public class Goal {
     @JoinColumn(name = "account_id")
     private Account account;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
     public Goal() {
 
     }
@@ -41,11 +53,11 @@ public class Goal {
     public Goal(@NotNull String name,
                 @Size(max = 140) String description,
                 @NotNull LocalDate date,
-                @NotNull BigDecimal value) {
+                @NotNull BigDecimal currentValue) {
         this.name = name;
         this.description = description;
         this.date = date;
-        this.value = value;
+        this.currentValue = currentValue;
     }
 
     public Long getId() {
@@ -76,12 +88,28 @@ public class Goal {
         this.date = date;
     }
 
-    public BigDecimal getValue() {
-        return value;
+    public BigDecimal getCurrentValue() {
+        return currentValue;
     }
 
-    public void setValue(BigDecimal value) {
-        this.value = value;
+    public void setCurrentValue(BigDecimal value) {
+        this.currentValue = value;
+    }
+
+    public BigDecimal getGoalValue() {
+        return goalValue;
+    }
+
+    public void setGoalValue(BigDecimal goalValue) {
+        this.goalValue = goalValue;
+    }
+
+    public GoalType getGoalType() {
+        return goalType;
+    }
+
+    public void setGoalType(GoalType goalType) {
+        this.goalType = goalType;
     }
 
     public User getUser() {
@@ -98,5 +126,13 @@ public class Goal {
 
     public void setAccount(Account account) {
         this.account = account;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 }

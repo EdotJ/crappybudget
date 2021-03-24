@@ -3,6 +3,7 @@ import api from "@/api";
 const state = {
   goals: [],
   isLoading: false,
+  goalTypes: [],
 };
 
 const getters = {};
@@ -16,22 +17,23 @@ export const mutations = {
   },
   ADD_GOAL(state, goal) {
     state.goals.push({
-      id: goal.id,
-      name: goal.name,
+      ...goal,
     });
   },
   UPDATE_GOAL(state, goal) {
     state.goals = state.goals.map((c) =>
       c.id === goal.id
         ? {
-            id: goal.id,
-            name: goal.name,
+            ...goal,
           }
         : c
     );
   },
   DELETE_GOAL(state, id) {
-    state.goals = state.goals.filter((c) => c.id === id);
+    state.goals = state.goals.filter((c) => c.id !== id);
+  },
+  SET_GOAL_TYPES(state, types) {
+    state.goalTypes = types;
   },
 };
 
@@ -40,7 +42,7 @@ export const actions = {
     try {
       commit("SET_IS_LOADING", true);
       const response = await api.goals.getAll();
-      if (response.data && response.data.goals) {
+      if (response && response.data && response.data.goals) {
         commit("SET_GOALS", response.data.goals);
       }
     } catch (e) {
@@ -53,7 +55,7 @@ export const actions = {
     try {
       commit("SET_IS_LOADING", true);
       const response = await api.goals.getSingle(id);
-      if (response.data) {
+      if (response && response.data) {
         return response.data;
       }
     } catch (e) {
@@ -87,6 +89,16 @@ export const actions = {
       const response = await api.goals.delete(id);
       if (response && response.status === 204) {
         commit("DELETE_GOAL", id);
+      }
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  },
+  getGoalTypes: async function ({ commit }) {
+    try {
+      const response = await api.goals.getGoalTypes();
+      if (response && response.data && response.status === 200) {
+        commit("SET_GOAL_TYPES", response.data);
       }
     } catch (e) {
       return Promise.reject(e);

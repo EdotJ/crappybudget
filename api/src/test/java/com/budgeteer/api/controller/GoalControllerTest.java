@@ -6,12 +6,8 @@ import com.budgeteer.api.base.TestUtils;
 import com.budgeteer.api.dto.ErrorResponse;
 import com.budgeteer.api.dto.goal.GoalListDto;
 import com.budgeteer.api.dto.goal.SingleGoalDto;
-import com.budgeteer.api.model.Account;
-import com.budgeteer.api.model.Goal;
-import com.budgeteer.api.model.User;
-import com.budgeteer.api.repository.AccountRepository;
-import com.budgeteer.api.repository.GoalRepository;
-import com.budgeteer.api.repository.UserRepository;
+import com.budgeteer.api.model.*;
+import com.budgeteer.api.repository.*;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -50,6 +46,12 @@ public class GoalControllerTest {
     private AccountRepository accountRepository;
 
     @Inject
+    private GoalTypeRepository goalTypeRepository;
+
+    @Inject
+    private CategoryRepository categoryRepository;
+
+    @Inject
     @Client(value = "${api.base-path}", errorType = ErrorResponse.class)
     private RxHttpClient client;
 
@@ -57,21 +59,26 @@ public class GoalControllerTest {
     private Goal additionalGoal;
     private User testUser;
     private Account testAccount;
+    private Category testCategory;
 
     @BeforeEach
     public void setup() {
+        GoalType testGoalType = goalTypeRepository.save(TestUtils.createTestGoalType());
         testGoal = TestUtils.createTestGoal();
         additionalGoal = TestUtils.createTestGoal();
         testUser = userRepository.save(TestUtils.createSecureTestUser());
         User secondUser = userRepository.save(TestUtils.createAdditionalTestUser());
+        testCategory = categoryRepository.save(TestUtils.createTestCategory(testUser));
         testAccount = TestUtils.createTestAccount();
         testAccount.setUser(testUser);
         testAccount = accountRepository.save(testAccount);
         testGoal.setUser(testUser);
         testGoal.setAccount(testAccount);
+        testGoal.setGoalType(testGoalType);
         testGoal = goalRepository.save(testGoal);
         additionalGoal.setAccount(testAccount);
         additionalGoal.setUser(secondUser);
+        additionalGoal.setGoalType(testGoalType);
         additionalGoal = goalRepository.save(additionalGoal);
     }
 
@@ -96,7 +103,8 @@ public class GoalControllerTest {
         assertTrue(response.getBody().isPresent());
         assertEquals("Tesla #2060", response.getBody().get().getName());
         assertEquals(LocalDate.parse("2060-01-01"), response.getBody().get().getDate());
-        assertEquals(BigDecimal.valueOf(53990), response.getBody().get().getValue());
+        assertEquals(new BigDecimal("0.00"), response.getBody().get().getCurrentValue());
+        assertEquals(new BigDecimal("53990.00"), response.getBody().get().getGoalValue());
     }
 
     @Test
@@ -127,6 +135,7 @@ public class GoalControllerTest {
     public void shouldCreateGoalWithoutAccount() {
         SingleGoalDto dto = getTestGoalDto();
         dto.setAccountId(null);
+        dto.setCategoryId(testCategory.getId());
         MutableHttpRequest<SingleGoalDto> request = HttpRequest.POST("/goals", dto)
                 .headers(authExtension.getAuthHeader());
         HttpResponse<SingleGoalDto> response = client.toBlocking().exchange(request, SingleGoalDto.class);
@@ -138,7 +147,8 @@ public class GoalControllerTest {
         assertEquals(dto.getName(), goal.get().getName());
         assertEquals(dto.getDescription(), goal.get().getDescription());
         assertEquals(dto.getDate(), goal.get().getDate());
-        assertEquals(dto.getValue(), goal.get().getValue());
+        assertEquals(new BigDecimal("0.00"), goal.get().getCurrentValue());
+        assertEquals(new BigDecimal("53990.00"), goal.get().getGoalValue());
         assertEquals(dto.getUserId(), goal.get().getUser().getId());
         assertNull(goal.get().getAccount());
     }
@@ -157,7 +167,8 @@ public class GoalControllerTest {
         assertEquals(dto.getName(), goal.get().getName());
         assertEquals(dto.getDescription(), goal.get().getDescription());
         assertEquals(dto.getDate(), goal.get().getDate());
-        assertEquals(dto.getValue(), goal.get().getValue());
+        assertEquals(new BigDecimal("0.00"), goal.get().getCurrentValue());
+        assertEquals(new BigDecimal("53990.00"), goal.get().getGoalValue());
         assertEquals(dto.getUserId(), goal.get().getUser().getId());
         assertNotNull(goal.get().getAccount().getId());
     }
@@ -176,7 +187,8 @@ public class GoalControllerTest {
         assertEquals(dto.getName(), goal.get().getName());
         assertEquals(dto.getDescription(), goal.get().getDescription());
         assertEquals(dto.getDate(), goal.get().getDate());
-        assertEquals(dto.getValue(), goal.get().getValue());
+        assertEquals(new BigDecimal("0.00"), goal.get().getCurrentValue());
+        assertEquals(new BigDecimal("53990.00"), goal.get().getGoalValue());
         assertEquals(dto.getUserId(), goal.get().getUser().getId());
         assertNotNull(goal.get().getAccount().getId());
     }
@@ -265,9 +277,11 @@ public class GoalControllerTest {
         dto.setName("Tesla #2030");
         dto.setDescription("Tesla 2030 baby");
         dto.setDate(LocalDate.parse("2030-01-01"));
-        dto.setValue(BigDecimal.valueOf(53990));
+        dto.setCurrentValue(BigDecimal.ZERO);
+        dto.setGoalValue(BigDecimal.valueOf(53990));
         dto.setUserId(testUser.getId());
         dto.setAccountId(testAccount.getId());
+        dto.setGoalType(testGoal.getGoalType().getId());
         return dto;
     }
 }

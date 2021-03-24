@@ -1,4 +1,4 @@
-package com.budgeteer.api.config;
+package com.budgeteer.api.core;
 
 import io.micronaut.context.annotation.ConfigurationProperties;
 

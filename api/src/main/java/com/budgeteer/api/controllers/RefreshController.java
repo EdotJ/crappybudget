@@ -1,5 +1,6 @@
 package com.budgeteer.api.controllers;
 
+import com.budgeteer.api.core.EmailConfig;
 import com.budgeteer.api.model.RefreshToken;
 import com.budgeteer.api.repository.RefreshTokenRepository;
 import com.budgeteer.api.security.IdentifierUserDetails;
@@ -16,15 +17,18 @@ import org.reactivestreams.Publisher;
 
 import javax.inject.Singleton;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Singleton
 public class RefreshController implements RefreshTokenPersistence {
 
     private final RefreshTokenRepository repository;
+    private final boolean isVerificationEnabled;
 
-    public RefreshController(RefreshTokenRepository repository) {
+    public RefreshController(RefreshTokenRepository repository, EmailConfig emailConfig) {
         this.repository = repository;
+        this.isVerificationEnabled = emailConfig.isEnabled();
     }
 
     @Override
@@ -39,7 +43,7 @@ public class RefreshController implements RefreshTokenPersistence {
                 && details.getId() != null
                 && details.getUsername() != null) {
             String token = event.getRefreshToken();
-            repository.save(details.getId(), details.getUsername(), token, Boolean.FALSE);
+            repository.save(details.getId(), token, Boolean.FALSE);
         }
     }
 
@@ -65,7 +69,11 @@ public class RefreshController implements RefreshTokenPersistence {
         } else {
             token.setRevoked(true);
             repository.update(token);
-            emitter.onNext(new IdentifierUserDetails(token.getUsername(), new ArrayList<>(), token.getUserId()));
+            List<String> roles = new ArrayList<>();
+            if (token.getUser().isVerified() || !isVerificationEnabled) {
+                roles.add("ROLE_VERIFIED");
+            }
+            emitter.onNext(new IdentifierUserDetails(token.getUser().getUsername(), roles, token.getUser().getId()));
             emitter.onComplete();
         }
     }

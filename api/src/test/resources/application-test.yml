@@ -1,12 +1,24 @@
 datasources:
   default:
     url: "jdbc:h2:mem:default;DB_CLOSE_ON_EXIT=true;database_to_upper=false"
+    username: "test_user"
+    password: "test_pswd"
 
 micronaut:
   server:
     port: 65114
   security:
     enabled: true
+  http:
+    services:
+      client:
+        read-timeout: 60
+
+jpa:
+  default:
+    properties:
+      hibernate:
+        enable_lazy_load_no_trans: true
 
 emailprovider:
   server:

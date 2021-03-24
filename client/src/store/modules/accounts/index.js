@@ -3,9 +3,15 @@ import api from "@/api";
 const state = {
   accounts: [],
   isLoading: false,
+  currentAccount: null,
+  currentIncome: 0,
+  currentExpenses: 0,
+  currentNet: 0,
 };
 
-const getters = {};
+const getters = {
+  accountById: (state) => (id) => state.accounts.find((a) => a.id === id),
+};
 
 export const mutations = {
   SET_ACCOUNTS(state, accounts) {
@@ -31,17 +37,24 @@ export const mutations = {
     });
   },
   DELETE_ACCOUNT(state, id) {
-    state.accounts = state.accounts.filter((a) => a.id === id);
+    state.accounts = state.accounts.filter((a) => a.id !== id);
+  },
+  SET_MONTHLY_STATISTICS(state, obj) {
+    state.currentAccount = obj.id;
+    state.currentIncome = obj.data.income;
+    state.currentExpenses = obj.data.expenses;
+    state.currentNet = obj.data.net;
   },
 };
 
 export const actions = {
-  getAll: async function ({ commit }) {
+  getAll: async function ({ commit, state }, withBalance) {
     try {
       commit("SET_IS_LOADING", true);
-      const response = await api.accounts.getAll();
-      if (response.data && response.data.accounts) {
+      const response = await api.accounts.getAll(withBalance);
+      if (response && response.data && response.data.accounts) {
         commit("SET_ACCOUNTS", response.data.accounts);
+        return Promise.resolve(state.accounts[0] ? state.accounts[0].id : null);
       }
     } catch (e) {
       return Promise.reject(e);
@@ -53,8 +66,8 @@ export const actions = {
     try {
       commit("SET_IS_LOADING", true);
       const response = await api.accounts.getSingle(id);
-      if (response.data) {
-        return response.data;
+      if (response && response.data) {
+        return Promise.resolve(response.data);
       }
     } catch (e) {
       return Promise.reject(e);
@@ -67,6 +80,7 @@ export const actions = {
       const response = await api.accounts.create(account);
       if (response && response.data && response.status === 201) {
         commit("ADD_ACCOUNT", response.data);
+        return Promise.resolve();
       }
     } catch (e) {
       return Promise.reject(e);
@@ -77,6 +91,7 @@ export const actions = {
       const response = await api.accounts.update(account);
       if (response && response.data && response.status === 200) {
         commit("UPDATE_ACCOUNT", response.data);
+        return Promise.resolve();
       }
     } catch (e) {
       return Promise.reject(e);
@@ -88,6 +103,17 @@ export const actions = {
       if (response && response.status === 204) {
         commit("DELETE_ACCOUNT", id);
       }
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  },
+  getMonthly: async function ({ commit }, id) {
+    try {
+      const response = await api.accounts.getMonthly(id);
+      if (response && response.status === 200 && response.data) {
+        commit("SET_MONTHLY_STATISTICS", { id, data: response.data });
+      }
+      return Promise.resolve();
     } catch (e) {
       return Promise.reject(e);
     }

@@ -5,7 +5,9 @@ const getGoalBody = (goal) => {
     name: goal.name,
     description: goal.description ? goal.description : "",
     date: goal.date,
-    value: goal.value,
+    goalValue: goal.goalValue,
+    categoryId: goal.categoryId,
+    goalType: goal.goalType,
   };
 };
 
@@ -26,5 +28,8 @@ export default {
   },
   delete(id) {
     return request.delete(`/goals/${id}`);
+  },
+  getGoalTypes() {
+    return request.get(`/goals/types`);
   },
 };

@@ -1,39 +1,43 @@
 import api from "@/api";
 
 const state = {
-  categories: [],
+  categories: new Map(),
   isLoading: false,
 };
 
-const getters = {};
+const getters = {
+  getSortedCategories: (state) => {
+    const parents = Array.from(state.categories.values()).filter((c) => !c.parent);
+    return parents.map((p) => [p, ...Array.from(state.categories.values()).filter((c) => c.parent === p.id)]).flat(2);
+  },
+};
 
 export const mutations = {
   SET_CATEGORIES(state, categories) {
-    state.categories = categories;
+    state.categories = new Map();
+    categories.map((cat) => {
+      state.categories.set(cat.id, cat);
+    });
   },
   SET_IS_LOADING(state, isLoading) {
     state.isLoading = isLoading;
   },
   ADD_CATEGORY(state, category) {
-    state.categories.push({
+    state.categories.set(category.id, {
       id: category.id,
       name: category.name,
       parentId: category.parentId,
     });
   },
   UPDATE_CATEGORY(state, category) {
-    state.categories = state.categories.map((c) =>
-      c.id === category.id
-        ? {
-            id: category.id,
-            name: category.name,
-            parentId: category.parentId,
-          }
-        : c
-    );
+    state.categories.set(category.id, {
+      id: category.id,
+      name: category.name,
+      parentId: category.parentId,
+    });
   },
   DELETE_CATEGORY(state, id) {
-    state.categories = state.categories.filter((c) => c.id === id);
+    state.categories.delete(id);
   },
 };
 
@@ -42,7 +46,7 @@ export const actions = {
     try {
       commit("SET_IS_LOADING", true);
       const response = await api.categories.getAll();
-      if (response.data && response.data.categories) {
+      if (response && response.data && response.data.categories) {
         commit("SET_CATEGORIES", response.data.categories);
       }
     } catch (e) {
@@ -55,7 +59,7 @@ export const actions = {
     try {
       commit("SET_IS_LOADING", true);
       const response = await api.categories.getSingle(id);
-      if (response.data) {
+      if (response && response.data) {
         return response.data;
       }
     } catch (e) {

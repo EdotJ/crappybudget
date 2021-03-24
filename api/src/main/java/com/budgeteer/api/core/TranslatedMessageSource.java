@@ -1,4 +1,4 @@
-package com.budgeteer.api.config;
+package com.budgeteer.api.core;
 
 import io.micronaut.context.MessageSource;
 import io.micronaut.context.i18n.ResourceBundleMessageSource;
@@ -6,7 +6,6 @@ import io.micronaut.context.i18n.ResourceBundleMessageSource;
 import javax.inject.Singleton;
 import java.text.MessageFormat;
 import java.util.Locale;
-import java.util.Optional;
 
 @Singleton
 public class TranslatedMessageSource {

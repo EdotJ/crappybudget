@@ -26,6 +26,8 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import javax.inject.Inject;
 
+import java.time.LocalDate;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @MicronautTest
@@ -82,7 +84,7 @@ public class ExportControllerTest {
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isPresent());
         assertTrue(response.getBody().get().contains("\"date\",\"name\",\"value\",\"category\",\"account\""));
-        String testString = "\"2021-02-21\",\"Milk\",\"1.39\",\"Example Category\",\"Test Account\"";
+        String testString = LocalDate.now() + "\",\"Milk\",\"1.39\",\"Example Category\",\"Test Account\"";
         assertTrue(response.getBody().get().contains(testString));
         String bodyString = response.getBody().get();
         int substringCount = bodyString.replace("\n", "\nx").length() - bodyString.length();
@@ -98,7 +100,7 @@ public class ExportControllerTest {
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isPresent());
         assertTrue(response.getBody().get().contains("\"date\",\"name\",\"value\",\"category\",\"account\""));
-        String testString = "\"2021-02-21\",\"Milk\",\"1.39\",\"Example Category\",\"Test Account\"";
+        String testString = LocalDate.now() + "\",\"Milk\",\"1.39\",\"Example Category\",\"Test Account\"";
         assertTrue(response.getBody().get().contains(testString));
         String bodyString = response.getBody().get();
         int substringCount = bodyString.replace("\n", "\nx").length() - bodyString.length();

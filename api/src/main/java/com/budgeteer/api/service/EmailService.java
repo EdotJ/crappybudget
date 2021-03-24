@@ -1,8 +1,7 @@
 package com.budgeteer.api.service;
 
-import com.budgeteer.api.config.EmailConfig;
-import com.budgeteer.api.config.Service;
-import io.micronaut.context.annotation.Value;
+import com.budgeteer.api.core.EmailConfig;
+import com.budgeteer.api.core.Service;
 import org.simplejavamail.api.email.Email;
 import org.simplejavamail.api.mailer.Mailer;
 import org.simplejavamail.email.EmailBuilder;

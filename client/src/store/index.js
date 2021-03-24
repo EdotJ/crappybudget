@@ -19,8 +19,18 @@ const persistedState = vuexPersistedState({
   }),
 });
 
+const actions = {
+  refreshBalances({ dispatch, state }) {
+    if (state.accounts.currentAccount) {
+      dispatch("accounts/getMonthly", state.accounts.currentAccount);
+    }
+    dispatch("goals/getAll");
+  },
+};
+
 export default new Vuex.Store({
   modules: { auth, accounts, categories, entries, goals },
+  actions: actions,
   plugins: [persistedState, interceptor],
   strict: debug,
 });

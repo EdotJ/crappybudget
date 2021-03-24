@@ -3,6 +3,7 @@ import { actions } from "@/store/modules/auth";
 import { testAction } from "../helpers";
 
 jest.mock("@/api");
+jest.mock("@/router");
 
 api.auth.login.mockResolvedValue({ data: { access_token: "AccessToken", refresh_token: "RefreshToken" } });
 api.auth.register.mockResolvedValue({ data: { id: 5, username: "TestUser", email: "TestEmail@Gmail.com" } });
@@ -14,8 +15,10 @@ describe("auth actions", () => {
       { username: "TestUser", password: "UnsecurePassword" },
       {},
       [
+        { type: "SET_IS_LOADING", payload: true },
         { type: "SET_ACCESS_TOKEN", payload: "AccessToken" },
         { type: "SET_REFRESH_TOKEN", payload: "RefreshToken" },
+        { type: "SET_IS_LOADING", payload: false },
       ],
       done
     );
@@ -25,7 +28,10 @@ describe("auth actions", () => {
       actions.register,
       { username: "TestUser", password: "UnsecurePassword", email: "TestEmail@Gmail.com" },
       {},
-      [],
+      [
+        { type: "SET_IS_LOADING", payload: true },
+        { type: "SET_IS_LOADING", payload: false },
+      ],
       done
     );
   });
