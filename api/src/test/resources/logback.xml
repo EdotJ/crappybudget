@@ -15,9 +15,11 @@
         <appender-ref ref="simpleConsole" />
     </logger>
     <logger name="org.simplejavamail.internal.authenticatedsockssupport" level="WARN"/>
+    <logger name="io.micronaut.http.client" level="ERROR"/>
+    <logger name="com.budgeteer.api.receipts.gcp.BasicCloudVisionReceiptParser" level="ERROR" />
 
 
-    <root level="debug">
+    <root level="ERROR">
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>

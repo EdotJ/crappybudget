@@ -9,12 +9,12 @@
         </encoder>
     </appender>
 
-    <logger name="org.simplejavamail" level="TRACE"/>
+    <logger name="org.simplejavamail" level="ERROR"/>
     <!-- in case you're using authenticated proxy -->
-    <logger name="socks5bridge" level="INFO" additivity="false">
+    <logger name="socks5bridge" level="ERROR" additivity="false">
         <appender-ref ref="simpleConsole" />
     </logger>
-    <logger name="org.simplejavamail.internal.authenticatedsockssupport" level="WARN"/>
+    <logger name="org.simplejavamail.internal.authenticatedsockssupport" level="ERROR"/>
 
 
     <root level="error">
