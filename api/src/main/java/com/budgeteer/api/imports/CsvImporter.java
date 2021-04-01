@@ -85,7 +85,7 @@ public class CsvImporter implements Importer<CsvImportRequest, CsvImporterData> 
             csvToBean.setMappingStrategy(strat);
             csvToBean.setCsvReader(reader);
             csvToBean.setFilter(line -> {
-                System.out.println(String.join(",", line));
+                System.out.println("CsvImporter getData " + String.join(",", line));
                 boolean allValuesFilled = Arrays.stream(line).allMatch(StringUtils::hasText);
                 boolean isValid = line.length == data.getMappings().size() && allValuesFilled;
                 if (!isValid) {
