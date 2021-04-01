@@ -10,7 +10,7 @@ on:
 
 jobs:
   jest:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     strategy:
       matrix:
         node-version: [15.x]
@@ -32,7 +32,7 @@ jobs:
         name: client-artifact
         path: ./client/*.xml
   junit:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     env:
       working-directory: ./api
     steps:
@@ -48,13 +48,16 @@ jobs:
       run: ./gradlew test
       working-directory: ${{env.working-directory}}
     - name: Upload artifacts
-      uses: actions/upload-artifact@master
+      uses: actions/upload-artifact@v2
+      if: always()
       with:
         name: api-artifact
-        path: ./api/build/test-results/
+        path: |
+          ./api/build/test-results/
+          ./api/build/reports/**/*
   publish:
     needs: [jest, junit]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v2
     - name: Get artifacts
