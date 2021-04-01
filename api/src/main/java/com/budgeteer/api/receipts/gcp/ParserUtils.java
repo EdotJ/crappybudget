@@ -28,6 +28,7 @@ public class ParserUtils {
         }
         centerX = centerX / 4;
         centerY = centerY / 4;
+        
         return new Pair<>(centerX, centerY);
     }
 

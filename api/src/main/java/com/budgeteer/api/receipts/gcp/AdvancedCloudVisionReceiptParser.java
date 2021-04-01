@@ -4,7 +4,6 @@ import com.budgeteer.api.core.Pair;
 import com.budgeteer.api.dto.receipts.ReceiptParseEntry;
 import com.budgeteer.api.dto.receipts.ReceiptParseResponse;
 import com.budgeteer.api.receipts.OnlineReceiptParser;
-import com.budgeteer.api.receipts.ReceiptParser;
 import com.budgeteer.api.receipts.gcp.model.response.*;
 
 import javax.inject.Named;
@@ -13,7 +12,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -27,7 +28,7 @@ public class AdvancedCloudVisionReceiptParser
     private static final int BOT_RIGHT = 2;
     private static final int BOT_LEFT = 3;
 
-    private static final int THRESHOLD = 30;
+    private static final int HEIGHT_THRESHOLD = 30;
 
     private final CloudVisionClient client;
 
@@ -90,7 +91,7 @@ public class AdvancedCloudVisionReceiptParser
     }
 
     /**
-     * Fixes annotations that have been unnecessarily broken out
+     * Fixes annotations that have been unnecessarily broken out.
      *
      * @param textAnnotations all annotations
      * @return annotations with merged pricing info
@@ -117,11 +118,11 @@ public class AdvancedCloudVisionReceiptParser
             boolean isPrice = digitsOnly.matcher(previous.getDescription()).matches()
                     && sep.matcher(current.getDescription()).matches()
                     && positiveDigitsOnly.matcher(next.getDescription()).matches();
-            boolean isVAT = previous.getDescription().equalsIgnoreCase("PVM")
+            boolean isVat = previous.getDescription().equalsIgnoreCase("PVM")
                     && (current.getDescription().equalsIgnoreCase("mokėtojo")
                     || current.getDescription().equalsIgnoreCase("moketojo"))
                     && next.getDescription().equalsIgnoreCase("kodas");
-            if (!isPrice && !isVAT) {
+            if (!isPrice && !isVat) {
                 iterator.next();
                 continue;
             }
@@ -132,7 +133,7 @@ public class AdvancedCloudVisionReceiptParser
             iterator.remove();
             iterator.next();
             iterator.remove();
-            if (isVAT) {
+            if (isVat) {
                 vat = mergeAnnotation(previous, current, next);
                 iterator.add(vat);
             } else {
@@ -146,7 +147,9 @@ public class AdvancedCloudVisionReceiptParser
     protected TextAnnotation mergeAnnotation(TextAnnotation previous, TextAnnotation current, TextAnnotation next) {
         TextAnnotation annotation = new TextAnnotation();
         if (previous.getDescription().equalsIgnoreCase("PVM")) {
-            annotation.setDescription(previous.getDescription() + " " + current.getDescription() + " " + next.getDescription());
+            annotation.setDescription(previous.getDescription()
+                    + " " + current.getDescription()
+                    + " " + next.getDescription());
         } else {
             annotation.setDescription(previous.getDescription() + current.getDescription() + next.getDescription());
         }
@@ -167,9 +170,9 @@ public class AdvancedCloudVisionReceiptParser
     }
 
     private List<Pair<String, String>> getPricesWithLabels(List<TextAnnotation> allAnnotations,
-                                                                   List<TextAnnotation> priceAnnotations,
-                                                                   Orientation orientation,
-                                                                   Pair<Integer, Integer> center) {
+                                                           List<TextAnnotation> priceAnnotations,
+                                                           Orientation orientation,
+                                                           Pair<Integer, Integer> center) {
         int centerCoord = orientation.isVertical() ? center.getFirst() : center.getSecond();
         // keep first annotation for VAT
         List<TextAnnotation> rightAnnotations = priceAnnotations.stream()
@@ -210,17 +213,15 @@ public class AdvancedCloudVisionReceiptParser
 
             sum += diff;
             avgDistance = sum / i;
-
         }
+
         return pricesWithLabels;
     }
 
     private int getLineHeight(Orientation orientation, List<Vertex> currVertices, int lineCount) {
-        int diff;
-        diff = orientation.isVertical()
+        return orientation.isVertical()
                 ? Math.abs(currVertices.get(BOT_LEFT).getY() - currVertices.get(TOP_LEFT).getY() * lineCount)
                 : Math.abs(currVertices.get(BOT_LEFT).getX() - currVertices.get(TOP_LEFT).getX() * lineCount);
-        return diff;
     }
 
     private boolean isRightOfCenter(TextAnnotation a, int avgCoord, Orientation orientation) {
@@ -279,8 +280,8 @@ public class AdvancedCloudVisionReceiptParser
     }
 
     protected boolean checkBetween(int from, int to, TextAnnotation curr, TextAnnotation a, Orientation o) {
-        return getMinVertex(a, o) >= from - THRESHOLD
-                && getMaxVertex(a, o) <= to + THRESHOLD
+        return getMinVertex(a, o) >= from - HEIGHT_THRESHOLD
+                && getMaxVertex(a, o) <= to + HEIGHT_THRESHOLD
                 && isBeside(curr, a, o);
     }
 

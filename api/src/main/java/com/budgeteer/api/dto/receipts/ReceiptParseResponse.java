@@ -10,6 +10,7 @@ import java.util.List;
 public class ReceiptParseResponse {
 
     @JsonProperty("shop")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String shopTitle;
 
     @JsonProperty("total")

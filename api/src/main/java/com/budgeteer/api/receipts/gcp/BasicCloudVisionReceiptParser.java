@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 public class BasicCloudVisionReceiptParser
         implements OnlineReceiptParser<InputStream, ApiResponse, ReceiptParseResponse> {
 
-    private Logger logger = LoggerFactory.getLogger(BasicCloudVisionReceiptParser.class);
+    private final Logger logger = LoggerFactory.getLogger(BasicCloudVisionReceiptParser.class);
 
     @Inject
     ObjectMapper objectMapper;
@@ -72,6 +72,7 @@ public class BasicCloudVisionReceiptParser
             try {
                 logger.debug(objectMapper.writeValueAsString(title));
                 logger.debug(objectMapper.writeValueAsString(titlePricePair));
+                logger.debug(objectMapper.writeValueAsString(date));
             } catch (Exception e) {
                 logger.error("Failed marshalling value for logging");
             }
@@ -91,8 +92,8 @@ public class BasicCloudVisionReceiptParser
         List<TextAnnotation> matches = new ArrayList<>();
         for (int i = 1; i < allAnnotations.size(); i++) {
             TextAnnotation textAnnotation = allAnnotations.get(i);
-            if (textAnnotation.getDescription().length() >= minLength &&
-                    textAnnotation.getDescription().length() <= maxLength) {
+            if (textAnnotation.getDescription().length() >= minLength
+                    && textAnnotation.getDescription().length() <= maxLength) {
                 for (String word : possibleTotalStrings) {
                     String[] words = word.split(" ");
                     String label = textAnnotation.getDescription();
@@ -164,7 +165,7 @@ public class BasicCloudVisionReceiptParser
     }
 
     /**
-     * Checks to see if the vertices are actually on the different sides when orientation is vertical (up / down)
+     * Checks to see if the vertices are actually on the different sides when orientation is vertical (up / down).
      */
     private boolean matchesVertical(Orientation orientation, List<Vertex> titleVertices, List<Vertex> priceVertices) {
         return (orientation.equals(Orientation.UP) && priceVertices.get(1).getX() > titleVertices.get(1).getX())
@@ -172,7 +173,7 @@ public class BasicCloudVisionReceiptParser
     }
 
     /**
-     * Checks to see if the vertices are actually on the different sides when orientation is horizontal (left / right)
+     * Checks to see if the vertices are actually on the different sides when orientation is horizontal (left / right).
      */
     private boolean matchesHorizontal(Orientation orientation, List<Vertex> titleVertices, List<Vertex> priceVertices) {
         return (orientation.equals(Orientation.RIGHT) && priceVertices.get(1).getY() > titleVertices.get(1).getY())
@@ -200,7 +201,6 @@ public class BasicCloudVisionReceiptParser
 
         return new Pair<>(ta2, currentDistance);
     }
-
 
     private Optional<LocalDate> findDateAnnotation(List<TextAnnotation> textAnnotations) {
         List<LocalDate> localDates = new ArrayList<>();

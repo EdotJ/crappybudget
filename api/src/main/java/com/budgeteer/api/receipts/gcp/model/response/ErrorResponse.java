@@ -14,8 +14,8 @@ public class ErrorResponse {
 
     @Override
     public String toString() {
-        return "ErrorResponse{" +
-                "error=" + error.getMessage() +
-                '}';
+        return "ErrorResponse{"
+                + "error=" + error.getMessage()
+                + '}';
     }
 }
