@@ -15,7 +15,6 @@ public class ImportEntry {
     private String description;
 
     @CsvNumber("###.##")
-    @CsvBindByName(locale = "en")
     private BigDecimal value;
 
     @CsvDate("yyyy-MM-dd")

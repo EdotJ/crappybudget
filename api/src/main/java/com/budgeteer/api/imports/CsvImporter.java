@@ -85,6 +85,7 @@ public class CsvImporter implements Importer<CsvImportRequest, CsvImporterData> 
             csvToBean.setMappingStrategy(strat);
             csvToBean.setCsvReader(reader);
             csvToBean.setFilter(line -> {
+                System.out.println(String.join(",", line));
                 boolean allValuesFilled = Arrays.stream(line).allMatch(StringUtils::hasText);
                 boolean isValid = line.length == data.getMappings().size() && allValuesFilled;
                 if (!isValid) {
@@ -126,11 +127,13 @@ public class CsvImporter implements Importer<CsvImportRequest, CsvImporterData> 
         if (securityService.getAuthentication().isEmpty()) {
             throw new AuthenticationException(new AuthenticationFailed());
         }
+        System.out.println("Value in CSV Importer : " + importEntries.get(0).getValue());
         List<Entry> entries = new ArrayList<>();
         Long userId = (Long) securityService.getAuthentication().get().getAttributes().get("id");
         Map<String, Category> categoriesByName = categoryService.getAll(userId)
                 .stream().collect(Collectors.toMap(Category::getName, c -> c));
         for (ImportEntry importEntry : importEntries) {
+            System.out.println("Value in CSV Importer : " + importEntry.getValue());
             Entry entry = importEntry.transform();
             entry.setAccount(account);
             String catName = StringUtils.hasText(importEntry.getCategory()) ? importEntry.getCategory() : "default";
