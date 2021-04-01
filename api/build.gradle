@@ -38,9 +38,12 @@ dependencies {
     runtimeOnly("ch.qos.logback:logback-classic")
     implementation("com.opencsv:opencsv:5.3")
     implementation("org.simplejavamail:simple-java-mail:6.5.0")
+    implementation("commons-codec:commons-codec:1.15")
+    implementation("org.apache.commons:commons-text:1.9")
 
-    testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.1.0'
-    testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '2.23.0'
+    testImplementation("org.mockito:mockito-core:2.1.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:2.23.0")
+    testCompile("org.junit.jupiter:junit-jupiter-params:5.7.0")
 }
 
 
