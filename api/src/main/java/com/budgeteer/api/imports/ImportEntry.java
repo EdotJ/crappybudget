@@ -1,6 +1,7 @@
 package com.budgeteer.api.imports;
 
 import com.budgeteer.api.model.Entry;
+import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvDate;
 import com.opencsv.bean.CsvNumber;
 
@@ -14,6 +15,7 @@ public class ImportEntry {
     private String description;
 
     @CsvNumber("###.##")
+    @CsvBindByName(locale = "en")
     private BigDecimal value;
 
     @CsvDate("yyyy-MM-dd")
