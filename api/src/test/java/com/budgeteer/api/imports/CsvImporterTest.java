@@ -31,7 +31,7 @@ public class CsvImporterTest {
     @Test
     public void testDataParsingWithOnlyNecessaryFields() throws IOException, ParseException {
         String testString = "name,value,date"
-                + "\nPotato,10.561,2020-01-30"
+                + "\nPotato,10.56,2020-01-30"
                 + "\nCarrot,12345.61,2020-05-30";
         Map<String, String> mapping = new HashMap<>();
         mapping.put("name", "name");
