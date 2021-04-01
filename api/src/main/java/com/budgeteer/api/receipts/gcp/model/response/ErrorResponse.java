@@ -11,4 +11,11 @@ public class ErrorResponse {
     public void setError(Error error) {
         this.error = error;
     }
+
+    @Override
+    public String toString() {
+        return "ErrorResponse{" +
+                "error=" + error.getMessage() +
+                '}';
+    }
 }

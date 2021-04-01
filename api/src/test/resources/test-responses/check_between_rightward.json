@@ -1,0 +1,169 @@
+{
+  "responses": [
+    {
+      "textAnnotations": [
+        {
+          "description": "Kukurūzų",
+          "boundingPoly": {
+            "vertices": [
+              {
+                "x": 50,
+                "y": 0
+              },
+              {
+                "x": 50,
+                "y": 25
+              },
+              {
+                "x": 0,
+                "y": 25
+              },
+              {
+                "x": 0,
+                "y": 0
+              }
+            ]
+          }
+        },
+        {
+          "description": "traškučiai",
+          "boundingPoly": {
+            "vertices": [
+              {
+                "x": 50,
+                "y": 25
+              },
+              {
+                "x": 50,
+                "y": 49
+              },
+              {
+                "x": 0,
+                "y": 49
+              },
+              {
+                "x": 0,
+                "y": 25
+              }
+            ]
+          }
+        },
+        {
+          "description": "SANTA",
+          "boundingPoly": {
+            "vertices": [
+              {
+                "x": 50,
+                "y": 49
+              },
+              {
+                "x": 50,
+                "y": 75
+              },
+              {
+                "x": 0,
+                "y": 75
+              },
+              {
+                "x": 0,
+                "y": 49
+              }
+            ]
+          }
+        },
+        {
+          "description": "MARIA",
+          "boundingPoly": {
+            "vertices": [
+              {
+                "x": 50,
+                "y": 76
+              },
+              {
+                "x": 50,
+                "y": 100
+              },
+              {
+                "x": 0,
+                "y": 100
+              },
+              {
+                "x": 0,
+                "y": 76
+              }
+            ]
+          }
+        },
+        {
+          "description": "1,60",
+          "boundingPoly": {
+            "vertices": [
+              {
+                "x": 50,
+                "y": 200
+              },
+              {
+                "x": 50,
+                "y": 250
+              },
+              {
+                "x": 0,
+                "y": 250
+              },
+              {
+                "x": 0,
+                "y": 200
+              }
+            ]
+          }
+        },
+        {
+          "description": "A",
+          "boundingPoly": {
+            "vertices": [
+              {
+                "x": 50,
+                "y": 260
+              },
+              {
+                "x": 50,
+                "y": 280
+              },
+              {
+                "x": 0,
+                "y": 280
+              },
+              {
+                "x": 0,
+                "y": 260
+              }
+            ]
+          }
+        },
+        {
+          "description": "A",
+          "boundingPoly": {
+            "vertices": [
+              {
+                "x": 150,
+                "y": 100
+              },
+              {
+                "x": 150,
+                "y": 100
+              },
+              {
+                "x": 100,
+                "y": 150
+              },
+              {
+                "x": 100,
+                "y": 150
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -2,6 +2,7 @@ package com.budgeteer.api.receipts.gcp;
 
 import com.budgeteer.api.receipts.gcp.CloudVisionClient;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
@@ -17,6 +18,7 @@ public class CloudVisionClientTest {
     CloudVisionClient client;
 
     @Test
+    @Disabled
     public void testImageGet() throws IOException {
         try (InputStream is = new ByteArrayInputStream("text".getBytes(StandardCharsets.UTF_8))) {
             Object object = client.getAnnotatedImage(is);

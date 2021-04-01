@@ -113,7 +113,7 @@ api:
     enabled: ${RECEIPT_RECOGNITION_ENABLED:true}
 
 cloud-vision:
-  key: ${GOOGLE_API_KEY}
+  key: ${GOOGLE_API_KEY:}
 
 emailprovider:
   server:

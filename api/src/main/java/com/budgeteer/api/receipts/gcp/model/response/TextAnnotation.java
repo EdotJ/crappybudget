@@ -2,8 +2,6 @@ package com.budgeteer.api.receipts.gcp.model.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.List;
-
 public class TextAnnotation {
 
     @JsonProperty("locale")

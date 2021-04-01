@@ -1,6 +1,7 @@
 package com.budgeteer.api.receipts.gcp;
 
 import com.budgeteer.api.core.Pair;
+import com.budgeteer.api.dto.receipts.ReceiptParseResponse;
 import com.budgeteer.api.receipts.OnlineReceiptParser;
 import com.budgeteer.api.receipts.gcp.model.response.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,30 +10,44 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Singleton
-public class BasicCloudVisionReceiptParser implements OnlineReceiptParser<InputStream, ApiResponse, List<Object>> {
+@Named("BasicCloudVision")
+public class BasicCloudVisionReceiptParser
+        implements OnlineReceiptParser<InputStream, ApiResponse, ReceiptParseResponse> {
 
-    Logger logger = LoggerFactory.getLogger(BasicCloudVisionReceiptParser.class);
+    private Logger logger = LoggerFactory.getLogger(BasicCloudVisionReceiptParser.class);
 
     @Inject
     ObjectMapper objectMapper;
 
-    List<String> possibleTotalStrings = List.of("Mokėti", "Moketi", "Viso", "Iš viso", "Mokėjimas", "Sumokėti");
+    List<String> possibleTotalStrings = List.of("Mokėti", "Moketi", "Viso", "Iš viso", "Mokėjimas", "Sumokėti",
+            "VISO MOKETI", "VISO MOKĖTI", "IŠ VISO", "IS VISO");
 
     private final Pattern pricePattern = Pattern.compile("-?\\d+(,|.)\\d+");
 
+    private final Pattern datePattern = Pattern.compile("([12]\\d{3}[.-](0[1-9]|1[0-2])[.-](0[1-9]|[12]\\d|3[01]))");
+
     private final CloudVisionClient client;
 
-    public BasicCloudVisionReceiptParser(CloudVisionClient cloudVisionClient) {
+    private final ParserUtils parserUtils;
+
+    public BasicCloudVisionReceiptParser(CloudVisionClient cloudVisionClient, ParserUtils parserUtils) {
         this.client = cloudVisionClient;
+        this.parserUtils = parserUtils;
     }
 
     @Override
@@ -41,113 +56,111 @@ public class BasicCloudVisionReceiptParser implements OnlineReceiptParser<InputS
     }
 
     @Override
-    public List<Object> parseReceipt(ApiResponse request) throws ParseException {
-        if (request.getResponses().get(0).getTextAnnotations() == null || request.getResponses().get(0).getTextAnnotations().size() < 3) {
+    public ReceiptParseResponse parseReceipt(ApiResponse request) throws ParseException {
+        if (request.getResponses().get(0).getTextAnnotations() == null
+                || request.getResponses().get(0).getTextAnnotations().size() < 3) {
             throw new ParseException("Did not get annotations from Cloud Vision", 0);
         }
         // Safe to take the first receipt since we only allow single file upload
         Response response = request.getResponses().get(0);
-        Orientation orientation = getOrientation(response.getTextAnnotations().get(2));
-        TextAnnotation title = findTotalPriceTitleAnnotation(response.getTextAnnotations());
-        TextAnnotation price = findTotalPriceAnnotation(title, response.getTextAnnotations(), orientation);
+        Orientation orientation = parserUtils.getOrientation(response.getTextAnnotations().get(2));
+        List<TextAnnotation> title = findTotalPriceTitleAnnotation(response.getTextAnnotations());
+        var titlePricePair = findTotalPriceAnnotation(title, response.getTextAnnotations(), orientation);
+        Optional<LocalDate> date = findDateAnnotation(response.getTextAnnotations());
 
         if (logger.isDebugEnabled()) {
             try {
                 logger.debug(objectMapper.writeValueAsString(title));
-                logger.debug(objectMapper.writeValueAsString(price));
+                logger.debug(objectMapper.writeValueAsString(titlePricePair));
             } catch (Exception e) {
                 logger.error("Failed marshalling value for logging");
             }
         }
-
-        return List.of(title, price);
+        ReceiptParseResponse generatedResponse = new ReceiptParseResponse();
+        generatedResponse.setTotal(new BigDecimal(titlePricePair.getSecond().getDescription().replace(",", ".")));
+        date.ifPresent(localDate -> generatedResponse.setDate(localDate.format(DateTimeFormatter.ISO_DATE)));
+        return generatedResponse;
     }
 
-    private TextAnnotation findTotalPriceTitleAnnotation(List<TextAnnotation> allAnnotations) {
+    private List<TextAnnotation> findTotalPriceTitleAnnotation(List<TextAnnotation> allAnnotations) {
         int minLength = possibleTotalStrings.stream().map(String::length).min(Comparator.naturalOrder()).get();
         int maxLength = possibleTotalStrings.stream().map(String::length).max(Comparator.naturalOrder()).get();
         TextAnnotation closestMatch = allAnnotations.get(0);
         String foundWordMatch = "";
         LevenshteinDistance levenshtein = LevenshteinDistance.getDefaultInstance();
+        List<TextAnnotation> matches = new ArrayList<>();
         for (int i = 1; i < allAnnotations.size(); i++) {
             TextAnnotation textAnnotation = allAnnotations.get(i);
             if (textAnnotation.getDescription().length() >= minLength &&
                     textAnnotation.getDescription().length() <= maxLength) {
                 for (String word : possibleTotalStrings) {
-                    int distance = levenshtein.apply(textAnnotation.getDescription(), word);
+                    String[] words = word.split(" ");
+                    String label = textAnnotation.getDescription();
+                    if (words.length > 1 && i > words.length) {
+                        StringBuilder sb = new StringBuilder();
+                        for (int j = i - words.length + 1; j <= i; j++) {
+                            sb.append(allAnnotations.get(j).getDescription());
+                            if (j < i) {
+                                sb.append(" ");
+                            }
+                        }
+                        label = sb.toString();
+                    }
+                    int distance = levenshtein.apply(label, word);
                     if (distance <= levenshtein.apply(closestMatch.getDescription(), foundWordMatch)) {
+                        if (distance == 0) {
+                            matches.add(textAnnotation);
+                        }
                         closestMatch = textAnnotation;
                         foundWordMatch = word;
                     }
                 }
             }
         }
-        return closestMatch;
+        return matches.size() > 0 ? matches : List.of(closestMatch);
     }
 
-    protected Orientation getOrientation(TextAnnotation textAnnotation) {
-        BoundingPoly boundingPoly = textAnnotation.getBoundingPoly();
-        List<Vertex> vertices = boundingPoly.getVertices();
-        Pair<Double, Double> centerCoords = getCenterVertex(vertices);
-
-        return determineOrientation(centerCoords, vertices.get(0));
+    private Pair<TextAnnotation, TextAnnotation> findTotalPriceAnnotation(List<TextAnnotation> titles,
+                                                                      List<TextAnnotation> textAnnotations,
+                                                                      Orientation orientation) throws ParseException {
+        List<Pair<TextAnnotation, TextAnnotation>> pricesByTitle = new ArrayList<>();
+        for (TextAnnotation title : titles) {
+            List<Vertex> vertices = title.getBoundingPoly().getVertices();
+            TextAnnotation priceAnnotation = null;
+            int currentDistance = Integer.MAX_VALUE;
+            for (TextAnnotation potentialPrice : textAnnotations) {
+                if (!pricePattern.matcher(potentialPrice.getDescription()).matches()) {
+                    continue;
+                }
+                List<Vertex> annotationVertices = potentialPrice.getBoundingPoly().getVertices();
+                Pair<TextAnnotation, Integer> pair = null;
+                if (matchesVertical(orientation, vertices, annotationVertices)) {
+                    pair = getDistance(potentialPrice, title, currentDistance, false);
+                } else if (matchesHorizontal(orientation, vertices, annotationVertices)) {
+                    pair = getDistance(potentialPrice, title, currentDistance, true);
+                }
+                if (pair != null && pair.getFirst() != title) {
+                    priceAnnotation = pair.getFirst();
+                    currentDistance = pair.getSecond();
+                }
+            }
+            if (priceAnnotation == null) {
+                throw new ParseException("Failed parsing receipt. Could not find total price", 0);
+            }
+            pricesByTitle.add(new Pair<>(title, priceAnnotation));
+        }
+        Optional<Pair<TextAnnotation, TextAnnotation>> textAnnotationOpt = pricesByTitle.stream()
+                .max((p1, p2) -> comparePriceAnnotations(p1.getSecond(), p2.getSecond()));
+        if (textAnnotationOpt.isPresent()) {
+            return textAnnotationOpt.get();
+        }
+        throw new ParseException("Could not get total price", 0);
     }
 
-    private Pair<Double, Double> getCenterVertex(List<Vertex> vertices) {
-        double centerX = 0;
-        double centerY = 0;
-        for (Vertex v : vertices) {
-            centerX += v.getX();
-            centerY += v.getY();
-        }
-        centerX = centerX / 4;
-        centerY = centerY / 4;
-        return new Pair<>(centerX, centerY);
-    }
-
-    private Orientation determineOrientation(Pair<Double, Double> centerCoords, Vertex vertex) {
-        if (vertex.getX() < centerCoords.getFirst()) {
-            if (vertex.getY() < centerCoords.getSecond()) {
-                return Orientation.UP;
-            } else {
-                return Orientation.LEFT;
-            }
-        } else {
-            if (vertex.getY() < centerCoords.getSecond()) {
-                return Orientation.RIGHT;
-            } else {
-                return Orientation.DOWN;
-            }
-        }
-    }
-
-
-    private TextAnnotation findTotalPriceAnnotation(TextAnnotation title,
-                                                    List<TextAnnotation> textAnnotations,
-                                                    Orientation orientation) throws ParseException {
-        List<Vertex> vertices = title.getBoundingPoly().getVertices();
-        TextAnnotation priceAnnotation = null;
-        int currentDistance = Integer.MAX_VALUE;
-        for (TextAnnotation potentialPrice : textAnnotations) {
-            if (!pricePattern.matcher(potentialPrice.getDescription()).matches()) {
-                continue;
-            }
-            List<Vertex> annotationVertices = potentialPrice.getBoundingPoly().getVertices();
-            Pair<TextAnnotation, Integer> pair = null;
-            if (matchesVertical(orientation, vertices, annotationVertices)) {
-                pair = getDistance(potentialPrice, title, currentDistance, false);
-            } else if (matchesHorizontal(orientation, vertices, annotationVertices)) {
-                pair = getDistance(potentialPrice, title, currentDistance, true);
-            }
-            if (pair != null && pair.getFirst() != title) {
-                priceAnnotation = pair.getFirst();
-                currentDistance = pair.getSecond();
-            }
-        }
-        if (priceAnnotation == null) {
-            throw new ParseException("Failed parsing receipt. Could not find total price", 0);
-        }
-        return priceAnnotation;
+    private int comparePriceAnnotations(TextAnnotation a1, TextAnnotation a2) {
+        BigDecimal price1 = new BigDecimal(a1.getDescription().replace(",", "."));
+        BigDecimal price2 = new BigDecimal(a2.getDescription().replace(",", "."));
+        return price1.compareTo(price2);
     }
 
     /**
@@ -188,10 +201,14 @@ public class BasicCloudVisionReceiptParser implements OnlineReceiptParser<InputS
         return new Pair<>(ta2, currentDistance);
     }
 
-    protected enum Orientation {
-        UP,
-        RIGHT,
-        DOWN,
-        LEFT
+
+    private Optional<LocalDate> findDateAnnotation(List<TextAnnotation> textAnnotations) {
+        List<LocalDate> localDates = new ArrayList<>();
+        for (TextAnnotation ta : textAnnotations) {
+            if (datePattern.matcher(ta.getDescription()).matches()) {
+                localDates.add(LocalDate.parse(ta.getDescription().replace(".", "-")));
+            }
+        }
+        return localDates.stream().min(Comparator.naturalOrder());
     }
 }
