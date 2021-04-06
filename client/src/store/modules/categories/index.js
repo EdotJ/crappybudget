@@ -7,8 +7,8 @@ const state = {
 
 const getters = {
   getSortedCategories: (state) => {
-    const parents = Array.from(state.categories.values()).filter((c) => !c.parent);
-    return parents.map((p) => [p, ...Array.from(state.categories.values()).filter((c) => c.parent === p.id)]).flat(2);
+    const parents = Array.from(state.categories.values()).filter((c) => !c.parentId);
+    return parents.map((p) => [p, ...Array.from(state.categories.values()).filter((c) => c.parentId === p.id)]).flat(2);
   },
 };
 

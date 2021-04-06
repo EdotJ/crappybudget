@@ -12,9 +12,12 @@ import Settings from "@/pages/Settings";
 import AccountForm from "@/pages/accounts/AccountForm";
 import Categories from "@/pages/categories/Categories";
 import CategoriesForm from "@/pages/categories/CategoriesForm";
+import EntryForm from "@/pages/EntryForm";
 
 const routes = [
   { path: "/", component: Home },
+  { path: "/entries/create", component: EntryForm },
+  { path: "/entries/edit/:id", component: EntryForm },
   { path: "/charts", component: ChartsPage },
   { path: "/accounts", component: Accounts },
   { path: "/accounts/create", component: AccountForm },

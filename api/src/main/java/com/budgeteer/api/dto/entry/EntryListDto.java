@@ -12,6 +12,11 @@ public class EntryListDto extends AbstractListDto<SingleEntryDto> {
     public EntryListDto() {
     }
 
+    public EntryListDto(List<SingleEntryDto> entries) {
+        super(entries);
+        totalPages = -1;
+    }
+
     public EntryListDto(List<SingleEntryDto> entries, int totalPages) {
         super(entries);
         this.totalPages = totalPages;
@@ -19,7 +24,7 @@ public class EntryListDto extends AbstractListDto<SingleEntryDto> {
 
     @JsonProperty("entries")
     @Override
-    protected List<SingleEntryDto> getList() {
+    public List<SingleEntryDto> getList() {
         return list;
     }
 

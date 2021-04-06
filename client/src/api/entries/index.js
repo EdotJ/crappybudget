@@ -36,4 +36,23 @@ export default {
   getBalance() {
     return request.get(`/entries/balance`);
   },
+  scanReceipts(file) {
+    let formData = new FormData();
+    if (file) {
+      formData.append("file", file);
+    }
+    return request.post(`/receipts?isBasic=false`, formData);
+  },
+  submitReceiptEntries(receipt) {
+    const body = {
+      accountId: receipt.accountId,
+      categoryId: receipt.categoryId,
+      date: receipt.date,
+      entries: receipt.entries.map((e) => ({
+        name: e.label,
+        price: e.price,
+      })),
+    };
+    return request.post(`/entries/receipt`, body);
+  },
 };

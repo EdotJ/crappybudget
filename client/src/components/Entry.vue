@@ -22,20 +22,14 @@
         </div>
       </div>
       <div class="actions">
-        <IconBase
-          width="24"
-          height="24"
-          view-box="0 0 24 24"
-          class="delete-button"
-          v-on:click.native.stop="toggleConfirmationModal"
-        >
-          <DeleteIcon />
-        </IconBase>
+        <DeleteButton v-on:click.native.stop="toggleConfirmationModal" />
       </div>
       <ConfirmationModal
         :show="showConfirmation"
         v-on:close-modal="toggleConfirmationModal"
         v-on:confirmed="deleteEntryAfterConfirmation"
+        entityName="entry"
+        :name="entry.name"
       />
     </div>
   </div>
@@ -43,13 +37,12 @@
 
 <script>
 import { mapState, mapActions } from "vuex";
-import IconBase from "@/components/IconBase";
-import DeleteIcon from "@/components/icons/DeleteIcon";
 import ConfirmationModal from "@/components/ConfirmationModal";
+import DeleteButton from "@/components/DeleteButton";
 
 export default {
   name: "Entry",
-  components: { ConfirmationModal, DeleteIcon, IconBase },
+  components: { DeleteButton, ConfirmationModal },
   props: { entry: Object, index: Number, page: Number },
   computed: {
     ...mapState({
@@ -69,7 +62,7 @@ export default {
       refreshBalances: "refreshBalances",
     }),
     getCategoryWithParent() {
-      if (!this.entry.category || this.categories.get() === undefined) {
+      if (!this.entry.categoryId || this.categories.get(this.entry.categoryId) === undefined) {
         return "";
       }
       const category = this.categories.get(this.entry.categoryId);
@@ -77,7 +70,7 @@ export default {
       if (category.parentId) {
         parent = this.categories.get(category.parentId);
       }
-      return parent ? parent.name + " > " + category.name : category.name;
+      return parent ? parent.name + " | " + category.name : category.name;
     },
     toggleConfirmationModal() {
       this.showConfirmation = !this.showConfirmation;
@@ -130,6 +123,8 @@ export default {
 .category-full,
 .category-mobile {
   font-size: 0.75rem;
+  display: flex;
+  align-items: center;
 }
 
 .category-full {
@@ -159,25 +154,6 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.delete-button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-left: 16px;
-  border-radius: 0.5rem;
-  color: var(--accent-main);
-  border: 0;
-  font-size: 1.5rem;
-  padding: 8px;
-  width: 2.5rem;
-  height: 2.5rem;
-}
-
-.delete-button:hover {
-  background: var(--accent-main);
-  color: var(--foreground-accent);
 }
 
 h1 {

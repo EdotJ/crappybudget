@@ -1,10 +1,10 @@
 package com.budgeteer.api.controllers;
 
-import com.budgeteer.api.dto.ErrorResponse;
 import com.budgeteer.api.dto.receipts.ReceiptParseResponse;
 import com.budgeteer.api.exception.ServiceDisabledException;
 import com.budgeteer.api.receipts.OnlineReceiptParser;
 import com.budgeteer.api.receipts.gcp.model.response.ApiResponse;
+import io.micronaut.context.annotation.Property;
 import io.micronaut.context.annotation.Value;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
@@ -29,7 +29,7 @@ public class ReceiptHandlingController {
 
     private final OnlineReceiptParser<InputStream, ApiResponse, ReceiptParseResponse> advancedParser;
 
-    @Value("api.receipt-recognition.enabled")
+    @Property( name="api.receipt-recognition.enabled")
     private Boolean isRecognitionEnabled;
 
     public ReceiptHandlingController(
