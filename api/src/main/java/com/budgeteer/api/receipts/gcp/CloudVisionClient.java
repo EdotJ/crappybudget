@@ -60,7 +60,6 @@ public class CloudVisionClient {
                 Argument.of(ErrorResponse.class)).firstElement();
         try {
             ApiResponse finalResponse = response.blockingGet();
-            finalResponse.setBase64Encoding(base64Encoding);
             if (logger.isDebugEnabled()) {
                 logger.debug(objectMapper.writeValueAsString(finalResponse));
             }
