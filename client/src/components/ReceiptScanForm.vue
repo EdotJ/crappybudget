@@ -18,7 +18,7 @@
         <AccentedSubmitButton />
       </div>
     </form>
-    <ReceiptEntryForm v-on:throw-error="handleError" v-if="!isLoading && receipt" :receipt="receipt" />
+    <ReceiptEntryForm v-on:throw-error="handleError" v-if="!isLoading && receipt" :receipt="receipt" :file="fileUrl" />
   </div>
 </template>
 
@@ -35,6 +35,7 @@ export default {
   data() {
     return {
       file: {},
+      fileUrl: null,
       isLoading: false,
       receipt: null,
     };
@@ -66,12 +67,21 @@ export default {
     handleFileDrop(e) {
       if (e.dataTransfer.files[0]) {
         this.file = e.dataTransfer.files[0];
+        this.getFileUrl();
       }
     },
     handleFileInput(e) {
       if (e.target.files[0]) {
         this.file = e.target.files[0];
+        this.getFileUrl();
       }
+    },
+    getFileUrl() {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.fileUrl = e.target.result;
+      };
+      reader.readAsDataURL(this.file);
     },
     setReceipt(newReceipt) {
       this.receipt = newReceipt;

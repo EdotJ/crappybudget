@@ -45,7 +45,8 @@ public class CloudVisionClient {
     public ApiResponse getAnnotatedImage(InputStream is) throws IOException {
         Request request = new Request();
         Image image = new Image();
-        image.setContent(Base64.getEncoder().encodeToString(is.readAllBytes()));
+        String base64Encoding = Base64.getEncoder().encodeToString(is.readAllBytes());
+        image.setContent(base64Encoding);
         List<Feature> features = new ArrayList<>();
         Feature textFeature = new Feature();
         textFeature.setType(DetectionType.DOCUMENT_TEXT_DETECTION);
@@ -59,6 +60,7 @@ public class CloudVisionClient {
                 Argument.of(ErrorResponse.class)).firstElement();
         try {
             ApiResponse finalResponse = response.blockingGet();
+            finalResponse.setBase64Encoding(base64Encoding);
             if (logger.isDebugEnabled()) {
                 logger.debug(objectMapper.writeValueAsString(finalResponse));
             }

@@ -19,6 +19,7 @@ import javax.inject.Named;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
+import java.util.Base64;
 
 @Controller("${api.base-path}/receipts")
 public class ReceiptHandlingController {
@@ -42,7 +43,8 @@ public class ReceiptHandlingController {
 
     @Post(consumes = MediaType.MULTIPART_FORM_DATA)
     public HttpResponse<Object> parseReceipt(CompletedFileUpload file,
-                                             @QueryValue(value = "isBasic", defaultValue = "true") boolean isBasic)
+                                             @QueryValue(value = "isBasic", defaultValue = "true")  boolean isBasic,
+                                             @QueryValue(value = "withImage", defaultValue = "false") boolean withImage)
             throws IOException, ParseException {
         if (!isRecognitionEnabled) {
             String msg = "We were unable to process your request";
@@ -57,7 +59,10 @@ public class ReceiptHandlingController {
                 ? basicParser
                 : advancedParser;
         ApiResponse obj = receiptParser.makeRequest(is);
-        ReceiptParseResponse itemList = receiptParser.parseReceipt(obj);
-        return HttpResponse.ok().body(itemList);
+        ReceiptParseResponse parseResponse = receiptParser.parseReceipt(obj);
+        if (withImage) {
+            parseResponse.setBase64Encoding(obj.getBase64Encoding());
+        }
+        return HttpResponse.ok().body(parseResponse);
     }
 }

@@ -1,5 +1,16 @@
 <template>
   <form class="entry-form" @submit.prevent="submitEntries">
+    <Modal :show="showModal" v-on:close-modal="handleModal">
+      <template v-slot:header> Receipt </template>
+      <template v-slot:content>
+        <img class="receipt-image" :src="file" alt="file" v-if="file" />
+      </template>
+    </Modal>
+    <div class="picture-container">
+      <IconBase @click.native="handleModal()">
+        <Picture />
+      </IconBase>
+    </div>
     <div class="starting-form" v-if="receipt && !submittedIds">
       <h3>Choose account and category</h3>
       <div class="input-group">
@@ -79,14 +90,18 @@ import Button from "@/components/Button";
 import DeleteButton from "@/components/DeleteButton";
 import StyledInput from "@/components/StyledInput";
 import { mapActions, mapGetters, mapState } from "vuex";
+import Modal from "@/components/Modal";
+import IconBase from "@/components/IconBase";
+import Picture from "@/components/icons/Picture";
 
 export default {
   name: "ReceiptEntryForm",
-  props: { receipt: Object },
-  components: { Button, DeleteButton, StyledInput },
+  props: { receipt: Object, file: String },
+  components: { IconBase, Button, DeleteButton, StyledInput, Picture, Modal },
   data() {
     return {
       submittedIds: false,
+      showModal: false,
     };
   },
   computed: {
@@ -135,6 +150,12 @@ export default {
         return;
       }
       this.submittedIds = true;
+      if (this.receipt.accountId && this.receipt.categoryId) {
+        this.$emit("throw-error", "");
+      }
+    },
+    handleModal() {
+      this.showModal = !this.showModal;
     },
   },
 };
@@ -236,6 +257,17 @@ form {
 
 .input-group select {
   flex-grow: 1;
+}
+
+.receipt-image {
+  max-width: 90%;
+  max-height: 90%;
+}
+
+.picture-container {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
 }
 
 @media only screen and (min-width: 961px) {

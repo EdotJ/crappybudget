@@ -88,12 +88,14 @@ export default {
 @media only screen and (min-width: 415px) and (max-width: 960px) {
   .form-container {
     width: 66%;
+    margin-top: 5%;
   }
 }
 
 @media only screen and (min-width: 961px) {
   .form-container {
     width: 60%;
+    margin-top: 5%;
   }
 }
 </style>
