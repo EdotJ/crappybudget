@@ -8,7 +8,6 @@ public class ApiResponse {
 
     @JsonProperty("responses")
     private List<Response> responses;
-
     public List<Response> getResponses() {
         return responses;
     }

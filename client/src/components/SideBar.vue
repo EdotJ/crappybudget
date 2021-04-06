@@ -142,6 +142,10 @@ export default {
   align-items: center;
 }
 
+.sidebar-url:hover {
+  background-color: var(--accent-main-lighter);
+}
+
 .link-icon {
   padding: 0 8px 0 30px;
 }

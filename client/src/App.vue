@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" @dragover.prevent @drop.prevent>
     <Layout>
       <router-view></router-view>
     </Layout>
@@ -18,13 +18,13 @@ export default {
 <style>
 :root {
   --main-bg-color: #dedede;
-  --accent-main: #22223b;
-  --accent-main-darker: #1b1b2f;
-  --accent-main-darker-transparent: #1b1b2faa;
-  --accent-main-lighter: #38384f;
-  --accent-main-lighter-transparent: #38384fff;
+  --accent-main: #303054;
+  --accent-main-darker: #22223b;
+  --accent-main-darker-transparent: #22223baa;
+  --accent-main-lighter: #3e3e6d;
+  --accent-main-lighter-transparent: #3e3e6dff;
   --main-fg-color: #201b22;
-  --foreground-accent: #e9e9eb;
+  --foreground-accent: #fefefe;
   --error-color: #ffbaba;
   --foreground-error: #b00900;
   --expense-color: #d90000;

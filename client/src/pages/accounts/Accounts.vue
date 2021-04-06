@@ -18,11 +18,9 @@
           <td>{{ account.balance && account.balance.toFixed(2) }}</td>
           <td>
             <div class="actions">
-              <IconBase class="action delete-action" view-box="0 0 24 24" @click.native="deleteAccount(account)">
-                <DeleteIcon />
-              </IconBase>
+              <DeleteButton class="action" @click.native="deleteAccount(account)" />
               <IconBase
-                class="action edit-action"
+                class="action"
                 view-box="0 0 24 24"
                 @click.native="$router.push(`/accounts/edit/${account.id}`)"
               >
@@ -46,13 +44,13 @@
 <script>
 import { mapActions, mapState } from "vuex";
 import IconBase from "@/components/IconBase";
-import DeleteIcon from "@/components/icons/DeleteIcon";
 import EditIcon from "@/components/icons/EditIcon";
 import ConfirmationModal from "@/components/ConfirmationModal";
+import DeleteButton from "@/components/DeleteButton";
 
 export default {
   name: "Accounts",
-  components: { ConfirmationModal, EditIcon, DeleteIcon, IconBase },
+  components: { DeleteButton, ConfirmationModal, EditIcon, IconBase },
   computed: {
     ...mapState({
       accounts: (state) => state.accounts.accounts,
@@ -144,6 +142,7 @@ td {
   padding: 8px;
   margin: 0 4px;
   border-radius: 8px;
+  color: var(--accent-main-darker);
 }
 
 .action:hover {

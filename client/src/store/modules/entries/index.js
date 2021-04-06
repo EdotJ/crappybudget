@@ -110,11 +110,24 @@ export const actions = {
       if (response && response.status === 200 && (response.data.balance || response.data.balance === 0)) {
         commit("SET_BALANCE", response.data.balance);
         return Promise.resolve();
-      } else {
-        return Promise.reject();
       }
+      return Promise.reject();
     } catch (e) {
       return Promise.reject(e);
+    }
+  },
+  submitReceiptEntries: async function ({ commit }, receipt) {
+    try {
+      commit("SET_IS_LOADING", true);
+      const response = await api.entries.submitReceiptEntries(receipt);
+      if (response && response.status === 201 && response.data && response.data.entries) {
+        return Promise.resolve();
+      }
+      return Promise.reject();
+    } catch (e) {
+      return Promise.reject(e);
+    } finally {
+      commit("SET_IS_LOADING", false);
     }
   },
 };

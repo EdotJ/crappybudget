@@ -1,10 +1,10 @@
 package com.budgeteer.api.controllers;
 
-import com.budgeteer.api.dto.ErrorResponse;
 import com.budgeteer.api.dto.receipts.ReceiptParseResponse;
 import com.budgeteer.api.exception.ServiceDisabledException;
 import com.budgeteer.api.receipts.OnlineReceiptParser;
 import com.budgeteer.api.receipts.gcp.model.response.ApiResponse;
+import io.micronaut.context.annotation.Property;
 import io.micronaut.context.annotation.Value;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
@@ -19,6 +19,7 @@ import javax.inject.Named;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
+import java.util.Base64;
 
 @Controller("${api.base-path}/receipts")
 public class ReceiptHandlingController {
@@ -29,7 +30,7 @@ public class ReceiptHandlingController {
 
     private final OnlineReceiptParser<InputStream, ApiResponse, ReceiptParseResponse> advancedParser;
 
-    @Value("api.receipt-recognition.enabled")
+    @Property(name = "api.receipt-recognition.enabled")
     private Boolean isRecognitionEnabled;
 
     public ReceiptHandlingController(
@@ -57,7 +58,8 @@ public class ReceiptHandlingController {
                 ? basicParser
                 : advancedParser;
         ApiResponse obj = receiptParser.makeRequest(is);
-        ReceiptParseResponse itemList = receiptParser.parseReceipt(obj);
-        return HttpResponse.ok().body(itemList);
+        is.close();
+        ReceiptParseResponse parseResponse = receiptParser.parseReceipt(obj);
+        return HttpResponse.ok().body(parseResponse);
     }
 }

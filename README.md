@@ -25,6 +25,9 @@ https://iconmonstr.com/arrow-63-svg/ - Right Arrow
 https://iconmonstr.com/arrow-64-svg/ - Left Arrow
 https://iconmonstr.com/pencil-8-svg/ - Edit Icon
 https://iconmonstr.com/view-6-svg/ - Categories Icon
+https://www.svgrepo.com/svg/3882/receipt - Receipt icon
+https://iconmonstr.com/folder-open-thin-svg/ - Folder Icon
+https://iconmonstr.com/picture-1-svg/ - Picture Icon
 
 Some cool CSS-only loading spinners:
 https://loading.io/css/

@@ -2,6 +2,8 @@ package com.budgeteer.api.service;
 
 import com.budgeteer.api.core.Pair;
 import com.budgeteer.api.core.Service;
+import com.budgeteer.api.dto.entry.ReceiptEntriesDto;
+import com.budgeteer.api.dto.entry.ReceiptEntryDto;
 import com.budgeteer.api.dto.entry.SingleEntryDto;
 import com.budgeteer.api.exception.BadRequestException;
 import com.budgeteer.api.exception.ResourceNotFoundException;
@@ -18,8 +20,11 @@ import io.micronaut.security.utils.SecurityService;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 public class EntryService extends RestrictedResourceHandler {
@@ -103,6 +108,43 @@ public class EntryService extends RestrictedResourceHandler {
         return entryRepository.save(entry);
     }
 
+    public List<Entry> createAll(ReceiptEntriesDto request) {
+        checkCommonRequestParams(request.getAccountId(), request.getCategoryId(), request.getDate());
+        Account account = accountService.getSingle(request.getAccountId());
+        User user = account.getUser();
+        Category category = categoryService.getSingle(request.getCategoryId());
+        List<Entry> entries = new ArrayList<>();
+        for (ReceiptEntryDto receiptEntry : request.getEntries()) {
+            Entry entry = new Entry();
+            entry.setName(receiptEntry.getName());
+            entry.setValue(receiptEntry.getPrice());
+            entry.setDate(request.getDate());
+            entry.setCategory(category);
+            entry.setAccount(account);
+            entry.setUser(user);
+            entry.setIsExpense(true);
+            entries.add(entry);
+        }
+        return StreamSupport
+                .stream(entryRepository.saveAll(entries).spliterator(), false)
+                .collect(Collectors.toList());
+    }
+
+    private void checkCommonRequestParams(Long accountId, Long categoryId, LocalDate date) {
+        if (accountId == null) {
+            String msg = "Please select an account";
+            throw new BadRequestException("BAD_ENTRY", "no_account_id", msg, "Account identifier not provided");
+        }
+        if (categoryId == null) {
+            String msg = "Please select a category";
+            throw new BadRequestException("BAD_ENTRY", "no_category_id", msg, "Category identifier not provided");
+        }
+        if (date == null) {
+            String msg = "Please provide an entry date";
+            throw new BadRequestException("BAD_ENTRY_DATE", "empty", msg, "Entry date not provided");
+        }
+    }
+
     public Entry update(Long id, SingleEntryDto request) {
         validateEntryRequest(request);
         Entry entry = getSingle(id);
@@ -147,18 +189,7 @@ public class EntryService extends RestrictedResourceHandler {
             String msg = "Entry value cannot be negative";
             throw new BadRequestException("BAD_ENTRY_VALUE", "negative", msg, "Entry value is negative");
         }
-        if (request.getDate() == null) {
-            String msg = "Please provide an entry date";
-            throw new BadRequestException("BAD_ENTRY_DATE", "empty", msg, "Entry date not provided");
-        }
-        if (request.getAccountId() == null) {
-            String msg = "Please select an account";
-            throw new BadRequestException("BAD_ENTRY", "no_account_id", msg, "Account identifier not provided");
-        }
-        if (request.getCategoryId() == null) {
-            String msg = "Please select a category";
-            throw new BadRequestException("BAD_ENTRY", "no_category_id", msg, "Category identifier not provided");
-        }
+        checkCommonRequestParams(request.getAccountId(), request.getCategoryId(), request.getDate());
     }
 
     public void delete(Long id) {

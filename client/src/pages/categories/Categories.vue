@@ -8,21 +8,17 @@
       <thead>
         <tr>
           <td>Name</td>
-          <td>Balance</td>
           <td>Actions</td>
         </tr>
       </thead>
       <tbody>
         <tr v-for="category in sortedCategories" :key="category.id">
           <td>{{ category.name }}</td>
-          <td>{{ category.balance && category.balance.toFixed(2) }}</td>
           <td>
             <div class="actions">
-              <IconBase class="action delete-action" view-box="0 0 24 24" @click.native="deleteCategory(category)">
-                <DeleteIcon />
-              </IconBase>
+              <DeleteButton class="action" view-box="0 0 24 24" @click.native="deleteCategory(category)" />
               <IconBase
-                class="action edit-action"
+                class="action"
                 view-box="0 0 24 24"
                 @click.native="$router.push(`/categories/edit/${category.id}`)"
               >
@@ -46,14 +42,14 @@
 
 <script>
 import IconBase from "@/components/IconBase";
-import DeleteIcon from "@/components/icons/DeleteIcon";
 import EditIcon from "@/components/icons/EditIcon";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import { mapActions, mapGetters } from "vuex";
+import DeleteButton from "@/components/DeleteButton";
 
 export default {
   name: "Categories",
-  components: { IconBase, DeleteIcon, EditIcon, ConfirmationModal },
+  components: { DeleteButton, IconBase, EditIcon, ConfirmationModal },
   data() {
     return {
       deletingCategory: {},
@@ -136,6 +132,7 @@ td {
   padding: 8px;
   margin: 0 4px;
   border-radius: 8px;
+  color: var(--accent-main-darker);
 }
 
 .action:hover {

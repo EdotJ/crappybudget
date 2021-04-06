@@ -44,6 +44,7 @@ export default {
 .content {
   flex-grow: 1;
   overflow-y: scroll;
+  padding: 1rem;
 }
 
 /* Desktop Styles */

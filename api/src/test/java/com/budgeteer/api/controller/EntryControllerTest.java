@@ -6,6 +6,8 @@ import com.budgeteer.api.base.TestUtils;
 import com.budgeteer.api.dto.BalanceDto;
 import com.budgeteer.api.dto.ErrorResponse;
 import com.budgeteer.api.dto.entry.EntryListDto;
+import com.budgeteer.api.dto.entry.ReceiptEntriesDto;
+import com.budgeteer.api.dto.entry.ReceiptEntryDto;
 import com.budgeteer.api.dto.entry.SingleEntryDto;
 import com.budgeteer.api.model.Account;
 import com.budgeteer.api.model.Category;
@@ -158,6 +160,29 @@ public class EntryControllerTest {
         assertEquals(dto.getValue(), responseDto.getValue());
         assertEquals(dto.getUserId(), responseDto.getUserId());
         assertEquals(dto.getAccountId(), responseDto.getAccountId());
+    }
+
+    @Test
+    public void shouldCreateEntryFromReceiptRequest() {
+        ReceiptEntriesDto dto = new ReceiptEntriesDto();
+        dto.setAccountId(testAccount.getId());
+        dto.setCategoryId(testCategory.getId());
+        dto.setDate(LocalDate.of(2020, 11, 11));
+        dto.getEntries().add(new ReceiptEntryDto("Entry", BigDecimal.valueOf(5.50)));
+        MutableHttpRequest<ReceiptEntriesDto> request = HttpRequest.POST("/entries/receipt", dto)
+                .headers(authExtension.getAuthHeader());
+        HttpResponse<EntryListDto> response = client.toBlocking().exchange(request, EntryListDto.class);
+        assertEquals(HttpStatus.CREATED, response.getStatus());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().isPresent());
+        EntryListDto responseDto = response.getBody().get();
+        assertEquals(1, responseDto.getCount());
+        SingleEntryDto responseEntry = responseDto.getList().get(0);
+        assertEquals("Entry", responseEntry.getName());
+        assertEquals(LocalDate.of(2020, 11, 11), responseEntry.getDate());
+        assertEquals(BigDecimal.valueOf(5.50), responseEntry.getValue());
+        assertEquals(testAccount.getId(), responseEntry.getAccountId());
+        assertEquals(testCategory.getId(), responseEntry.getCategoryId());
     }
 
     @Test

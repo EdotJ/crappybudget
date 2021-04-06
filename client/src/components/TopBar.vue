@@ -1,6 +1,6 @@
 <template>
   <div class="top-bar">
-    <IconBase icon-name="hamburger" v-on:click.native="toggleBurger()">
+    <IconBase icon-name="hamburger" v-on:click.native="toggleBurger()" view-box="0 0 48 48">
       <HamburgerIcon />
     </IconBase>
     <transition name="slide">
@@ -62,7 +62,9 @@ export default {
 }
 
 .top-bar svg {
-  padding: 0 8px;
+  margin: 0 8px;
+  width: 48px;
+  height: 48px;
 }
 
 .hamburger-menu {

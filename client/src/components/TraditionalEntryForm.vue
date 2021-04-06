@@ -1,0 +1,165 @@
+<template>
+  <form v-on:submit.prevent="entry.id ? submitUpdate() : submitCreate()">
+    <div class="input-group checkbox-input">
+      <toggle-button
+        class="toggle-button"
+        v-model="entry.isExpense"
+        :color="{ checked: '#f28d85', unchecked: '#7bc97f' }"
+        :labels="{ checked: 'Expense', unchecked: 'Income' }"
+        :width="100"
+        :height="30"
+        :font-size="14"
+      />
+    </div>
+    <div class="input-group">
+      <StyledInput id="name" type="text" required="true" placeholder="Name" :vertical="true" v-model="entry.name" />
+    </div>
+    <div class="input-group">
+      <StyledInput
+        id="description"
+        type="text"
+        placeholder="Description"
+        :vertical="true"
+        v-model="entry.description"
+      />
+    </div>
+    <div class="input-group">
+      <StyledInput
+        id="value"
+        type="number"
+        step="0.01"
+        min="0"
+        :vertical="true"
+        :required="true"
+        placeholder="Value"
+        v-model="entry.value"
+      />
+    </div>
+    <div class="input-group">
+      <StyledInput id="date" type="date" required="true" placeholder="Date" vertical="true" v-model="entry.date" />
+    </div>
+    <div class="input-group">
+      <label for="account">Account</label>
+      <select id="account" required v-model="entry.accountId">
+        <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name }}</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label for="category">Category</label>
+      <select id="category" v-model="entry.categoryId">
+        <option v-for="category in sortedCategories" :key="category.id" :value="category.id">
+          {{ category.parentId ? `- ${category.name}` : category.name }}
+        </option>
+      </select>
+    </div>
+    <div class="submit-container">
+      <AccentedSubmitButton />
+    </div>
+  </form>
+</template>
+
+<script>
+import AccentedSubmitButton from "@/components/AccentedSubmitButton";
+import StyledInput from "@/components/StyledInput";
+import { mapActions, mapGetters, mapState } from "vuex";
+
+export default {
+  name: "TraditionalEntryForm",
+  props: {
+    entry: {
+      type: Object,
+    },
+  },
+  components: { AccentedSubmitButton, StyledInput },
+  computed: {
+    ...mapState({
+      accounts: (state) => state.accounts.accounts,
+    }),
+    ...mapGetters({
+      sortedCategories: "categories/getSortedCategories",
+    }),
+  },
+  methods: {
+    ...mapActions({
+      createEntry: "entries/create",
+      updateEntry: "entries/update",
+      refreshBalances: "refreshBalances",
+    }),
+    submitCreate() {
+      this.createEntry({
+        ...this.entry,
+      })
+        .then(() => {
+          this.refreshBalances();
+          this.$router.push("/");
+        })
+        .catch((e) => {
+          console.log(e);
+          this.$emit(
+            "throw-error",
+            e && e.response && e.response.data && e.response.data.message
+              ? e.response.data.message
+              : "Something went wrong"
+          );
+        });
+    },
+    submitUpdate() {
+      this.updateEntry({
+        ...this.entry,
+      })
+        .then(() => {
+          this.refreshBalances();
+          this.$router.push("/");
+        })
+        .catch((e) => {
+          console.log(e);
+          this.$emit(
+            "throw-error",
+            e && e.response && e.response.data && e.response.data.message
+              ? e.response.data.message
+              : "Something went wrong"
+          );
+        });
+    },
+  },
+};
+</script>
+
+<style scoped>
+form {
+  width: 100%;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.checkbox-input {
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.submit-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.submit-container button {
+  width: 120px;
+}
+
+@media only screen and (min-width: 415px) and (max-width: 960px) {
+  form {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media only screen and (min-width: 961px) {
+  form {
+    width: 100%;
+    justify-content: center;
+  }
+}
+</style>

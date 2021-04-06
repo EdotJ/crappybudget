@@ -15,7 +15,7 @@
               <span>{{ "Monthly expenses: " + expenses + "€" }}</span>
               <span :class="net >= 0 ? 'positive' : 'negative'">{{ "Net: " + net + "€" }}</span>
             </div>
-            <div class="add-entry-button" @click="toggleEntryModal">+</div>
+            <div class="add-entry-button" @click="$router.push('entries/create')">+</div>
           </div>
         </div>
         <Goals class="mobile-goals" />
@@ -99,7 +99,7 @@ export default {
       this.getMonthlyStats(e.target.value);
     },
     handlePageChange(page) {
-      if (page > -1) {
+      if (page > -1 && page < this.totalPages) {
         this.getEntries({ accountId: this.currentAccount, page });
         this.page = page;
       }

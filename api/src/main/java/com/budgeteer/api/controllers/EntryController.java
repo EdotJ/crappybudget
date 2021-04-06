@@ -4,6 +4,7 @@ import com.budgeteer.api.core.Pair;
 import com.budgeteer.api.dto.BalanceDto;
 import com.budgeteer.api.dto.account.AccountBalanceDto;
 import com.budgeteer.api.dto.entry.EntryListDto;
+import com.budgeteer.api.dto.entry.ReceiptEntriesDto;
 import com.budgeteer.api.dto.entry.SingleEntryDto;
 import com.budgeteer.api.exception.BadRequestException;
 import com.budgeteer.api.model.Entry;
@@ -57,6 +58,15 @@ public class EntryController {
     public HttpResponse<SingleEntryDto> create(SingleEntryDto request) {
         Entry entry = service.create(request);
         return HttpResponse.created(new SingleEntryDto(entry));
+    }
+
+    @Post("/receipt")
+    public HttpResponse<EntryListDto> create(ReceiptEntriesDto request) {
+        List<Entry> entryList = service.createAll(request);
+        List<SingleEntryDto> entries = entryList.stream()
+                .map(SingleEntryDto::new)
+                .collect(Collectors.toList());
+        return HttpResponse.created(new EntryListDto(entries));
     }
 
     @Put("/{id}")

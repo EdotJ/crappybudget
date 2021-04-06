@@ -89,7 +89,6 @@ export default {
         .catch((e) => (this.error = e.data.message));
     },
     submitUpdate() {
-      console.log(this.entry);
       this.updateEntry({
         ...this.entry,
       })
