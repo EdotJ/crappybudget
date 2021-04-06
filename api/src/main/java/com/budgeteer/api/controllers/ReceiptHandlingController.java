@@ -30,7 +30,7 @@ public class ReceiptHandlingController {
 
     private final OnlineReceiptParser<InputStream, ApiResponse, ReceiptParseResponse> advancedParser;
 
-    @Property( name="api.receipt-recognition.enabled")
+    @Property(name = "api.receipt-recognition.enabled")
     private Boolean isRecognitionEnabled;
 
     public ReceiptHandlingController(
@@ -43,8 +43,7 @@ public class ReceiptHandlingController {
 
     @Post(consumes = MediaType.MULTIPART_FORM_DATA)
     public HttpResponse<Object> parseReceipt(CompletedFileUpload file,
-                                             @QueryValue(value = "isBasic", defaultValue = "true")  boolean isBasic,
-                                             @QueryValue(value = "withImage", defaultValue = "false") boolean withImage)
+                                             @QueryValue(value = "isBasic", defaultValue = "true") boolean isBasic)
             throws IOException, ParseException {
         if (!isRecognitionEnabled) {
             String msg = "We were unable to process your request";
@@ -59,10 +58,8 @@ public class ReceiptHandlingController {
                 ? basicParser
                 : advancedParser;
         ApiResponse obj = receiptParser.makeRequest(is);
+        is.close();
         ReceiptParseResponse parseResponse = receiptParser.parseReceipt(obj);
-        if (withImage) {
-            parseResponse.setBase64Encoding(obj.getBase64Encoding());
-        }
         return HttpResponse.ok().body(parseResponse);
     }
 }

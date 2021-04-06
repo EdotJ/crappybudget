@@ -22,9 +22,6 @@ public class ReceiptParseResponse {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<ReceiptParseEntry> entries;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String base64Encoding;
-
     public ReceiptParseResponse() {
 
     }
@@ -67,13 +64,5 @@ public class ReceiptParseResponse {
 
     public void setEntries(List<ReceiptParseEntry> entries) {
         this.entries = entries;
-    }
-
-    public String getBase64Encoding() {
-        return base64Encoding;
-    }
-
-    public void setBase64Encoding(String base64Encoding) {
-        this.base64Encoding = base64Encoding;
     }
 }
