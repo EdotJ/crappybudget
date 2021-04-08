@@ -37,8 +37,4 @@ public interface EntryRepository extends PageableRepository<Entry, Long> {
     @Query("select sum(case when e.isExpense = true then (e.value * -1) else e.value end)  from Entry e "
             + "where e.user.id = :userId")
     Optional<BigDecimal> findSumValueByUserId(Long userId);
-
-    @Query("select sum(case when e.isExpense = true then (e.value * -1) else e.value end)  from Entry e "
-            + "where e.account.id = :accountId")
-    Optional<BigDecimal> findSumValueByAccountId(Long accountId);
 }

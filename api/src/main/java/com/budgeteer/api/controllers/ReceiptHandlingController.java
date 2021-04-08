@@ -5,7 +5,6 @@ import com.budgeteer.api.exception.ServiceDisabledException;
 import com.budgeteer.api.receipts.OnlineReceiptParser;
 import com.budgeteer.api.receipts.gcp.model.response.ApiResponse;
 import io.micronaut.context.annotation.Property;
-import io.micronaut.context.annotation.Value;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
@@ -19,7 +18,6 @@ import javax.inject.Named;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
-import java.util.Base64;
 
 @Controller("${api.base-path}/receipts")
 public class ReceiptHandlingController {

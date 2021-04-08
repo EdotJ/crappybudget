@@ -5,6 +5,7 @@ import com.budgeteer.api.model.User;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.micronaut.data.annotation.Repository;
 import io.micronaut.data.repository.CrudRepository;
+import io.micronaut.transaction.annotation.TransactionalAdvice;
 
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
@@ -21,7 +22,7 @@ public abstract class RefreshTokenRepository implements CrudRepository<RefreshTo
         this.em = em;
     }
 
-    @Transactional
+    @TransactionalAdvice
     public RefreshToken save(@NonNull Long userId,
                       @NonNull @NotBlank String refreshToken,
                       @NonNull @NotNull Boolean revoked) {

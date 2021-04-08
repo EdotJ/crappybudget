@@ -7,62 +7,76 @@
       </div>
     </div>
     <nav>
-      <router-link to="/" class="sidebar-url">
-        <span class="link-icon">
-          <IconBase icon-name="budget" view-box="0 0 24 24" width="24" height="24">
-            <BudgetIcon />
-          </IconBase>
-        </span>
-        <span class="link-title">Budget</span>
-      </router-link>
-      <router-link to="/charts" class="sidebar-url">
-        <span class="link-icon">
-          <IconBase icon-name="charts" view-box="0 0 24 24" width="24" height="24">
-            <ChartsIcon />
-          </IconBase>
-        </span>
-        <span class="link-title">Charts</span>
-      </router-link>
-      <router-link to="/accounts" class="sidebar-url">
-        <span class="link-icon">
-          <IconBase icon-name="charts" view-box="0 0 24 24" width="24" height="24">
-            <AccountsIcon />
-          </IconBase>
-        </span>
-        <span class="link-title">Accounts</span>
-      </router-link>
-      <router-link to="/categories" class="sidebar-url">
-        <span class="link-icon">
-          <IconBase icon-name="categories" view-box="0 0 24 24" width="24" height="24">
-            <CategoriesIcon />
-          </IconBase>
-        </span>
-        <span class="link-title">Categories</span>
-      </router-link>
-      <router-link to="/import" class="sidebar-url">
-        <span class="link-icon">
-          <IconBase icon-name="charts" view-box="0 0 24 24" width="24" height="24">
-            <ImportIcon />
-          </IconBase>
-        </span>
-        <span class="link-title">Import</span>
-      </router-link>
-      <router-link to="/settings" class="sidebar-url">
-        <span class="link-icon">
-          <IconBase icon-name="charts" view-box="0 0 24 24" width="24" height="24">
-            <SettingsIcon />
-          </IconBase>
-        </span>
-        <span class="link-title">Settings</span>
-      </router-link>
-      <router-link to="/logout" class="sidebar-url">
-        <span class="link-icon">
-          <IconBase icon-name="charts" view-box="0 0 24 24" width="24" height="24">
-            <LogoutIcon />
-          </IconBase>
-        </span>
-        <span class="link-title">Log Out</span>
-      </router-link>
+      <div class="link-container">
+        <router-link to="/" class="sidebar-url">
+          <span class="link-icon">
+            <IconBase icon-name="budget" view-box="0 0 24 24" width="24" height="24">
+              <BudgetIcon />
+            </IconBase>
+          </span>
+          <span class="link-title">Budget</span>
+        </router-link>
+      </div>
+      <div class="link-container">
+        <router-link to="/charts" class="sidebar-url">
+          <span class="link-icon">
+            <IconBase icon-name="charts" view-box="0 0 24 24" width="24" height="24">
+              <ChartsIcon />
+            </IconBase>
+          </span>
+          <span class="link-title">Charts</span>
+        </router-link>
+      </div>
+      <div class="link-container">
+        <router-link to="/accounts" class="sidebar-url">
+          <span class="link-icon">
+            <IconBase icon-name="charts" view-box="0 0 24 24" width="24" height="24">
+              <AccountsIcon />
+            </IconBase>
+          </span>
+          <span class="link-title">Accounts</span>
+        </router-link>
+      </div>
+      <div class="link-container">
+        <router-link to="/categories" class="sidebar-url">
+          <span class="link-icon">
+            <IconBase icon-name="categories" view-box="0 0 24 24" width="24" height="24">
+              <CategoriesIcon />
+            </IconBase>
+          </span>
+          <span class="link-title">Categories</span>
+        </router-link>
+      </div>
+      <div class="link-container">
+        <router-link to="/import" class="sidebar-url">
+          <span class="link-icon">
+            <IconBase icon-name="charts" view-box="0 0 24 24" width="24" height="24">
+              <ImportIcon />
+            </IconBase>
+          </span>
+          <span class="link-title">Import</span>
+        </router-link>
+      </div>
+      <div class="link-container">
+        <router-link to="/settings" class="sidebar-url">
+          <span class="link-icon">
+            <IconBase icon-name="charts" view-box="0 0 24 24" width="24" height="24">
+              <SettingsIcon />
+            </IconBase>
+          </span>
+          <span class="link-title">Settings</span>
+        </router-link>
+      </div>
+      <div class="link-container">
+        <router-link to="/logout" class="sidebar-url">
+          <span class="link-icon">
+            <IconBase icon-name="charts" view-box="0 0 24 24" width="24" height="24">
+              <LogoutIcon />
+            </IconBase>
+          </span>
+          <span class="link-title">Log Out</span>
+        </router-link>
+      </div>
     </nav>
   </div>
 </template>
@@ -133,13 +147,21 @@ export default {
   align-items: flex-start;
 }
 
-.sidebar-url {
+.link-container {
   width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.sidebar-url {
+  width: 85%;
   padding: 8px 0;
   text-decoration: none;
   color: var(--foreground-accent);
   display: flex;
   align-items: center;
+  border-radius: 8px;
 }
 
 .sidebar-url:hover {

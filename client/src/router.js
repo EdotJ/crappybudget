@@ -5,7 +5,7 @@ import ColorsTestPage from "@/pages/ColorsTestPage";
 import ForgotPassword from "@/pages/ForgotPassword";
 import VueRouter from "vue-router";
 import store from "@/store";
-import ChartsPage from "@/pages/ChartsPage";
+import ChartsPage from "@/pages/charts/ChartsPage";
 import Accounts from "@/pages/accounts/Accounts";
 import Import from "@/pages/Import";
 import Settings from "@/pages/Settings";

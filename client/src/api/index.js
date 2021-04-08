@@ -3,6 +3,7 @@ import accounts from "./accounts";
 import categories from "./categories";
 import goals from "./goals";
 import entries from "./entries";
+import charts from "./charts";
 
 export default {
   auth,
@@ -10,4 +11,5 @@ export default {
   categories,
   goals,
   entries,
+  charts,
 };
