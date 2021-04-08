@@ -165,7 +165,7 @@ export default {
       this.fetchNewTopExpenses();
     },
     handleTopExpensesMonthChange(e) {
-      this.topExpensesYear = e.target.value;
+      this.topExpensesMonth = e.target.value;
       this.fetchNewTopExpenses();
     },
     fetchNewTopExpenses() {
