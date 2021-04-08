@@ -1,19 +1,19 @@
 <template>
   <div>
-    <label v-if="vertical && label" :for="id"> {{ placeholder }} </label>
+    <label v-if="vertical && label" :for="id"> {{ placeholder }} <span v-if="required">*</span> </label>
     <div :class="['container', { active: focused || value }]">
-      <label v-if="!vertical && label" :for="id"> {{ placeholder }} </label>
+      <label v-if="!vertical && label" :for="id"> {{ placeholder }}<span v-if="required">*</span> </label>
       <input
-        :id="id"
-        :type="type"
-        @focus="focused = true"
-        @blur="focused = false"
-        :required="required"
-        :value="value"
-        :step="step"
-        :min="min"
-        :placeholder="placeholder"
-        v-on:input="$emit('input', $event.target.value)"
+          :id="id"
+          :type="type"
+          @focus="focused = true"
+          @blur="focused = false"
+          :required="required"
+          :value="value"
+          :step="step"
+          :min="min"
+          :placeholder="placeholder"
+          v-on:input="$emit('input', $event.target.value)"
       />
     </div>
   </div>
@@ -25,13 +25,13 @@ export default {
   props: {
     id: String,
     type: String,
-    placeholder: { type: String, default: "" },
-    required: { type: [String, Boolean], default: false },
+    placeholder: {type: String, default: ""},
+    required: {type: [String, Boolean], default: false},
     value: [Number, String],
-    vertical: { type: [String, Boolean], default: false },
+    vertical: {type: [String, Boolean], default: false},
     step: [Number, String],
     min: [Number, String],
-    label: { type: [String, Boolean], default: true },
+    label: {type: [String, Boolean], default: true},
   },
   data() {
     return {
@@ -52,8 +52,13 @@ export default {
   margin: 0 8px;
 }
 
+label span {
+  color: red;
+}
+
 input {
-  width: 100%;
+  max-width: 100%;
+  flex-grow: 1;
   height: 32px;
   margin: 8px 0;
   background-color: #22223b33;

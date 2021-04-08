@@ -1,7 +1,4 @@
-package com.budgeteer.api.imports;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package com.budgeteer.api.imports.csv;
 
 import javax.inject.Singleton;
 import java.io.IOException;
@@ -12,8 +9,6 @@ import java.nio.file.Paths;
 
 @Singleton
 public class FileManager {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Path root = Paths.get("imports");
 

@@ -1,5 +1,6 @@
 package com.budgeteer.api.receipts.gcp;
 
+import com.budgeteer.api.base.TestUtils;
 import com.budgeteer.api.receipts.gcp.model.response.ApiResponse;
 import com.budgeteer.api.receipts.gcp.model.response.BoundingPoly;
 import com.budgeteer.api.receipts.gcp.model.response.TextAnnotation;
@@ -12,14 +13,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import javax.inject.Inject;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -224,20 +221,9 @@ public class AdvancedCloudVisionReceiptParserTest {
     }
 
     private ApiResponse getResponse(String fileName) throws IOException {
-        String responseString = getResponseString(fileName);
+        String responseString = TestUtils.getResponseString(fileName);
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         return objectMapper.readValue(responseString, ApiResponse.class);
-    }
-
-    private String getResponseString(String fileName) throws IOException {
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-        try (InputStream is = classLoader.getResourceAsStream("test-responses/" + fileName)) {
-            if (is == null) return null;
-            try (InputStreamReader isr = new InputStreamReader(is);
-                 BufferedReader reader = new BufferedReader(isr)) {
-                return reader.lines().collect(Collectors.joining(System.lineSeparator()));
-            }
-        }
     }
 }

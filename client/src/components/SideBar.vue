@@ -1,5 +1,5 @@
 <template>
-  <div class="side-bar">
+  <div class="side-bar" v-if="isLoggedIn">
     <div class="balance-container">
       <div class="balance">
         <span class="balance-total">{{ totalBalance ? totalBalance.toFixed(2) : 0 }} €</span>
@@ -48,19 +48,19 @@
         </router-link>
       </div>
       <div class="link-container">
-        <router-link to="/import" class="sidebar-url">
+        <router-link to="/external-data" class="sidebar-url">
           <span class="link-icon">
-            <IconBase icon-name="charts" view-box="0 0 24 24" width="24" height="24">
+            <IconBase icon-name="import" view-box="0 0 24 24" width="24" height="24">
               <ImportIcon />
             </IconBase>
           </span>
-          <span class="link-title">Import</span>
+          <span class="link-title">External data</span>
         </router-link>
       </div>
       <div class="link-container">
         <router-link to="/settings" class="sidebar-url">
           <span class="link-icon">
-            <IconBase icon-name="charts" view-box="0 0 24 24" width="24" height="24">
+            <IconBase icon-name="settings" view-box="0 0 24 24" width="24" height="24">
               <SettingsIcon />
             </IconBase>
           </span>
@@ -70,7 +70,7 @@
       <div class="link-container">
         <router-link to="/logout" class="sidebar-url">
           <span class="link-icon">
-            <IconBase icon-name="charts" view-box="0 0 24 24" width="24" height="24">
+            <IconBase icon-name="logout" view-box="0 0 24 24" width="24" height="24">
               <LogoutIcon />
             </IconBase>
           </span>

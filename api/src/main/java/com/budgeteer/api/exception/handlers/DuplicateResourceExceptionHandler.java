@@ -16,6 +16,6 @@ public class DuplicateResourceExceptionHandler extends BaseExceptionHandler<Dupl
     @Override
     public HttpResponse<ErrorResponse> handle(HttpRequest request, DuplicateResourceException exception) {
         ErrorResponse errorResponse = getErrorResponse(exception);
-        return HttpResponse.ok(errorResponse);
+        return HttpResponse.badRequest(errorResponse);
     }
 }

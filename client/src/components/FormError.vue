@@ -12,7 +12,7 @@
 import IconBase from "./IconBase";
 import Cross from "./icons/Cross";
 export default {
-  name: "ErrorMessage",
+  name: "FormError",
   components: { Cross, IconBase },
   props: {
     value: { type: String, default: "Something went wrong!" },

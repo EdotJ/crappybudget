@@ -60,6 +60,10 @@ public class CategoryService extends RestrictedResourceHandler {
         return categoryRepository.save(category);
     }
 
+    public Category save(Category category) {
+        return categoryRepository.save(category);
+    }
+
     public Category update(Long id, SingleCategoryDto request) {
         Category category = getSingle(id);
         validateCategoryUpdateRequest(request, category);

@@ -1,5 +1,6 @@
 package com.budgeteer.api.imports;
 
+import com.budgeteer.api.imports.csv.ImportResult;
 import com.budgeteer.api.model.Account;
 
 import java.text.ParseException;

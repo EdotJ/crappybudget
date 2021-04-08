@@ -4,6 +4,7 @@ import categories from "./categories";
 import goals from "./goals";
 import entries from "./entries";
 import charts from "./charts";
+import externalData from "./external-data";
 
 export default {
   auth,
@@ -12,4 +13,5 @@ export default {
   goals,
   entries,
   charts,
+  externalData,
 };

@@ -2,8 +2,13 @@ package com.budgeteer.api.base;
 
 import com.budgeteer.api.model.*;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.stream.Collectors;
 
 public class TestUtils {
 
@@ -84,5 +89,16 @@ public class TestUtils {
         goalType.setId(1L);
         goalType.setName("SAVE");
         return goalType;
+    }
+
+    public static String getResponseString(String fileName) throws IOException {
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        try (InputStream is = classLoader.getResourceAsStream("test-responses/" + fileName)) {
+            if (is == null) return null;
+            try (InputStreamReader isr = new InputStreamReader(is);
+                 BufferedReader reader = new BufferedReader(isr)) {
+                return reader.lines().collect(Collectors.joining(System.lineSeparator()));
+            }
+        }
     }
 }

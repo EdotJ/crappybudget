@@ -1,5 +1,6 @@
-package com.budgeteer.api.imports;
+package com.budgeteer.api.imports.csv;
 
+import com.budgeteer.api.imports.ImporterData;
 import io.micronaut.http.multipart.CompletedFileUpload;
 
 import java.util.Map;

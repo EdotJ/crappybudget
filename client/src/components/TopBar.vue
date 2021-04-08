@@ -5,15 +5,15 @@
     </IconBase>
     <transition name="slide">
       <nav class="hamburger-menu" v-if="show">
-        <router-link to="/" class="hamburger-menu-url" v-on:click.native="toggleBurger()">Budget</router-link>
+        <router-link to="/" class="hamburger-menu-url" v-on:click.native="toggleBurger()">Home</router-link>
         <router-link to="/charts" class="hamburger-menu-url" v-on:click.native="toggleBurger()" v-if="isLoggedIn">
           Charts
         </router-link>
         <router-link to="/accounts" class="hamburger-menu-url" v-on:click.native="toggleBurger()" v-if="isLoggedIn">
           Accounts
         </router-link>
-        <router-link to="/import" class="hamburger-menu-url" v-on:click.native="toggleBurger()" v-if="isLoggedIn">
-          Import
+        <router-link to="/external-data" class="hamburger-menu-url" v-on:click.native="toggleBurger()" v-if="isLoggedIn">
+          External Data
         </router-link>
         <router-link to="/settings" class="hamburger-menu-url" v-on:click.native="toggleBurger()" v-if="isLoggedIn">
           Settings

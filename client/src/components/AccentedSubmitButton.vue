@@ -28,6 +28,7 @@ export default {
   font-weight: 700;
   font-family: "Quicksand", sans-serif;
   cursor: pointer;
+  display: flex;
   align-items: center;
   justify-content: center;
   padding: 0.25em 0.5em;

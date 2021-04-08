@@ -17,7 +17,10 @@ import io.micronaut.security.utils.SecurityService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 public class AccountService extends RestrictedResourceHandler {
@@ -87,6 +90,15 @@ public class AccountService extends RestrictedResourceHandler {
         }
 
         return account;
+    }
+
+    public Account save(Account account) {
+        return accRepository.save(account);
+    }
+
+    public List<Account> saveAll(Collection<Account> accounts) {
+        return StreamSupport.stream(accRepository.saveAll(accounts).spliterator(), false)
+                .collect(Collectors.toList());
     }
 
     public Account update(Long id, SingleAccountDto request) {

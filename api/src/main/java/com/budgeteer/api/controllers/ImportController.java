@@ -2,36 +2,54 @@ package com.budgeteer.api.controllers;
 
 import com.budgeteer.api.dto.imports.CsvImportRequest;
 import com.budgeteer.api.dto.imports.CsvImportResponse;
-import com.budgeteer.api.imports.CsvImporter;
-import com.budgeteer.api.imports.CsvImporterData;
-import com.budgeteer.api.imports.ImportResult;
+import com.budgeteer.api.dto.imports.YnabImportRequest;
+import com.budgeteer.api.dto.imports.YnabImportResponse;
+import com.budgeteer.api.imports.csv.CsvImporter;
+import com.budgeteer.api.imports.csv.CsvImporterData;
+import com.budgeteer.api.imports.csv.ImportResult;
+import com.budgeteer.api.imports.ynab.YnabImporter;
+import com.budgeteer.api.imports.ynab.YnabImporterData;
 import com.budgeteer.api.model.Account;
 import com.budgeteer.api.security.RestrictedResourceHandler;
 import com.budgeteer.api.service.AccountService;
+import com.budgeteer.api.service.UserService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.multipart.CompletedFileUpload;
+import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.authentication.AuthorizationException;
 import io.micronaut.security.utils.SecurityService;
 
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Controller("${api.base-path}/imports")
 public class ImportController extends RestrictedResourceHandler {
 
     private final CsvImporter csvImporter;
+    private final YnabImporter ynabImporter;
     private final AccountService accountService;
+    private final UserService userService;
 
-    public ImportController(CsvImporter importer, AccountService accountService, SecurityService securityService) {
+    public ImportController(CsvImporter csvImporter,
+                            AccountService accountService,
+                            SecurityService securityService,
+                            YnabImporter ynabImporter,
+                            UserService userService) {
         super(securityService);
-        csvImporter = importer;
+        this.csvImporter = csvImporter;
+        this.ynabImporter = ynabImporter;
         this.accountService = accountService;
+        this.userService = userService;
     }
 
-    @Post(consumes = MediaType.MULTIPART_FORM_DATA)
+    @Post(value = "/csv", consumes = MediaType.MULTIPART_FORM_DATA)
     public HttpResponse<CsvImportResponse> importEntries(CsvImportRequest importRequest, CompletedFileUpload file)
             throws ParseException {
         csvImporter.validateRequest(importRequest);
@@ -43,6 +61,20 @@ public class ImportController extends RestrictedResourceHandler {
         csvImporter.parse(importResult.getImportedEntries(), acc, importRequest.isAddUnknownCategory());
         CsvImportResponse res = new CsvImportResponse(importResult.getTotalLines(), importResult.getSkippedLines());
         return HttpResponse.ok(res);
+    }
+
+    @Post(value = "/ynab")
+    public HttpResponse<YnabImportResponse> importEntries(@Body YnabImportRequest request)
+            throws JsonProcessingException {
+        ynabImporter.validateRequest(request);
+        YnabImporterData data = ynabImporter.makeRequest(request.getPersonalToken());
+        Optional<Authentication> auth = securityService.getAuthentication();
+
+        if (auth.isEmpty() || auth.get().getAttributes().get("id") == null) {
+            throw new AuthorizationException(securityService.getAuthentication().orElse(null));
+        }
+        ynabImporter.createEntries(data, userService.getById((Long) auth.get().getAttributes().get("id")));
+        return HttpResponse.ok();
     }
 
     private Map<String, String> constructCsvMappings(CsvImportRequest importRequest) {

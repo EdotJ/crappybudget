@@ -1,9 +1,8 @@
 <template>
-  <div :class="['lds-ellipsis', foreground === 'accent' ? 'fg-accent-color' : 'fg-color']">
-    <div></div>
-    <div></div>
-    <div></div>
-    <div></div>
+  <div :class="['hollow-dots-spinner', foreground === 'accent' ? 'fg-accent-color' : 'fg-color']">
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
   </div>
 </template>
 
@@ -15,67 +14,55 @@ export default {
 </script>
 
 <style scoped>
-.lds-ellipsis {
-  display: inline-block;
-  position: relative;
-  width: 80px;
-  height: 80px;
+.hollow-dots-spinner, .hollow-dots-spinner * {
+  box-sizing: border-box;
 }
-.lds-ellipsis div {
-  position: absolute;
-  top: 33px;
-  width: 13px;
-  height: 13px;
+
+.hollow-dots-spinner {
+  height: 15px;
+  width: calc(30px * 3);
+}
+
+.hollow-dots-spinner .dot {
+  width: 15px;
+  height: 15px;
+  margin: 0 calc(15px / 2);
+  border: calc(15px / 5) solid var(--foreground-accent);
   border-radius: 50%;
-  animation-timing-function: cubic-bezier(0.5, 1, 1, 0.5);
+  float: left;
+  transform: scale(0);
+  animation: hollow-dots-spinner-animation 1000ms ease infinite 0ms;
 }
 
-.fg-accent-color div {
-  background: var(--foreground-accent);
+.fg-accent-color .dot {
+  border: calc(15px / 5) solid var(--foreground-accent);
 }
 
-.fg-color div {
-  background: black;
+.fg-color .dot {
+  border: calc(15px / 5) solid var(--accent-main);
+
 }
 
-.lds-ellipsis div:nth-child(1) {
-  left: 8px;
-  animation: lds-ellipsis1 0.6s infinite;
+.hollow-dots-spinner .dot:nth-child(1) {
+  animation-delay: calc(100ms * 1);
 }
-.lds-ellipsis div:nth-child(2) {
-  left: 8px;
-  animation: lds-ellipsis2 0.6s infinite;
+
+.hollow-dots-spinner .dot:nth-child(2) {
+  animation-delay: calc(100ms * 2);
 }
-.lds-ellipsis div:nth-child(3) {
-  left: 32px;
-  animation: lds-ellipsis2 0.6s infinite;
+
+.hollow-dots-spinner .dot:nth-child(3) {
+  animation-delay: calc(100ms * 3);
+
 }
-.lds-ellipsis div:nth-child(4) {
-  left: 56px;
-  animation: lds-ellipsis3 0.6s infinite;
-}
-@keyframes lds-ellipsis1 {
-  0% {
-    transform: scale(0);
-  }
-  100% {
+
+@keyframes hollow-dots-spinner-animation {
+  50% {
     transform: scale(1);
-  }
-}
-@keyframes lds-ellipsis3 {
-  0% {
-    transform: scale(1);
+    opacity: 1;
   }
   100% {
-    transform: scale(0);
-  }
-}
-@keyframes lds-ellipsis2 {
-  0% {
-    transform: translate(0, 0);
-  }
-  100% {
-    transform: translate(24px, 0);
+    opacity: 0;
   }
 }
 </style>

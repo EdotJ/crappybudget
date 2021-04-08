@@ -1,4 +1,6 @@
-package com.budgeteer.api.imports;
+package com.budgeteer.api.imports.csv;
+
+import com.budgeteer.api.imports.ImportEntry;
 
 import java.util.List;
 
