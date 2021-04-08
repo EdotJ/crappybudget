@@ -3,7 +3,6 @@ package com.budgeteer.api.controllers;
 import com.budgeteer.api.dto.imports.CsvImportRequest;
 import com.budgeteer.api.dto.imports.CsvImportResponse;
 import com.budgeteer.api.dto.imports.YnabImportRequest;
-import com.budgeteer.api.dto.imports.YnabImportResponse;
 import com.budgeteer.api.imports.csv.CsvImporter;
 import com.budgeteer.api.imports.csv.CsvImporterData;
 import com.budgeteer.api.imports.csv.ImportResult;
@@ -64,7 +63,7 @@ public class ImportController extends RestrictedResourceHandler {
     }
 
     @Post(value = "/ynab")
-    public HttpResponse<YnabImportResponse> importEntries(@Body YnabImportRequest request)
+    public HttpResponse<Object> importEntries(@Body YnabImportRequest request)
             throws JsonProcessingException {
         ynabImporter.validateRequest(request);
         YnabImporterData data = ynabImporter.makeRequest(request.getPersonalToken());
