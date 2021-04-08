@@ -1,7 +1,9 @@
-package com.budgeteer.api.imports;
+package com.budgeteer.api.imports.csv;
 
 import com.budgeteer.api.dto.category.SingleCategoryDto;
 import com.budgeteer.api.dto.imports.CsvImportRequest;
+import com.budgeteer.api.imports.ImportEntry;
+import com.budgeteer.api.imports.Importer;
 import com.budgeteer.api.model.Account;
 import com.budgeteer.api.model.Category;
 import com.budgeteer.api.model.Entry;

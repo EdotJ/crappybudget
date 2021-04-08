@@ -1,5 +1,6 @@
 package com.budgeteer.api.controllers;
 
+import com.budgeteer.api.model.Category;
 import com.budgeteer.api.model.Entry;
 import com.budgeteer.api.service.EntryService;
 import com.opencsv.CSVWriter;
@@ -37,7 +38,6 @@ public class ExportController {
     @Get("{?fetchId}")
     @Produces("text/csv")
     public StreamedFile exportData(@Nullable Long fetchId) {
-
         List<Entry> entries = getEntries(fetchId);
         String username = entries.get(0).getUser().getUsername();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -70,8 +70,9 @@ public class ExportController {
             StringBuilder sb = new StringBuilder(entry.getDate().format(formatter));
             sb.append(",").append(entry.getName()).append(",").append(entry.getValue()).append(",");
             if (entry.getCategory() != null) {
-                sb.append(entry.getCategory().getName()).append(",");
+                sb.append(entry.getCategory().getName());
             }
+            sb.append(",");
             sb.append(entry.getAccount().getName());
 
             writer.writeNext(sb.toString().split(","));

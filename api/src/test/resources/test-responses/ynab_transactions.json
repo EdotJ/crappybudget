@@ -1,0 +1,70 @@
+{
+  "data": {
+    "transactions": [
+      {
+        "id": "f5ba334b-47e7-4bc3-ac6c-044b40d5e840_2021-04-08",
+        "date": "2021-04-08",
+        "amount": -150000,
+        "memo": "",
+        "cleared": "cleared",
+        "approved": true,
+        "flag_color": null,
+        "account_id": "95c87cc0-2169-4058-a289-722c558c7cb9",
+        "account_name": "Cash",
+        "payee_id": "103e9fca-fa7d-4f97-9e91-c90a7b00bcde",
+        "payee_name": "Rent",
+        "category_id": "b6f9e2a5-5250-46ea-9f08-6dfd7fac4d0e",
+        "category_name": "Rent/Mortgage",
+        "transfer_account_id": null,
+        "transfer_transaction_id": null,
+        "matched_transaction_id": null,
+        "import_id": null,
+        "deleted": false,
+        "subtransactions": []
+      },
+      {
+        "id": "71adff61-3ac5-4a28-9adf-0d8b52c0cc88",
+        "date": "2021-04-08",
+        "amount": 500000,
+        "memo": null,
+        "cleared": "cleared",
+        "approved": true,
+        "flag_color": null,
+        "account_id": "95c87cc0-2169-4058-a289-722c558c7cb9",
+        "account_name": "Cash",
+        "payee_id": "6f49d403-b399-4e08-b6bb-074cca86d49c",
+        "payee_name": "Starting Balance",
+        "category_id": "59fe3081-799e-4dbb-a193-02c34fbab073",
+        "category_name": "Inflow: To be Budgeted",
+        "transfer_account_id": null,
+        "transfer_transaction_id": null,
+        "matched_transaction_id": null,
+        "import_id": null,
+        "deleted": false,
+        "subtransactions": []
+      },
+      {
+        "id": "e13ed3f7-ffa1-4151-a239-1c71aa6458d7",
+        "date": "2021-04-08",
+        "amount": 7415000,
+        "memo": null,
+        "cleared": "cleared",
+        "approved": true,
+        "flag_color": null,
+        "account_id": "74628f0d-5214-4c60-a915-bd59fc16adb4",
+        "account_name": "Bank",
+        "payee_id": "6f49d403-b399-4e08-b6bb-074cca86d49c",
+        "payee_name": "Starting Balance",
+        "category_id": "59fe3081-799e-4dbb-a193-02c34fbab073",
+        "category_name": "Inflow: To be Budgeted",
+        "transfer_account_id": null,
+        "transfer_transaction_id": null,
+        "matched_transaction_id": null,
+        "import_id": null,
+        "deleted": false,
+        "subtransactions": []
+      }
+    ],
+    "server_knowledge": 75
+  }
+}

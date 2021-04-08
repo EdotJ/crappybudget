@@ -249,6 +249,7 @@ thead {
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 4rem 0;
 }
 
 .table-container {
@@ -293,14 +294,20 @@ thead {
     align-items: center;
     justify-content: space-between;
     padding: 0 4rem;
+    height: 100%;
   }
 
   .bottom {
     padding-top: 0;
+    height: 100%;
   }
 
   .category-breakdown-container {
     height: 100%;
+  }
+
+  .loader-container {
+    padding: 0;
   }
 }
 </style>

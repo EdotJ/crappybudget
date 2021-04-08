@@ -18,17 +18,23 @@ import java.util.Optional;
 public interface EntryRepository extends PageableRepository<Entry, Long> {
 
     @Join(value = "account", type = Join.Type.FETCH)
+    @Join(value = "category", type = Join.Type.FETCH)
     @Join(value = "user", type = Join.Type.FETCH)
     List<Entry> findByUserIdOrderByDateDesc(Long id);
 
     @Join(value = "account", type = Join.Type.FETCH)
+    @Join(value = "category", type = Join.Type.FETCH)
     @Join(value = "user", type = Join.Type.FETCH)
     Page<Entry> findByUserIdOrderByDateDesc(Long id, @Nullable Pageable pageable);
 
     @Join(value = "account", type = Join.Type.FETCH)
+    @Join(value = "category", type = Join.Type.FETCH)
     @Join(value = "user", type = Join.Type.FETCH)
     Page<Entry> findByAccountIdOrderByDateDesc(Long accountId, @Nullable Pageable pageable);
 
+    @Join(value = "account", type = Join.Type.FETCH)
+    @Join(value = "category", type = Join.Type.FETCH)
+    @Join(value = "user", type = Join.Type.FETCH)
     Page<Entry> findByAccountIdAndDateBetweenOrderByDateDesc(Long accountId,
                                                              LocalDate start,
                                                              LocalDate end,
