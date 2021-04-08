@@ -50,63 +50,71 @@ public class Entry {
         return name;
     }
 
-    public void setName(String name) {
+    public Entry setName(String name) {
         this.name = name;
+        return this;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
+    public Entry setDescription(String description) {
         this.description = description;
+        return this;
     }
 
     public BigDecimal getValue() {
         return value;
     }
 
-    public void setValue(BigDecimal value) {
+    public Entry setValue(BigDecimal value) {
         this.value = value;
+        return this;
     }
 
     public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
+    public Entry setDate(LocalDate date) {
         this.date = date;
+        return this;
     }
 
     public boolean isExpense() {
         return isExpense;
     }
 
-    public void setIsExpense(boolean isExpense) {
+    public Entry setIsExpense(boolean isExpense) {
         this.isExpense = isExpense;
+        return this;
     }
 
     public User getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public Entry setUser(User user) {
         this.user = user;
+        return this;
     }
 
     public Category getCategory() {
         return category;
     }
 
-    public void setCategory(Category category) {
+    public Entry setCategory(Category category) {
         this.category = category;
+        return this;
     }
 
     public Account getAccount() {
         return account;
     }
 
-    public void setAccount(Account account) {
+    public Entry setAccount(Account account) {
         this.account = account;
+        return this;
     }
 }

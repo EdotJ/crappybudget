@@ -203,7 +203,6 @@ export default {
 
 .summary {
   height: 100%;
-  border: 1px solid var(--accent-main);
   padding: 0.75rem;
   font-size: 1rem;
   display: flex;
@@ -211,6 +210,9 @@ export default {
   justify-content: flex-start;
   align-items: flex-start;
   margin: 0 3rem 0 3rem;
+  border-radius: 8px;
+  background-color: #eeeeee;
+  box-shadow: 0 1px 1px -2px black;
 }
 
 .summary-container {

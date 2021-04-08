@@ -100,9 +100,7 @@ public class EntryService extends RestrictedResourceHandler {
         User user = account.getUser();
         checkIfCanAccessResource(user);
         Category category = categoryService.getSingle(request.getCategoryId());
-        // TODO: reduce ridiculous construction
-        Entry entry = new Entry();
-        setEntryFromRequest(request, entry, user);
+        Entry entry = setEntryFromRequest(request, new Entry(), user);
         entry.setCategory(category);
         entry.setAccount(account);
         return entryRepository.save(entry);
@@ -115,14 +113,14 @@ public class EntryService extends RestrictedResourceHandler {
         Category category = categoryService.getSingle(request.getCategoryId());
         List<Entry> entries = new ArrayList<>();
         for (ReceiptEntryDto receiptEntry : request.getEntries()) {
-            Entry entry = new Entry();
-            entry.setName(receiptEntry.getName());
-            entry.setValue(receiptEntry.getPrice());
-            entry.setDate(request.getDate());
-            entry.setCategory(category);
-            entry.setAccount(account);
-            entry.setUser(user);
-            entry.setIsExpense(true);
+            Entry entry = new Entry()
+                    .setName(receiptEntry.getName())
+                    .setValue(receiptEntry.getPrice())
+                    .setDate(request.getDate())
+                    .setCategory(category)
+                    .setAccount(account)
+                    .setUser(user)
+                    .setIsExpense(true);
             entries.add(entry);
         }
         return StreamSupport
@@ -158,19 +156,20 @@ public class EntryService extends RestrictedResourceHandler {
         if (!request.getAccountId().equals(account.getId())) {
             account = accountService.getSingle(request.getAccountId());
         }
-        setEntryFromRequest(request, entry, user);
+        entry = setEntryFromRequest(request, entry, user);
         entry.setAccount(account);
         entry.setCategory(category);
         return entryRepository.update(entry);
     }
 
-    private void setEntryFromRequest(SingleEntryDto request, Entry entry, User user) {
-        entry.setName(request.getName());
-        entry.setDescription(request.getDescription());
-        entry.setValue(request.getValue());
-        entry.setDate(request.getDate());
-        entry.setIsExpense(request.isExpense() == null || request.isExpense());
-        entry.setUser(user);
+    private Entry setEntryFromRequest(SingleEntryDto request, Entry entry, User user) {
+        entry.setName(request.getName())
+                .setDescription(request.getDescription())
+                .setValue(request.getValue())
+                .setDate(request.getDate())
+                .setIsExpense(request.isExpense() == null || request.isExpense())
+                .setUser(user);
+        return entry;
     }
 
     public void saveAllEntries(List<Entry> entries) {

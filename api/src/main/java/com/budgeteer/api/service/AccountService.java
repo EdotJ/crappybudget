@@ -65,6 +65,8 @@ public class AccountService extends RestrictedResourceHandler {
     }
 
     public Account create(SingleAccountDto request) {
+        String defaultNameProp = "DEFAULT_ACCOUNT_ENTRY_NAME";
+        String defaultName = "Starting balance";
         validateAccountRequest(request);
         Long userId = this.getAuthenticatedUserId();
         User user = userService.getById(userId);
@@ -75,14 +77,12 @@ public class AccountService extends RestrictedResourceHandler {
         account = accRepository.save(account);
         if (request.getBalance() != null && request.getBalance().compareTo(BigDecimal.ZERO) > 0) {
             Entry entry = new Entry();
-            entry.setAccount(account);
-            entry.setUser(user);
-            entry.setValue(request.getBalance());
-            entry.setIsExpense(false);
-            entry.setDate(LocalDate.now());
-            String defaultNameProp = "DEFAULT_ACCOUNT_ENTRY_NAME";
-            String defaultName = "Starting balance";
-            entry.setName(translatedMessageSource.getMessageWithDefaultLocale(defaultNameProp, defaultName));
+            entry.setAccount(account)
+                    .setUser(user)
+                    .setValue(request.getBalance())
+                    .setIsExpense(false)
+                    .setDate(LocalDate.now())
+                    .setName(translatedMessageSource.getMessageWithDefaultLocale(defaultNameProp, defaultName));
             entryRepository.save(entry);
         }
 

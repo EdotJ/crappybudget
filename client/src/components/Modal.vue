@@ -140,7 +140,7 @@ select {
 }
 
 .submit-container button {
-  width: 6rem;
+  width: 8rem;
   text-transform: uppercase;
 }
 

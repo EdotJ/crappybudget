@@ -90,10 +90,10 @@ public class ImportEntry {
     }
 
     public Entry transform() {
-        Entry entry = new Entry();
-        entry.setName(this.name);
-        entry.setDate(this.date);
-        entry.setValue(this.value);
+        Entry entry = new Entry()
+                .setName(this.name)
+                .setDate(this.date)
+                .setValue(this.value);
         if (this.value.compareTo(BigDecimal.ZERO) < 0) {
             entry.setIsExpense(true);
         }
