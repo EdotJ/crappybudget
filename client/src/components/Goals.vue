@@ -12,6 +12,9 @@
       </div>
       <transition name="slide">
         <div class="goal-list" v-if="show">
+          <div class="goal-button-container">
+            <div class="add-goal-button" @click="toggleGoalModal">Add</div>
+          </div>
           <Goal v-for="goal in goals" :goal="goal" :key="goal.id" @click.native="toggleEdit(goal)" />
         </div>
       </transition>
@@ -93,7 +96,17 @@ export default {
 
 <style scoped>
 .goals {
+  height: 100vh;
   width: 20%;
+  padding-top: 3rem;
+  border-left: 1px solid var(--accent-main);
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.goals::-webkit-scrollbar {
+  display: none;
 }
 
 h1 {
@@ -107,11 +120,6 @@ h1 {
 
 .goals-mobile {
   display: none;
-}
-
-.goals {
-  padding-top: 3rem;
-  border-left: 1px solid var(--accent-main);
 }
 
 .goals-top {
@@ -156,6 +164,7 @@ h1 {
   .goals {
     width: 100%;
     flex-grow: 1;
+    border: none;
   }
 
   .goal-list {
@@ -177,7 +186,7 @@ h1 {
 
   .goal-trigger span {
     position: absolute;
-    border-top: 1px solid var(--accent-main-lighter);
+    border-top: 2px solid var(--accent-main-lighter);
     background: black;
     width: 100%;
     transform: translateY(-50%);
@@ -227,6 +236,26 @@ h1 {
 
   .goals-desktop {
     display: none;
+  }
+
+  .goal-button-container {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .add-goal-button {
+    font-size: 1em;
+    border-radius: 8px;
+    width: 4rem;
+    font-family: "Quicksand", sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    text-decoration: none;
+    text-transform: uppercase;
+    cursor: pointer;
+    height: 2rem;
   }
 }
 </style>

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class SingleEntryDto {
 
@@ -17,6 +18,7 @@ public class SingleEntryDto {
     private Long userId;
     private Long accountId;
     private Long categoryId;
+    private LocalDateTime created;
 
     public SingleEntryDto() {
     }
@@ -33,6 +35,7 @@ public class SingleEntryDto {
         if (e.getCategory() != null) {
             this.categoryId = e.getCategory().getId();
         }
+        this.created = e.getCreated();
     }
 
     public Long getId() {
@@ -102,5 +105,13 @@ public class SingleEntryDto {
 
     public void setCategoryId(Long categoryId) {
         this.categoryId = categoryId;
+    }
+
+    public LocalDateTime getCreated() {
+        return created;
+    }
+
+    public void setCreated(LocalDateTime created) {
+        this.created = created;
     }
 }

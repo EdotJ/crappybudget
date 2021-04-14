@@ -1,8 +1,18 @@
 <template>
   <div class="top-bar">
-    <IconBase icon-name="hamburger" v-on:click.native="toggleBurger()" view-box="0 0 48 48">
-      <HamburgerIcon />
-    </IconBase>
+    <div class="click-overlay" v-if="show" v-on:click.self="toggleBurger()"></div>
+    <div class="bar-elements">
+      <div class="balance-container">
+        <div class="balance">
+          <span class="balance-total" v-if="!isLoadingBalance">{{ totalBalance ? totalBalance.toFixed(2) : 0 }} €</span>
+          <GradientLoader class="gradient" v-else />
+          <span class="balance-subtext">Current Balance</span>
+        </div>
+      </div>
+      <IconBase icon-name="hamburger" v-on:click.native="toggleBurger()" view-box="0 0 48 48">
+        <HamburgerIcon />
+      </IconBase>
+    </div>
     <transition name="slide">
       <nav class="hamburger-menu" v-if="show">
         <router-link to="/" class="hamburger-menu-url" v-on:click.native="toggleBurger()">Home</router-link>
@@ -12,7 +22,15 @@
         <router-link to="/accounts" class="hamburger-menu-url" v-on:click.native="toggleBurger()" v-if="isLoggedIn">
           Accounts
         </router-link>
-        <router-link to="/external-data" class="hamburger-menu-url" v-on:click.native="toggleBurger()" v-if="isLoggedIn">
+        <router-link to="/categories" class="hamburger-menu-url" v-on:click.native="toggleBurger()" v-if="isLoggedIn">
+          Categories
+        </router-link>
+        <router-link
+          to="/external-data"
+          class="hamburger-menu-url"
+          v-on:click.native="toggleBurger()"
+          v-if="isLoggedIn"
+        >
           External Data
         </router-link>
         <router-link to="/settings" class="hamburger-menu-url" v-on:click.native="toggleBurger()" v-if="isLoggedIn">
@@ -27,14 +45,19 @@
 <script>
 import HamburgerIcon from "@/components/icons/HamburgerIcon";
 import IconBase from "@/components/IconBase";
-import { mapGetters } from "vuex";
+import { mapGetters, mapState } from "vuex";
+import GradientLoader from "@/components/GradientLoader";
 
 export default {
   name: "TopBar",
-  components: { HamburgerIcon, IconBase },
+  components: { GradientLoader, HamburgerIcon, IconBase },
   computed: {
     ...mapGetters({
       isLoggedIn: "auth/isLoggedIn",
+    }),
+    ...mapState({
+      totalBalance: (state) => state.entries.balance,
+      isLoadingBalance: (state) => state.entries.isLoadingBalance,
     }),
   },
   data() {
@@ -62,9 +85,15 @@ export default {
 }
 
 .top-bar svg {
-  margin: 0 8px;
   width: 48px;
   height: 48px;
+}
+
+.bar-elements {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin: 0 8px;
 }
 
 .hamburger-menu {
@@ -73,7 +102,7 @@ export default {
   position: absolute;
   left: 0;
   top: 60px;
-  height: 300px;
+  height: 350px;
   width: 100vw;
   padding: 10px 0;
   display: flex;
@@ -92,6 +121,17 @@ export default {
 
 .hamburger-menu-url:hover {
   background-color: var(--accent-main-darker-transparent);
+}
+
+.click-overlay {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  background: var(--accent-main-darker);
+  z-index: 11;
 }
 
 .slide-enter-active {
@@ -120,6 +160,46 @@ export default {
   max-height: 0;
 }
 
+.balance-container {
+  padding: 0;
+  flex-grow: 1;
+  margin-right: 3rem;
+}
+
+.balance {
+  background: var(--accent-main-lighter);
+  color: var(--foreground-accent);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+}
+
+.balance-total {
+  font-weight: bold;
+}
+
+.balance-subtext {
+  font-weight: lighter;
+  font-size: 1rem;
+}
+
+.gradient {
+  width: 40%;
+}
+
+/* Tablet Styles */
+@media only screen and (min-width: 415px) and (max-width: 960px) {
+  .balance {
+    justify-content: flex-end;
+  }
+
+  .balance-subtext {
+    margin-right: 1rem;
+  }
+}
 /* Desktop Styles */
 @media only screen and (min-width: 961px) {
   .top-bar {

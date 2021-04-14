@@ -36,15 +36,16 @@ export default {
 
 <style scoped>
 .top-level {
-  height: 100%;
+  height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
 .content {
   flex-grow: 1;
-  overflow-y: scroll;
   padding: 1rem;
+  overflow-y: auto;
+  height: 100vh;
 }
 
 /* Desktop Styles */

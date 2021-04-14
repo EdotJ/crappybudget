@@ -9,15 +9,21 @@
           <span class="">{{ goal.currentValue }}</span>
         </div>
         <div class="input-group">
-          <label for="name">Name</label>
-          <input id="name" type="text" required placeholder="Name" v-model="goal.name" />
+          <label for="goal-name">Name</label>
+          <input id="goal-name" type="text" required placeholder="Name" autocomplete="false" v-model="goal.name" />
         </div>
         <div class="input-group">
-          <label for="description">Description</label>
-          <input id="description" type="text" placeholder="Description" v-model="goal.description" />
+          <label for="goal-description">Description</label>
+          <input
+            id="goal-description"
+            type="text"
+            placeholder="Description"
+            autocomplete="false"
+            v-model="goal.description"
+          />
         </div>
         <div class="input-group">
-          <label for="date">Date</label>
+          <label for="date">Goal Date</label>
           <input id="date" type="date" required placeholder="Date" v-model="goal.date" />
         </div>
         <div class="input-group">
@@ -26,24 +32,20 @@
         </div>
         <div class="input-group">
           <label for="category">Category</label>
-          <select id="category" required v-model="goal.categoryId">
-            <option v-for="category in sortedCategories" :key="category.id" :value="category.id">
-              {{ category.parentId ? `- ${category.name}` : category.name }}
-            </option>
-          </select>
+          <CategorySelector id="category" v-model="goal.categoryId" :required="true" :clearable="false" />
         </div>
         <div class="input-group">
           <label for="goalType">Goal Type</label>
-          <select id="goalType" required v-model="goal.goalType">
-            <option
-              v-for="goalType in goalTypes"
-              :key="goalType.id"
-              :value="goalType.id"
-              :selected="goalType.id === goal.goalType"
-            >
-              {{ goalType.name }}
-            </option>
-          </select>
+          <v-select
+            class="selector"
+            id="goalType"
+            required
+            v-model="goal.goalType"
+            :options="goalTypes"
+            :reduce="(goalType) => goalType.id"
+            label="name"
+            :clearable="false"
+          />
         </div>
         <div class="submit-container">
           <AccentedSubmitButton type="button" @click.native="submitDelete" text="DELETE" />
@@ -58,11 +60,13 @@
 import FormError from "@/components/FormError";
 import AccentedSubmitButton from "@/components/AccentedSubmitButton";
 import Modal from "@/components/Modal";
+import vSelect from "vue-select";
 import { mapActions, mapGetters, mapState } from "vuex";
+import CategorySelector from "@/components/CategorySelector";
 
 export default {
   name: "GoalModal",
-  components: { FormError, AccentedSubmitButton, Modal },
+  components: { CategorySelector, FormError, AccentedSubmitButton, Modal, vSelect },
   props: { goal: Object, show: Boolean },
   data() {
     return {
@@ -119,6 +123,10 @@ export default {
 </script>
 
 <style scoped>
+form {
+  width: 100%;
+}
+
 .current-value {
   font-size: 1rem;
   display: flex;
@@ -131,5 +139,12 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.selector {
+  width: 100%;
+  background: var(--input-bg-color);
+  border-radius: 8px;
+  font-size: 1rem;
 }
 </style>

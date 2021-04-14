@@ -3,11 +3,21 @@ import api from "@/api";
 const state = {
   entries: [],
   isLoading: false,
+  isLoadingBalance: false,
   balance: null,
   totalPages: null,
 };
 
 const getters = {};
+
+const formatDate = (date) =>
+  date && date.getDate
+    ? date.getFullYear() +
+      "-" +
+      ("" + (date.getMonth() + 1)).padStart(2, 0) +
+      "-" +
+      ("" + date.getDate()).padStart(2, 0)
+    : null;
 
 export const mutations = {
   SET_ENTRIES(state, entries) {
@@ -15,6 +25,9 @@ export const mutations = {
   },
   SET_IS_LOADING(state, isLoading) {
     state.isLoading = isLoading;
+  },
+  SET_IS_LOADING_BALANCE(state, isLoadingBalance) {
+    state.isLoadingBalance = isLoadingBalance;
   },
   ADD_ENTRY(state, entry) {
     if (state.entries.length > 7) {
@@ -43,9 +56,11 @@ export const actions = {
   getAll: async function ({ commit }, payload) {
     try {
       commit("SET_IS_LOADING", true);
+      payload.from = formatDate(payload.from);
+      payload.to = formatDate(payload.to);
       const response = payload.accountId
-        ? await api.entries.getAllForAccount(payload.accountId, payload.page)
-        : await api.entries.getAll(payload.page);
+        ? await api.entries.getAllForAccount(payload.accountId, payload.from, payload.to, payload.page)
+        : await api.entries.getAll(payload.from, payload.to, payload.page);
       if (response && response.data && response.data.entries) {
         commit("SET_ENTRIES", response.data.entries);
         commit("SET_TOTAL_PAGES", response.data.totalPages);
@@ -106,6 +121,7 @@ export const actions = {
   },
   getBalance: async function ({ commit }) {
     try {
+      commit("SET_IS_LOADING_BALANCE", true);
       const response = await api.entries.getBalance();
       if (response && response.status === 200 && (response.data.balance || response.data.balance === 0)) {
         commit("SET_BALANCE", response.data.balance);
@@ -114,6 +130,8 @@ export const actions = {
       return Promise.reject();
     } catch (e) {
       return Promise.reject(e);
+    } finally {
+      commit("SET_IS_LOADING_BALANCE", false);
     }
   },
   submitReceiptEntries: async function ({ commit }, receipt) {

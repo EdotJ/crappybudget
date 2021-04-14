@@ -3,10 +3,7 @@
     <IconBase class="icon-left" @click.native="$router.go(-1)"><LeftArrowIcon /> </IconBase>
     <FormError :value="error" />
     <form v-on:submit.prevent="$route.params.id ? submitUpdate() : submitCreate()">
-      <div class="input-group">
-        <label for="name">Name</label>
-        <input id="name" type="text" required placeholder="Name" v-model="currentAccount.name" />
-      </div>
+      <StyledInput type="text" :required="true" placeholder="Name" v-model="currentAccount.name" />
       <div class="submit-container">
         <AccentedSubmitButton />
       </div>
@@ -20,10 +17,11 @@ import AccentedSubmitButton from "@/components/AccentedSubmitButton";
 import { mapActions } from "vuex";
 import IconBase from "@/components/IconBase";
 import LeftArrowIcon from "@/components/icons/LeftArrowIcon";
+import StyledInput from "@/components/StyledInput";
 
 export default {
   name: "AccountForm",
-  components: { LeftArrowIcon, IconBase, FormError, AccentedSubmitButton },
+  components: { StyledInput, LeftArrowIcon, IconBase, FormError, AccentedSubmitButton },
   data() {
     return {
       error: "",

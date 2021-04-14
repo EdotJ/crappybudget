@@ -19,9 +19,10 @@ export default {
 
 <style scoped>
 .progress {
-  border: 1px solid;
   height: 24px;
   margin: 0 16px;
+  border-radius: 3px;
+  background-color: var(--accent-main-lighter-even-lighter);
 }
 
 .shell {
@@ -33,7 +34,8 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(to right, var(--accent-main-lighter), var(--accent-main-darker));
+  background: var(--accent-main-darker);
+  border-radius: 3px;
   color: var(--foreground-accent);
 }
 

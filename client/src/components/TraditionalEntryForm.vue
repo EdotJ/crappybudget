@@ -12,7 +12,15 @@
       />
     </div>
     <div class="input-group">
-      <StyledInput id="name" type="text" required="true" placeholder="Name" :vertical="true" v-model="entry.name" />
+      <StyledInput
+        id="entry-name"
+        type="text"
+        required="true"
+        placeholder="Name"
+        :vertical="true"
+        :autocomplete="false"
+        v-model="entry.name"
+      />
     </div>
     <div class="input-group">
       <StyledInput
@@ -21,6 +29,7 @@
         placeholder="Description"
         :vertical="true"
         v-model="entry.description"
+        :textarea="true"
       />
     </div>
     <div class="input-group">
@@ -39,18 +48,12 @@
       <StyledInput id="date" type="date" required="true" placeholder="Date" vertical="true" v-model="entry.date" />
     </div>
     <div class="input-group">
-      <label for="account">Account</label>
-      <select id="account" required v-model="entry.accountId">
-        <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name }}</option>
-      </select>
+      <label for="account">Account<span style="color: red">*</span></label>
+      <AccountSelector id="account" v-model="entry.accountId" :clearable="false" />
     </div>
     <div class="input-group">
-      <label for="category">Category</label>
-      <select id="category" v-model="entry.categoryId">
-        <option v-for="category in sortedCategories" :key="category.id" :value="category.id">
-          {{ category.parentId ? `- ${category.name}` : category.name }}
-        </option>
-      </select>
+      <label for="category">Category<span style="color: red">*</span></label>
+      <CategorySelector id="category" v-model="entry.categoryId" />
     </div>
     <div class="submit-container">
       <AccentedSubmitButton />
@@ -62,6 +65,8 @@
 import AccentedSubmitButton from "@/components/AccentedSubmitButton";
 import StyledInput from "@/components/StyledInput";
 import { mapActions, mapGetters, mapState } from "vuex";
+import CategorySelector from "@/components/CategorySelector";
+import AccountSelector from "@/components/AccountSelector";
 
 export default {
   name: "TraditionalEntryForm",
@@ -70,7 +75,7 @@ export default {
       type: Object,
     },
   },
-  components: { AccentedSubmitButton, StyledInput },
+  components: { AccountSelector, CategorySelector, AccentedSubmitButton, StyledInput },
   computed: {
     ...mapState({
       accounts: (state) => state.accounts.accounts,
@@ -86,6 +91,7 @@ export default {
       refreshBalances: "refreshBalances",
     }),
     submitCreate() {
+      this.$emit("throw-error", "");
       this.createEntry({
         ...this.entry,
       })
@@ -147,6 +153,15 @@ form {
 
 .submit-container button {
   width: 120px;
+}
+
+.selector {
+  background: var(--input-bg-color);
+  border-radius: 8px;
+}
+
+.child-category {
+  margin-left: 1rem;
 }
 
 @media only screen and (min-width: 415px) and (max-width: 960px) {

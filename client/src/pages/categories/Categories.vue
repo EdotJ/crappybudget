@@ -1,34 +1,43 @@
 <template>
   <div class="root">
-    <div class="top">
-      <h1>Categories</h1>
-      <div class="add-category-button" @click="$router.push('categories/create')">+</div>
-    </div>
-    <table>
-      <thead>
-        <tr>
-          <td>Name</td>
-          <td>Actions</td>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="category in sortedCategories" :key="category.id">
-          <td>{{ category.name }}</td>
-          <td>
-            <div class="actions">
-              <DeleteButton class="action" view-box="0 0 24 24" @click.native="deleteCategory(category)" />
-              <IconBase
-                class="action"
-                view-box="0 0 24 24"
-                @click.native="$router.push(`/categories/edit/${category.id}`)"
-              >
-                <EditIcon />
-              </IconBase>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <Paper class="paper">
+      <div class="top">
+        <h1>Categories</h1>
+        <div class="add-category-button" @click="$router.push('categories/create')">+</div>
+      </div>
+      <table v-if="!isLoading">
+        <thead>
+          <tr>
+            <td>Name</td>
+            <td>Actions</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="category in sortedCategories"
+            :key="category.id"
+            :class="['category', { parent: !category.parentId }]"
+          >
+            <td>{{ category.name }}</td>
+            <td>
+              <div class="actions">
+                <DeleteButton class="action" view-box="0 0 24 24" @click.native="deleteCategory(category)" />
+                <IconBase
+                  class="action"
+                  view-box="0 0 24 24"
+                  @click.native="$router.push(`/categories/edit/${category.id}`)"
+                >
+                  <EditIcon />
+                </IconBase>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="loader-container" v-else>
+        <Spinner />
+      </div>
+    </Paper>
     <ConfirmationModal
       :show="showConfirmationModal"
       v-on:close-modal="toggleConfirmModal"
@@ -44,12 +53,14 @@
 import IconBase from "@/components/IconBase";
 import EditIcon from "@/components/icons/EditIcon";
 import ConfirmationModal from "@/components/ConfirmationModal";
-import { mapActions, mapGetters } from "vuex";
+import { mapActions, mapGetters, mapState } from "vuex";
 import DeleteButton from "@/components/DeleteButton";
+import Paper from "@/components/Paper";
+import Spinner from "@/components/Spinner";
 
 export default {
   name: "Categories",
-  components: { DeleteButton, IconBase, EditIcon, ConfirmationModal },
+  components: { DeleteButton, IconBase, EditIcon, ConfirmationModal, Paper, Spinner },
   data() {
     return {
       deletingCategory: {},
@@ -59,6 +70,9 @@ export default {
   computed: {
     ...mapGetters({
       sortedCategories: "categories/getSortedCategories",
+    }),
+    ...mapState({
+      isLoading: (state) => state.categories.isLoading,
     }),
   },
   methods: {
@@ -97,6 +111,10 @@ export default {
   flex-direction: column;
 }
 
+.paper {
+  width: 100%;
+}
+
 .top {
   display: flex;
   width: 100%;
@@ -104,13 +122,26 @@ export default {
   justify-content: space-between;
 }
 
+.loader-container {
+  width: 100%;
+  height: 50%;
+  display: flex;
+  justify-content: center;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
+  border: 1px solid black;
 }
 
 thead {
-  background: #cccccc;
+  background: var(--accent-main);
+  color: var(--foreground-accent);
+}
+
+thead td {
+  padding: 0.5rem 0;
 }
 
 td {
@@ -126,6 +157,17 @@ td {
   align-items: center;
 }
 
+.category {
+  font-size: 0.75rem;
+}
+
+.parent {
+  background-color: #dddddd;
+  border-top: 1px solid var(--accent-main);
+  border-bottom: 1px solid var(--accent-main);
+  font-size: 1rem;
+}
+
 .action {
   width: 40px;
   height: 40px;
@@ -133,6 +175,7 @@ td {
   margin: 0 4px;
   border-radius: 8px;
   color: var(--accent-main-darker);
+  cursor: pointer;
 }
 
 .action:hover {
@@ -171,12 +214,21 @@ td {
 @media only screen and (min-width: 961px) {
   .root {
     padding: 3rem;
-    width: 80%;
+    width: 100%;
   }
+
   .action {
     width: 48px;
     height: 48px;
     margin: 0 16px;
+  }
+
+  .category {
+    font-size: 1rem;
+  }
+
+  .parent {
+    font-size: 1.25rem;
   }
 }
 </style>

@@ -20,6 +20,7 @@ export default {
       name: category.name,
       parentId: category.parentId ? category.parentId : null,
     };
+    console.log(body);
     return request.put(`/categories/${category.id}`, body);
   },
   delete(id) {

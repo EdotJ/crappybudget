@@ -24,15 +24,16 @@ public abstract class StatisticsRepository {
     }
 
     @TransactionalAdvice
-    public CategoryBreakdown getCategoryBreakdown(Integer year, Integer month) {
+    public CategoryBreakdown getCategoryBreakdown(Integer year, Integer month, Long userId) {
         Query query = entityManager.createQuery("select "
                 + "c.parent.id, c.id, "
                 + "(SELECT COALESCE(SUM(value), 0) FROM Entry e "
                 + "WHERE e.category = c AND e.isExpense = true AND YEAR(e.date) = :year AND MONTH(e.date) = :month) "
-                + "FROM Category c "
+                + "FROM Category c WHERE c.user.id= :userId "
                 + "GROUP BY c.id");
         query.setParameter("year", year);
         query.setParameter("month", month);
+        query.setParameter("userId", userId);
 
         @SuppressWarnings("unchecked")
         List<CategoryBreakdown.Entry> entries = (List<CategoryBreakdown.Entry>)
@@ -60,13 +61,14 @@ public abstract class StatisticsRepository {
     }
 
     @TransactionalAdvice
-    public TopExpenses getTopExpenses(Integer year, Integer month, Integer count) {
+    public TopExpenses getTopExpenses(Integer year, Integer month, Integer count, Long userId) {
         Query query = entityManager.createQuery("select "
                 + "e.name, e.account.name, e.value, e.date "
-                + "FROM Entry e WHERE YEAR(e.date) = :year AND MONTH(e.date) = :month AND e.isExpense = true "
+                + "FROM Entry e WHERE YEAR(e.date) = :year AND MONTH(e.date) = :month AND e.isExpense = true AND e.user.id = :userId "
                 + "ORDER BY e.value DESC");
         query.setParameter("year", year);
         query.setParameter("month", month);
+        query.setParameter("userId", userId);
         query.setMaxResults(count);
 
         @SuppressWarnings("unchecked")
@@ -93,13 +95,14 @@ public abstract class StatisticsRepository {
     }
 
     @TransactionalAdvice
-    public YearlyBreakdown getYearlyBreakdown(Integer year) {
+    public YearlyBreakdown getYearlyBreakdown(Integer year, Long userId) {
         Query query = entityManager.createQuery(
                 "select month(e.date), "
                         + "coalesce(sum(case when e.isExpense = false then e.value else 0 end), 0) as income, "
                         + "coalesce(sum(case when e.isExpense = true then e.value else 0 end), 0) as expenses "
-                        + "FROM Entry e WHERE YEAR(e.date) = :year GROUP BY month(e.date)");
+                        + "FROM Entry e WHERE YEAR(e.date) = :year AND e.user.id = :userId GROUP BY month(e.date) ");
         query.setParameter("year", year);
+        query.setParameter("userId", userId);
 
         @SuppressWarnings("unchecked")
         List<YearlyBreakdown.Entry> entries = (List<YearlyBreakdown.Entry>)

@@ -3,46 +3,93 @@
     <div class="window" v-if="!isLoading">
       <div class="entry-section">
         <div class="entries-top">
-          <div class="select-wrapper">
-            <select class="account-select" @change="handleSelect($event)">
-              <option v-if="accounts.length === 0">No accounts</option>
-              <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name }}</option>
-            </select>
-          </div>
-          <div class="summary-container">
-            <div class="summary" v-if="income != null && expenses != null && net != null">
-              <span>{{ "Monthly income: " + income + "€" }}</span>
-              <span>{{ "Monthly expenses: " + expenses + "€" }}</span>
-              <span :class="net >= 0 ? 'positive' : 'negative'">{{ "Net: " + net + "€" }}</span>
+          <div class="side-container">
+            <div class="leftside-container">
+              <div class="select-wrapper">
+                <v-select
+                  class="account-select selector"
+                  @input="handleSelect"
+                  :options="accounts"
+                  label="name"
+                  :clearable="false"
+                  :searchable="false"
+                  v-model="selected"
+                >
+                  <template #no-options>
+                    <router-link to="/accounts/create" class="no-options"> Create a new account?</router-link>
+                  </template>
+                </v-select>
+              </div>
+              <div class="date-picker-group normal-desktop-picker">
+                <div class="date-picker-container">
+                  <RangePicker class="date-picker" @applied="handleDateChange" v-model="filterDates" />
+                </div>
+                <Button class="clear-button" @click.native="clearDates">Clear</Button>
+              </div>
             </div>
-            <div class="add-entry-button" @click="$router.push('entries/create')">+</div>
+            <div class="rightside-container">
+              <div class="summary" v-if="income != null && expenses != null && net != null">
+                <span>{{ "Monthly income: " + income + "€" }}</span>
+                <span>{{ "Monthly expenses: " + expenses + "€" }}</span>
+                <span :class="net >= 0 ? 'positive' : 'negative'">{{ "Net: " + net + "€" }}</span>
+              </div>
+              <div class="add-entry-button" @click="$router.push('entries/create')" v-if="accounts.length > 0">+</div>
+            </div>
+          </div>
+          <div class="date-picker-group small-scale-picker">
+            <div class="date-picker-container">
+              <RangePicker class="date-picker" @applied="handleDateChange" v-model="filterDates" />
+            </div>
+            <Button class="clear-button" @click.native="clearDates">Clear</Button>
           </div>
         </div>
-        <Goals class="mobile-goals" />
-        <div class="entry-list">
+        <!--          <Goals class="mobile-goals" />-->
+        <div class="entry-list" v-if="!isLoadingEntries">
+          <div class="no-entries-warning" v-if="entries.length === 0">
+            {{
+              accounts.length > 0 ? "No entries :(" : "Create your account in the Accounts tab and add some entries!"
+            }}
+          </div>
           <Entry
             v-for="(entry, i) in entries"
             :key="entry.id"
             v-bind:entry="entry"
             :index="i"
             :page="page"
-            v-on:click.native.self="toggleEdit(entry)"
+            v-on:clicked-entry="toggleEdit(entry)"
+            :from="filterDates.startDate"
+            :to="filterDates.endDate"
           />
         </div>
-        <div class="page-selector" v-if="totalPages > 1">
-          <IconBase class="page-selector-icon" icon-name="left" v-on:click.native="handlePageChange(page - 1)">
-            <LeftArrowIcon />
-          </IconBase>
-          {{ page + 1 }} {{ totalPages ? "... " + totalPages : "" }}
-          <IconBase class="page-selector-icon" icon-name="right" v-on:click.native="handlePageChange(page + 1)">
-            <RightArrowIcon />
-          </IconBase>
+        <div class="page-selector" v-if="totalPages > 1 && !isLoadingEntries">
+          <div class="page-selector-icon-container">
+            <IconBase class="page-selector-icon" icon-name="left" v-on:click.native="handlePageChange(page - 1)">
+              <LeftArrowIcon />
+            </IconBase>
+          </div>
+          <div class="pages-container">
+            <span class="page-jump" v-on:click="handlePageChange(0)"> 1 </span>
+            <span v-if="page !== 0 && page !== totalPages - 1">
+              {{ page + 1 }}
+            </span>
+            <span class="page-jump" v-on:click="handlePageChange(totalPages - 1)"
+              >{{ totalPages ? "... " + totalPages : "" }}
+            </span>
+          </div>
+          <div class="page-selector-icon-container">
+            <IconBase class="page-selector-icon" icon-name="right" v-on:click.native="handlePageChange(page + 1)">
+              <RightArrowIcon />
+            </IconBase>
+          </div>
+        </div>
+        <div class="loader-container entry-loader" v-if="isLoadingEntries">
+          <Spinner />
         </div>
       </div>
       <Goals class="desktop-goals" />
     </div>
-    <div v-if="isLoading">
-      <Spinner class="spinner" />
+    <div v-if="isLoading" class="loader-container">
+      <Spinner />
     </div>
     <EntryModal :entry="currentEntry" v-on:close-modal="closeModal" :show="showEntryModal" />
   </div>
@@ -57,10 +104,15 @@ import IconBase from "@/components/IconBase";
 import LeftArrowIcon from "@/components/icons/LeftArrowIcon";
 import RightArrowIcon from "@/components/icons/RightArrowIcon";
 import EntryModal from "@/components/EntryModal";
+import vSelect from "vue-select";
+import RangePicker from "@/components/icons/RangePicker";
+import Button from "@/components/Button";
 
 export default {
   name: "Home",
   components: {
+    Button,
+    RangePicker,
     EntryModal,
     RightArrowIcon,
     LeftArrowIcon,
@@ -68,6 +120,7 @@ export default {
     Goals,
     Entry,
     Spinner,
+    vSelect,
   },
   computed: {
     ...mapGetters({
@@ -83,7 +136,21 @@ export default {
       net: (state) => state.accounts.currentNet,
       currentAccount: (state) => state.accounts.currentAccount,
       totalPages: (state) => state.entries.totalPages,
+      isLoadingEntries: (state) => state.entries.isLoading,
     }),
+  },
+  data() {
+    return {
+      showEntryModal: false,
+      error: "",
+      page: 0,
+      currentEntry: {},
+      selected: null,
+      filterDates: {
+        startDate: null,
+        endDate: null,
+      },
+    };
   },
   methods: {
     ...mapActions({
@@ -94,15 +161,26 @@ export default {
       createEntry: "entries/create",
       refreshBalances: "refreshBalances",
     }),
-    handleSelect(e) {
-      this.getEntries({ accountId: e.target.value, page: 0 });
-      this.getMonthlyStats(e.target.value);
+    handleSelect(value) {
+      this.selected = value;
+      this.getEntries({ accountId: this.selected.id, page: 0 });
+      this.getMonthlyStats(this.selected.id);
     },
     handlePageChange(page) {
       if (page > -1 && page < this.totalPages) {
         this.getEntries({ accountId: this.currentAccount, page });
         this.page = page;
       }
+    },
+    handleDateChange(dates) {
+      this.filterDates.startDate = dates.startDate;
+      this.filterDates.endDate = dates.endDate;
+      this.getEntries({
+        accountId: this.currentAccount,
+        page: 0,
+        from: this.filterDates.startDate,
+        to: this.filterDates.endDate,
+      });
     },
     toggleEntryModal() {
       this.showEntryModal = !this.showEntryModal;
@@ -115,36 +193,40 @@ export default {
       this.currentEntry = { ...entry };
       this.toggleEntryModal();
     },
+    clearDates() {
+      this.filterDates.startDate = null;
+      this.filterDates.endDate = null;
+      this.getEntries({
+        accountId: this.currentAccount,
+        page: 0,
+        from: this.filterDates.startDate,
+        to: this.filterDates.endDate,
+      });
+    },
   },
   mounted() {
     this.getCategories();
     this.getAccounts().then((id) => {
       if (id) {
-        this.getEntries({ accountId: id, page: 0 });
+        this.selected = this.getAccountById(id);
+        this.getEntries({
+          accountId: this.selected.id,
+          from: this.filterDates.startDate,
+          to: this.filterDates.endDate,
+          page: 0,
+        });
         this.getMonthlyStats(id);
       }
     });
-  },
-  data() {
-    return {
-      showEntryModal: false,
-      error: "",
-      page: 0,
-      currentEntry: {
-        name: "",
-        description: "",
-        value: "",
-        date: "",
-        isExpense: true,
-        accountId: "",
-        categoryId: "",
-      },
-    };
   },
 };
 </script>
 
 <style scoped>
+.bigboi {
+  height: 100%;
+}
+
 .home-container {
   height: 100%;
 }
@@ -152,12 +234,27 @@ export default {
 .window {
   display: flex;
   flex-direction: row;
-  height: 100%;
+  height: 100vh;
 }
 
 .entry-section {
   flex-grow: 1;
-  height: 100%;
+  padding: 1.5rem 3rem 3rem 3rem;
+  overflow-y: auto;
+}
+
+.select-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.leftside-container {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .account-select {
@@ -169,36 +266,29 @@ export default {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  border: 1px solid var(--accent-main);
-  border-radius: 16px;
+  border-radius: 8px;
+  width: 100%;
   position: relative;
-  width: 20rem;
-  height: 4rem;
-  z-index: 1;
+  background: var(--default-selector-bg-color);
 }
 
-.select-wrapper {
-  position: relative;
-}
-
-.select-wrapper:after {
-  content: "▼";
-  font: 32px "Consolas", monospace;
-  color: var(--accent-main);
-  padding: 0 0 2px;
-  top: 16px;
-  left: 18rem;
-  position: absolute;
-  pointer-events: none;
-  z-index: 5;
+.no-options {
+  color: var(--main-fg-color);
+  font-size: 1rem;
+  text-decoration: underline;
+  height: 100%;
+  width: 100%;
 }
 
 .entries-top {
+  margin: 8px 0;
+}
+
+.side-container {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  margin: 1rem 8px;
 }
 
 .summary {
@@ -206,20 +296,22 @@ export default {
   padding: 0.75rem;
   font-size: 1rem;
   display: flex;
+  flex-grow: 1;
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
   margin: 0 3rem 0 3rem;
   border-radius: 8px;
-  background-color: #eeeeee;
+  background-color: #fcfcfc;
   box-shadow: 0 1px 1px -2px black;
 }
 
-.summary-container {
+.rightside-container {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+  width: 50%;
 }
 
 .mobile-goals {
@@ -236,11 +328,6 @@ export default {
 
 .headers p {
   margin: 0;
-}
-
-.entry-section {
-  padding: 3rem;
-  flex-grow: 1;
 }
 
 .positive {
@@ -280,27 +367,78 @@ form {
   display: flex;
   justify-content: center;
   align-items: center;
+  height: 2rem;
+}
+
+.page-selector-icon-container {
+  height: 100%;
 }
 
 .page-selector-icon {
   width: 16px;
   height: 1.25rem;
   margin: 0 8px;
-}
-
-.page-selector-icon {
   cursor: pointer;
 }
 
+.page-jump {
+  cursor: pointer;
+}
+
+.pages-container {
+  height: 100%;
+}
+
+.date-picker-container {
+  flex-grow: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.date-picker-group {
+  display: flex;
+  width: 50%;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.clear-button {
+  padding: 0 0.25rem;
+  font-size: 1rem;
+  line-height: 0.5;
+  height: 1.5rem;
+}
+
+.no-entries-warning {
+  display: flex;
+  justify-content: flex-start;
+  font-size: 1.5rem;
+}
+
+.normal-desktop-picker {
+  width: 100%;
+  margin: 8px 0 0 0;
+}
+
+.small-scale-picker {
+  display: none;
+}
+
+.loader-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.entry-loader {
+  height: 40%;
+}
+
 @media only screen and (min-width: 961px) and (max-width: 1280px) {
-  .account-select {
-    width: 15rem;
-  }
-
-  .select-wrapper:after {
-    left: 13rem;
-  }
-
   .summary {
     font-size: 0.75rem;
     margin-left: 0.5rem;
@@ -315,6 +453,19 @@ form {
 
   .entry-section {
     padding: 0.75rem;
+    overflow-y: auto;
+  }
+
+  .date-picker {
+    margin: 8px 0;
+  }
+
+  .normal-desktop-picker {
+    display: none;
+  }
+
+  .small-scale-picker {
+    display: flex;
   }
 }
 
@@ -345,27 +496,11 @@ form {
     background: black;
   }
 
-  .entries-top {
+  .side-container {
     flex-direction: column-reverse;
   }
 
-  .select-wrapper {
-    margin-top: 1rem;
-  }
-
-  .select-wrapper {
-    width: 100%;
-  }
-
-  .account-select {
-    width: 100%;
-  }
-
-  .select-wrapper:after {
-    left: 90%;
-  }
-
-  .summary-container {
+  .rightside-container {
     width: 100%;
   }
 
@@ -386,6 +521,39 @@ form {
 
   .entry-section {
     padding: 8px;
+    overflow-y: unset;
+  }
+
+  .select-wrapper {
+    margin: 8px 0;
+    width: 100%;
+  }
+
+  .leftside-container {
+    width: 100%;
+  }
+
+  .date-picker-group {
+    width: 100%;
+  }
+
+  .date-picker-container {
+    margin-right: 1rem;
+  }
+
+  .date-picker {
+    display: flex;
+    margin: 0;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .normal-desktop-picker {
+    display: none;
+  }
+
+  .small-scale-picker {
+    display: flex;
   }
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="entry">
+  <div class="entry" @click="handleEntryClick">
     <div class="left">
       <div class="title">
         {{ entry.name }}
@@ -9,8 +9,8 @@
       </div>
     </div>
     <div class="center"></div>
-    <div class="right">
-      <div class="entry-data">
+    <div class="right" @click.stop>
+      <div class="entry-data" @click="handleEntryClick">
         <div :class="['value', entry.isExpense ? 'expense' : 'income']">
           {{ entry.isExpense ? "-" : "+" }}{{ entry.value }}
         </div>
@@ -22,7 +22,7 @@
         </div>
       </div>
       <div class="actions">
-        <DeleteButton v-on:click.native.stop="toggleConfirmationModal" />
+        <DeleteButton class="delete-button" v-on:click.native="toggleConfirmationModal" />
       </div>
       <ConfirmationModal
         :show="showConfirmation"
@@ -43,7 +43,7 @@ import DeleteButton from "@/components/DeleteButton";
 export default {
   name: "Entry",
   components: { DeleteButton, ConfirmationModal },
-  props: { entry: Object, index: Number, page: Number },
+  props: { entry: Object, index: Number, page: Number, from: Date, to: Date },
   computed: {
     ...mapState({
       categories: (state) => state.categories.categories,
@@ -81,6 +81,12 @@ export default {
       this.refreshBalances();
       await this.getEntries({ accountId: this.currentAccount, page: this.page });
     },
+    handleEntryClick() {
+      this.$emit("clicked-entry");
+    },
+    handleEntryTextClick() {
+      this.$emit("clicked-entry");
+    },
   },
 };
 </script>
@@ -88,17 +94,18 @@ export default {
 <style scoped>
 .entry {
   display: flex;
-  padding: 20px;
-  margin: 0 8px 8px 8px;
+  padding: 16px;
+  margin-bottom: 8px;
   justify-content: space-between;
   align-items: center;
-  background: #eeeeee;
+  background: var(--entry-bg);
   border-radius: 8px;
   box-shadow: 0 1px 1px -1px gray;
+  cursor: pointer;
 }
 
 .entry:hover {
-  background: #cccccc;
+  background: var(--entry-hover);
 }
 
 .title,
@@ -113,18 +120,21 @@ export default {
 
 .title {
   font-weight: bold;
+  font-size: 0.75rem;
 }
 
 .value {
   display: flex;
   justify-content: flex-end;
+  font-size: 0.75rem;
 }
 
 .category-full,
 .category-mobile {
   font-size: 0.75rem;
-  display: flex;
-  align-items: center;
+  justify-content: flex-end;
+  text-align: right;
+  display: inline-block;
 }
 
 .category-full {
@@ -160,8 +170,17 @@ h1 {
   font-size: 1.5rem;
 }
 
+.delete-button {
+  width: 32px;
+  height: 32px;
+  padding: 4px;
+}
+
 /* Smaller Desktop Styles */
 @media only screen and (min-width: 961px) and (max-width: 1100px) {
+  .entry {
+    padding: 20px;
+  }
 }
 
 /* Desktop Styles */
@@ -177,6 +196,15 @@ h1 {
   .entry-data {
     display: flex;
     flex-direction: column;
+  }
+
+  .title,
+  .value {
+    font-size: 1rem;
+  }
+
+  .entry {
+    padding: 20px;
   }
 }
 </style>

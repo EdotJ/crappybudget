@@ -61,6 +61,7 @@ public class CategoryControllerTest {
         testCategory.setUser(testUser);
         testCategory = categoryRepository.save(testCategory);
         additionalCategory.setUser(secondUser);
+        additionalCategory.setParent(testCategory);
         additionalCategory = categoryRepository.save(additionalCategory);
     }
 
@@ -200,7 +201,7 @@ public class CategoryControllerTest {
     public void shouldFailWhenNoNameGiven() {
         SingleCategoryDto dto = new SingleCategoryDto();
         dto.setName("");
-        dto.setUserId(testCategory.getId());
+        dto.setUserId(testUser.getId());
         MutableHttpRequest<SingleCategoryDto> request = HttpRequest.POST("/categories", dto).headers(authExtension.getAuthHeader());
         HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () -> {
             client.toBlocking().exchange(request, SingleCategoryDto.class);
@@ -211,4 +212,22 @@ public class CategoryControllerTest {
         ErrorResponse errorResponse = optionalError.get();
         assertEquals("BAD_CATEGORY_NAME", errorResponse.getCode());
     }
+
+    @Test
+    public void shouldFailCategoryNesting() {
+        SingleCategoryDto dto = new SingleCategoryDto();
+        dto.setName("Category");
+        dto.setUserId(testUser.getId());
+        dto.setParentId(additionalCategory.getId());
+        MutableHttpRequest<SingleCategoryDto> request = HttpRequest.POST("/categories", dto).headers(authExtension.getAuthHeader());
+        HttpClientResponseException e = assertThrows(HttpClientResponseException.class, () -> {
+            client.toBlocking().exchange(request, SingleCategoryDto.class);
+        });
+        assertEquals(HttpStatus.BAD_REQUEST, e.getResponse().status());
+        Optional<ErrorResponse> optionalError = e.getResponse().getBody(ErrorResponse.class);
+        assertTrue(optionalError.isPresent());
+        ErrorResponse errorResponse = optionalError.get();
+        assertEquals("BAD_CATEGORY", errorResponse.getCode());
+    }
+
 }

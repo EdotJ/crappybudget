@@ -16,7 +16,8 @@ public interface AccountRepository extends CrudRepository<Account, Long> {
 
     List<Account> findByUserId(Long userId);
 
-    @Query("select new Account(a, (select sum(case when e.isExpense = true then (e.value * -1) else e.value end) "
+    @Query("select new Account(a, "
+            + "(select COALESCE(sum(case when e.isExpense = true then (e.value * -1) else e.value end), 0) "
             + "from Entry e where e.account.id = a.id)) from Account a where a.user.id = :userId")
     List<Account> findByUserIdWithBalance(Long userId);
 }

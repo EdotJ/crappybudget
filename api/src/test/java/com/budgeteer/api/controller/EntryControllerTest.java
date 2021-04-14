@@ -17,7 +17,6 @@ import com.budgeteer.api.repository.AccountRepository;
 import com.budgeteer.api.repository.CategoryRepository;
 import com.budgeteer.api.repository.EntryRepository;
 import com.budgeteer.api.repository.UserRepository;
-import io.micronaut.data.model.Page;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -226,7 +225,7 @@ public class EntryControllerTest {
                 .headers(authExtension.getAuthHeader());
         HttpResponse<Object> response = client.toBlocking().exchange(request, Object.class);
         assertEquals(HttpStatus.NO_CONTENT, response.getStatus());
-        List<Entry> entryList = entryRepository.findByUserIdOrderByDateDesc(testUser.getId());
+        List<Entry> entryList = entryRepository.findByUserIdOrderByDateDescAndCreatedDesc(testUser.getId());
         assertEquals(0, entryList.size());
     }
 

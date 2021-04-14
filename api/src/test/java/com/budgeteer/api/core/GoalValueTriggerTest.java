@@ -37,7 +37,7 @@ public class GoalValueTriggerTest {
         stat.execute("INSERT INTO `goal_types` VALUES(2, 'SPEND')");
         stat.execute("INSERT INTO `goals` VALUES(1, 'saveGoal', '', '2030-10-10', 0, 600, 1, NULL, 1, 1)");
         stat.execute("INSERT INTO `goals` VALUES(2, 'spendGoal', '', '2030-10-10', 0, 600, 1, NULL, 2, 1)");
-        stat.execute("INSERT INTO `entries` VALUES(1, 'add money', '', '2020-10-11', 30, false, 1, 1, 1)");
+        stat.execute("INSERT INTO `entries` VALUES(1, 'add money', '', '2020-10-11', 30, false, 1, 1, 1, CURRENT_TIMESTAMP())");
         ResultSet rs;
         rs = stat.executeQuery("SELECT `value` FROM `goals` WHERE `id`=1");
         rs.next();
@@ -45,7 +45,7 @@ public class GoalValueTriggerTest {
         rs = stat.executeQuery("SELECT `value` FROM `goals` WHERE `id`=2");
         rs.next();
         assertEquals(new BigDecimal("-30.00"), rs.getBigDecimal(1));
-        stat.execute("INSERT INTO `entries` VALUES(2, 'get milk', '', '2020-10-11', 15, true, 1, 1, 1)");
+        stat.execute("INSERT INTO `entries` VALUES(2, 'get milk', '', '2020-10-11', 15, true, 1, 1, 1, CURRENT_TIMESTAMP())");
         rs = stat.executeQuery("SELECT `value` FROM `goals` WHERE `id`=1");
         rs.next();
         assertEquals(new BigDecimal("15.00"), rs.getBigDecimal(1));
@@ -81,7 +81,7 @@ public class GoalValueTriggerTest {
         rs = stat.executeQuery("SELECT `value` FROM `goals` WHERE `id`=2");
         rs.next();
         assertEquals(new BigDecimal("11.00"), rs.getBigDecimal(1));
-        stat.execute("INSERT INTO `entries` VALUES(3, 'a new entry', '', '2020-10-11', 80, true, 1, 1, 1)");
+        stat.execute("INSERT INTO `entries` VALUES(3, 'a new entry', '', '2020-10-11', 80, true, 1, 1, 1, CURRENT_TIMESTAMP())");
         rs = stat.executeQuery("SELECT `value` FROM `goals` WHERE `id`=1");
         rs.next();
         assertEquals(new BigDecimal("-91.00"), rs.getBigDecimal(1));

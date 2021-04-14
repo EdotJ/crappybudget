@@ -42,4 +42,9 @@ export default {
 .submit-button:hover {
   background: var(--accent-main-lighter);
 }
+
+.submit-button:active {
+  background: var(--accent-main-darker);
+}
+
 </style>

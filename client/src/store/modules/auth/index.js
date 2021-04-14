@@ -4,12 +4,11 @@ import router from "@/router";
 const state = {
   accessToken: "",
   refreshToken: "",
-  isLoading: true,
+  isLoading: false,
 };
 
 const getters = {
   getAccessToken: (state) => state.accessToken,
-  getRefreshToken: (state) => state.refreshToken,
   isLoggedIn: (state) => !!state.accessToken,
 };
 
@@ -57,6 +56,9 @@ export const actions = {
     }
   },
   refreshToken: async function ({ commit, state }) {
+    if (!state.refreshToken) {
+      throw new Error("No refresh token");
+    }
     try {
       const response = await api.auth.refreshToken(state.refreshToken);
       if (response && response.data) {

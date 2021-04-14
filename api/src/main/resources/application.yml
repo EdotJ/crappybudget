@@ -111,6 +111,8 @@ api:
   base-path: ${API_BASE_PATH:/api}
   receipt-recognition:
     enabled: ${RECEIPT_RECOGNITION_ENABLED:true}
+  localization:
+    enabled: false
 
 cloud-vision:
   key: ${GOOGLE_API_KEY:}

@@ -44,8 +44,8 @@ export default {
 <style scoped>
 .modal-overlay {
   position: absolute;
-  height: 100vh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
   top: 0;
   left: 0;
   opacity: 0.6;
@@ -149,6 +149,7 @@ select {
     top: 30%;
     left: 50%;
     transform: translate(-50%, -30%);
+    min-width: 470px;
   }
 }
 
@@ -157,6 +158,7 @@ select {
     top: 30%;
     left: 50%;
     transform: translate(-50%, -30%);
+    min-width: 470px;
   }
 }
 </style>

@@ -28,3 +28,7 @@ emailprovider:
     password: ${EMAIL_PASSWORD}
     emailaddress: budgetboi@mailtrap.io
   enabled: false
+
+api:
+  localization:
+    enabled: true

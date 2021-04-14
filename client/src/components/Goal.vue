@@ -29,9 +29,13 @@ export default {
 <style scoped>
 .goal {
   padding: 8px 0;
+  border-radius: 8px;
+  margin: 4px;
+  cursor: pointer;
 }
+
 .goal:hover {
-  background: #cccccc;
+  background: var(--entry-hover);
 }
 
 .goal-name {
