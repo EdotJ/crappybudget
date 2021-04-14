@@ -1,7 +1,7 @@
 <template>
   <form class="entry-form" @submit.prevent="submitEntries">
     <Modal :show="showModal" v-on:close-modal="handleModal">
-      <template v-slot:header> Receipt </template>
+      <template v-slot:header> Receipt</template>
       <template v-slot:content>
         <img class="receipt-image" :src="file" alt="file" v-if="file" />
       </template>
@@ -14,18 +14,12 @@
     <div class="starting-form" v-if="receipt && !submittedIds">
       <h3>Choose account and category</h3>
       <div class="input-group">
-        <label for="account">Account</label>
-        <select id="account" v-model="receipt.accountId">
-          <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name }}</option>
-        </select>
+        <label for="account">Account<span style="color: red">*</span></label>
+        <AccountSelector id="account" :clearable="false" v-model="receipt.accountId" />
       </div>
       <div class="input-group">
-        <label for="category">Category</label>
-        <select id="category" v-model="receipt.categoryId">
-          <option v-for="category in sortedCategories" :key="category.id" :value="category.id">
-            {{ category.parentId ? `- ${category.name}` : category.name }}
-          </option>
-        </select>
+        <label for="category">Category<span style="color: red">*</span></label>
+        <CategorySelector id="category" :clearable="false" v-model="receipt.categoryId" />
       </div>
       <div class="submit-container">
         <Button type="button" @click.native="handleNext()">Next</Button>
@@ -93,11 +87,22 @@ import { mapActions, mapGetters, mapState } from "vuex";
 import Modal from "@/components/Modal";
 import IconBase from "@/components/IconBase";
 import Picture from "@/components/icons/Picture";
+import CategorySelector from "@/components/CategorySelector";
+import AccountSelector from "@/components/AccountSelector";
 
 export default {
   name: "ReceiptEntryForm",
   props: { receipt: Object, file: String },
-  components: { IconBase, Button, DeleteButton, StyledInput, Picture, Modal },
+  components: {
+    AccountSelector,
+    CategorySelector,
+    IconBase,
+    Button,
+    DeleteButton,
+    StyledInput,
+    Picture,
+    Modal,
+  },
   data() {
     return {
       submittedIds: false,
@@ -255,8 +260,9 @@ form {
   justify-content: flex-start;
 }
 
-.input-group select {
+.selector {
   flex-grow: 1;
+  background: var(--input-bg-color);
 }
 
 .receipt-image {
@@ -268,6 +274,10 @@ form {
   width: 100%;
   display: flex;
   justify-content: flex-end;
+}
+
+.child-category {
+  margin-left: 1rem;
 }
 
 @media only screen and (min-width: 961px) {

@@ -5,20 +5,31 @@
       <FormError :value="error" />
       <form v-on:submit.prevent="entry.id ? submitUpdate() : submitCreate()">
         <div class="input-group">
-          <label for="name">Name</label>
-          <input id="name" type="text" required placeholder="Name" v-model="entry.name" />
+          <StyledInput type="text" :required="true" :value="entry.name" v-model="entry.name" placeholder="Name" />
         </div>
         <div class="input-group">
-          <label for="description">Description</label>
-          <input id="description" type="text" placeholder="Description" v-model="entry.description" />
+          <StyledInput
+            type="text"
+            :required="false"
+            :value="entry.description"
+            v-model="entry.description"
+            placeholder="Description"
+            :textarea="true"
+          />
         </div>
         <div class="input-group">
-          <label for="value">Value</label>
-          <input id="value" type="number" step="0.01" min="0" required placeholder="Value" v-model="entry.value" />
+          <StyledInput
+            type="number"
+            :required="true"
+            :value="entry.value"
+            v-model="entry.value"
+            placeholder="Value"
+            :step="0.01"
+            :min="0"
+          />
         </div>
         <div class="input-group">
-          <label for="date">Date</label>
-          <input id="date" type="date" required placeholder="Date" v-model="entry.date" />
+          <StyledInput type="date" :required="true" :value="entry.date" v-model="entry.date" placeholder="Date" />
         </div>
         <div class="input-group checkbox-input">
           <label for="is-expense">Expense?</label>
@@ -26,17 +37,11 @@
         </div>
         <div class="input-group">
           <label for="account">Account</label>
-          <select id="account" required v-model="entry.accountId">
-            <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name }}</option>
-          </select>
+          <AccountSelector id="account" v-model="entry.accountId" :clearable="false" />
         </div>
         <div class="input-group">
           <label for="category">Category</label>
-          <select id="category" v-model="entry.categoryId">
-            <option v-for="category in sortedCategories" :key="category.id" :value="category.id">
-              {{ category.parentId ? `- ${category.name}` : category.name }}
-            </option>
-          </select>
+          <CategorySelector id="category" :clearable="false" v-model="entry.categoryId" />
         </div>
         <div class="submit-container">
           <AccentedSubmitButton />
@@ -50,11 +55,14 @@
 import FormError from "@/components/FormError";
 import AccentedSubmitButton from "@/components/AccentedSubmitButton";
 import Modal from "@/components/Modal";
+import StyledInput from "@/components/StyledInput";
 import { mapActions, mapGetters, mapState } from "vuex";
+import AccountSelector from "@/components/AccountSelector";
+import CategorySelector from "@/components/CategorySelector";
 
 export default {
   name: "EntryModal",
-  components: { FormError, AccentedSubmitButton, Modal },
+  components: { CategorySelector, AccountSelector, FormError, AccentedSubmitButton, Modal, StyledInput },
   props: { entry: Object, show: Boolean },
   data() {
     return {
@@ -102,4 +110,16 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.input-group > label {
+  width: 32%;
+  max-width: unset;
+  flex: none;
+}
+
+.selector {
+  background: var(--input-bg-color);
+  border-radius: 8px;
+  width: 70%;
+}
+</style>

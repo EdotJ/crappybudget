@@ -27,15 +27,23 @@ export default {
   background: var(--error-color);
   border: 1px solid var(--error-color);
   border-radius: 4px;
-  height: 40px;
   padding: 0 8px;
+  min-height: 40px;
+  max-height: 200px;
+  overflow-y: scroll;
+  text-overflow: ellipsis;
 }
+
 .error-text {
   font-size: 1rem;
   color: var(--foreground-error);
 }
+
 .cross-icon {
   color: red;
-  padding: 0 8px 0 0;
+  margin-right: 8px;
+  height: 1rem;
+  width: 1rem;
+  flex-shrink: 0;
 }
 </style>

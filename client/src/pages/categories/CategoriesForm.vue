@@ -6,21 +6,32 @@
     <FormError :value="error" />
     <form v-on:submit.prevent="$route.params.id ? submitUpdate() : submitCreate()">
       <div class="input-group">
-        <label for="name">Name</label>
-        <input id="name" type="text" required placeholder="Name" v-model="currentCategory.name" />
+        <StyledInput
+          id="category-name"
+          type="text"
+          required="true"
+          placeholder="Name"
+          :vertical="false"
+          :autocomplete="false"
+          v-model="currentCategory.name"
+        />
       </div>
       <div class="input-group">
         <label for="parent">Parent</label>
-        <select id="parent" v-model="currentCategory.parentId">
-          <option value="" :selected="!currentCategory.parentId ? 'selected' : ''">None</option>
-          <option
-            v-for="category in sortedCategories.filter((c) => c.id !== currentCategory.id)"
-            :key="category.id"
-            :value="category.id"
-          >
-            {{ category.name }}
-          </option>
-        </select>
+        <CategorySelector
+          id="parent"
+          :value="
+            categories && currentCategory && currentCategory.parentId && categories.get(currentCategory.parentId)
+              ? categories.get(currentCategory.parentId)
+              : { id: null, name: '', parentId: null }
+          "
+          @input="handleCategorySelect"
+          :clearable="true"
+          :required="false"
+          :parents-only="true"
+          :width80="true"
+          :currentCategoryOverride="currentCategory"
+        />
       </div>
       <div class="submit-container">
         <AccentedSubmitButton />
@@ -32,13 +43,15 @@
 <script>
 import FormError from "@/components/FormError";
 import AccentedSubmitButton from "@/components/AccentedSubmitButton";
-import { mapActions, mapGetters } from "vuex";
+import { mapActions, mapGetters, mapState } from "vuex";
 import IconBase from "@/components/IconBase";
+import StyledInput from "@/components/StyledInput";
 import LeftArrowIcon from "@/components/icons/LeftArrowIcon";
+import CategorySelector from "@/components/CategorySelector";
 
 export default {
   name: "CategoriesForm",
-  components: { LeftArrowIcon, IconBase, FormError, AccentedSubmitButton },
+  components: { CategorySelector, LeftArrowIcon, IconBase, FormError, AccentedSubmitButton, StyledInput },
   data() {
     return {
       error: "",
@@ -52,6 +65,9 @@ export default {
     ...mapGetters({
       sortedCategories: "categories/getSortedCategories",
     }),
+    ...mapState({
+      categories: (state) => state.categories.categories,
+    }),
   },
   methods: {
     ...mapActions({
@@ -61,7 +77,6 @@ export default {
       getAll: "categories/getAll",
     }),
     submitUpdate() {
-      console.log(this.currentCategory);
       this.updateCategory(this.currentCategory)
         .then(() => this.$router.push("/categories"))
         .catch((e) => {
@@ -69,12 +84,14 @@ export default {
         });
     },
     submitCreate() {
-      console.log(this.currentCategory);
       this.createCategory(this.currentCategory)
         .then(() => this.$router.push("/categories"))
         .catch((e) => {
           this.error = e.response.data.message;
         });
+    },
+    handleCategorySelect(value) {
+      this.currentCategory.parentId = value;
     },
   },
   mounted() {
@@ -124,6 +141,7 @@ form {
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  margin: 8px 0;
 }
 
 .input-group input {

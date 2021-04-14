@@ -44,5 +44,12 @@ https://iconmonstr.com/folder-open-thin-svg/ - Folder Icon
 
 https://iconmonstr.com/picture-1-svg/ - Picture Icon
 
+https://iconmonstr.com/filter-1-svg/ - Filter Icon
+
 Some cool loading spinners:
+
 https://epic-spinners.epicmax.co/
+
+Gradient loader based on:
+
+https://codepen.io/TatiBelikova/pen/WoOoeK

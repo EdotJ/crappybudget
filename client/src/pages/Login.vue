@@ -49,7 +49,9 @@ export default {
   },
   computed: {
     ...mapGetters(["auth/getAccessToken"]),
-    ...mapState({ isLoading: "auth/isLoading" }),
+    ...mapState({
+      isLoading: (state) => state.auth.isLoading,
+    }),
   },
   methods: {
     login() {

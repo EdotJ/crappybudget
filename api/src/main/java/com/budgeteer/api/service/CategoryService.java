@@ -55,9 +55,17 @@ public class CategoryService extends RestrictedResourceHandler {
         category.setBudgeted(BigDecimal.ZERO);
         if (request.getParentId() != null) {
             Category parent = findParentCategory(request.getParentId());
+            checkParent(parent);
             category.setParent(parent);
         }
         return categoryRepository.save(category);
+    }
+
+    private void checkParent(Category parent) {
+        if (parent != null && parent.getParent() != null) {
+                throw new BadRequestException("BAD_CATEGORY", "category_nesting",
+                        "Category's parent already has a parent", "Parent reference already in place");
+        }
     }
 
     public Category save(Category category) {
@@ -69,16 +77,27 @@ public class CategoryService extends RestrictedResourceHandler {
         validateCategoryUpdateRequest(request, category);
         checkIfCanAccessResource(category.getUser());
         category.setName(request.getName());
-        boolean isDiffCategory = category.getParent() == null
-                || !request.getParentId().equals(category.getParent().getId());
-        if (request.getParentId() != null && isDiffCategory) {
-            Category parent = findParentCategory(request.getParentId());
+        boolean isDiffCategory = isDiffCategory(request, category);
+        if (isDiffCategory) {
+            Category parent = null;
+            if (request.getParentId() != null) {
+                parent = findParentCategory(request.getParentId());
+                checkParent(parent);
+            }
             category.setParent(parent);
         }
         if (request.getBudgeted() != null) {
             category.setBudgeted(request.getBudgeted());
         }
         return categoryRepository.update(category);
+    }
+
+    private boolean isDiffCategory(SingleCategoryDto request, Category category) {
+        return (category.getParent() == null && request.getParentId() != null)
+                || (request.getParentId() != null
+                && category.getParent() != null
+                && !request.getParentId().equals(category.getParent().getId()))
+                || (category.getParent() != null && request.getParentId() == null);
     }
 
     private Category findParentCategory(Long parentId) {

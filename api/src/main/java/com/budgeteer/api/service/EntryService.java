@@ -65,23 +65,31 @@ public class EntryService extends RestrictedResourceHandler {
         Account account = accountService.getSingle(accountId);
         checkIfCanAccessResource(account.getUser());
         if (from != null && to != null) {
-            return entryRepository.findByAccountIdAndDateBetweenOrderByDateDesc(account.getId(), from, to, page);
+            return entryRepository.findByAccountIdAndDateBetweenOrderByDateDescAndCreatedDesc(account.getId(), from, to, page);
         } else if (from != null) {
             return entryRepository
-                    .findByAccountIdAndDateBetweenOrderByDateDesc(account.getId(), from, LocalDate.now(), page);
+                    .findByAccountIdAndDateBetweenOrderByDateDescAndCreatedDesc(account.getId(), from, LocalDate.now(), page);
         } else {
-            return entryRepository.findByAccountIdOrderByDateDesc(account.getId(), page);
+            return entryRepository.findByAccountIdOrderByDateDescAndCreatedDesc(account.getId(), page);
         }
     }
 
     public List<Entry> getAllByUser() {
         User user = userService.getById(getAuthenticatedUserId());
-        return entryRepository.findByUserIdOrderByDateDesc(user.getId());
+        return entryRepository.findByUserIdOrderByDateDescAndCreatedDesc(user.getId());
     }
 
-    public Page<Entry> getAllByUser(Pageable page) {
+    public Page<Entry> getAllByUser(LocalDate from, LocalDate to, Pageable page) {
         User user = userService.getById(getAuthenticatedUserId());
-        return entryRepository.findByUserIdOrderByDateDesc(user.getId(), page);
+        if (from != null && to != null) {
+            return entryRepository
+                    .findByUserIdAndDateBetweenOrderByDateDescAndCreatedDesc(user.getId(), from, to, page);
+        } else if (from != null) {
+            return entryRepository
+                    .findByUserIdAndDateBetweenOrderByDateDescAndCreatedDesc(user.getId(), from, LocalDate.now(), page);
+        } else {
+            return entryRepository.findByUserIdOrderByDateDescAndCreatedDesc(user.getId(), page);
+        }
     }
 
     public Entry getSingle(Long id) {

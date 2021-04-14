@@ -1,43 +1,64 @@
 <template>
   <div class="wrapper">
     <Paper class="paper">
-      <FormError :value="error"/>
+      <FormError :value="error" />
       <form @submit.prevent="submit">
-        <StyledInput type="text" required="true" :value="formData.nameHeader" v-model="formData.nameHeader"
-                     :vertical="true"
-                     placeholder="Name Header"/>
-        <StyledInput type="text" required="true" :value="formData.dateHeader" v-model="formData.dateHeader"
-                     :vertical="true"
-                     placeholder="Date Header"/>
-        <StyledInput type="text" required="true" :value="formData.valueHeader" v-model="formData.valueHeader"
-                     :vertical="true"
-                     placeholder="Value Header"/>
-        <StyledInput type="text" :value="formData.categoryHeader" v-model="formData.categoryHeader"
-                     :vertical="true"
-                     placeholder="Category Header"/>
-        <StyledInput type="text" :value="formData.descriptionHeader" v-model="formData.descriptionHeader"
-                     :vertical="true"
-                     placeholder="Description Header"/>
+        <StyledInput
+          type="text"
+          required="true"
+          :value="formData.nameHeader"
+          v-model="formData.nameHeader"
+          :vertical="true"
+          placeholder="Name Header"
+        />
+        <StyledInput
+          type="text"
+          required="true"
+          :value="formData.dateHeader"
+          v-model="formData.dateHeader"
+          :vertical="true"
+          placeholder="Date Header"
+        />
+        <StyledInput
+          type="text"
+          required="true"
+          :value="formData.valueHeader"
+          v-model="formData.valueHeader"
+          :vertical="true"
+          placeholder="Value Header"
+        />
+        <StyledInput
+          type="text"
+          :value="formData.categoryHeader"
+          v-model="formData.categoryHeader"
+          :vertical="true"
+          placeholder="Category Header"
+        />
+        <StyledInput
+          type="text"
+          :value="formData.descriptionHeader"
+          v-model="formData.descriptionHeader"
+          :vertical="true"
+          placeholder="Description Header"
+        />
         <div class="input-group">
-          <label for="account">Account</label>
-          <select id="account" required v-model="formData.accountId">
-            <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name }}</option>
-          </select>
+          <label for="account">Account <span>*</span></label>
+          <AccountSelector id="account" :clearable="false" v-model="formData.accountId" />
         </div>
         <div class="drop-container" @drop="handleFileDrop">
           <div class="file-wrapper">
             <div class="file-upload-title">
               <IconBase>
-                <Folder/>
+                <Folder />
               </IconBase>
               <span>Click or drag to insert</span>
             </div>
-            <input type="file" id="file" name="file-input" @change="handleFileInput" accept=".csv"/>
+            <input type="file" id="file" name="file-input" @change="handleFileInput" accept=".csv" />
           </div>
         </div>
         <div class="file-title" v-if="file.name">Uploaded file: {{ file.name }}</div>
         <div class="submit-container">
-          <AccentedSubmitButton :isLoading="isLoading"/>
+          <AccentedSubmitButton :isLoading="isLoading" />
         </div>
       </form>
     </Paper>
@@ -51,23 +72,24 @@ import StyledInput from "@/components/StyledInput";
 import AccentedSubmitButton from "@/components/AccentedSubmitButton";
 import IconBase from "@/components/IconBase";
 import Folder from "@/components/icons/Folder";
-import {mapActions, mapState} from "vuex";
+import { mapActions, mapState } from "vuex";
+import AccountSelector from "@/components/AccountSelector";
 
 export default {
   name: "CsvImportForm",
-  components: {Paper, FormError, StyledInput, AccentedSubmitButton, IconBase, Folder},
+  components: { AccountSelector, Paper, FormError, StyledInput, AccentedSubmitButton, IconBase, Folder },
   data() {
     return {
       file: {},
       error: "",
       formData: {},
       isLoading: false,
-    }
+    };
   },
   computed: {
     ...mapState({
-      accounts: state => state.accounts.accounts,
-    })
+      accounts: (state) => state.accounts.accounts,
+    }),
   },
   methods: {
     ...mapActions({
@@ -78,13 +100,17 @@ export default {
         this.error = "Please add a file";
       }
       this.isLoading = true;
-      this.$api.externalData.importCsv(this.formData, this.file).then(() => {
-        this.$router.push("/");
-      }).catch((e) => {
-        if (e && e.response && e.response.data && e.response.data.message) {
-          this.error = e.response.data.message;
-        }
-      }).finally(() => this.isLoading = false)
+      this.$api.externalData
+        .importCsv(this.formData, this.file)
+        .then(() => {
+          this.$router.push("/");
+        })
+        .catch((e) => {
+          if (e && e.response && e.response.data && e.response.data.message) {
+            this.error = e.response.data.message;
+          }
+        })
+        .finally(() => (this.isLoading = false));
     },
     handleFileDrop(e) {
       if (e.dataTransfer.files[0]) {
@@ -100,7 +126,7 @@ export default {
   mounted() {
     this.getAccounts();
   },
-}
+};
 </script>
 
 <style scoped>
@@ -186,6 +212,15 @@ svg {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+}
+
+.selector {
+  background: var(--input-bg-color);
+  border-radius: 8px;
+}
+
+label span {
+  color: red;
 }
 
 /* Desktop Styles */

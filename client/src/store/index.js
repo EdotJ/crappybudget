@@ -26,6 +26,12 @@ const actions = {
     }
     dispatch("goals/getAll");
   },
+  async logout({ commit }) {
+    commit("auth/CLEAR_TOKENS");
+    await localStorage.clear();
+    await sessionStorage.clear();
+    return Promise.resolve();
+  },
 };
 
 export default new Vuex.Store({

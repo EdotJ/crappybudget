@@ -12,12 +12,22 @@ const getEntryBody = (entry) => {
   };
 };
 
+const entryCount = 9;
+
 export default {
-  getAll(page) {
-    return request.get(`/entries?size=8${page ? "&page=" + page : ""}`);
+  getAll(from, to, page) {
+    return request.get(
+      `/entries?size=${entryCount}${page || page === 0 ? "&page=" + page : ""}${from ? "&from=" + from : ""}${
+        to ? "&to=" + to : ""
+      }`
+    );
   },
-  async getAllForAccount(accountId, page) {
-    return request.get(`/entries?accountId=${accountId}&size=8${page ? "&page=" + page : ""}`);
+  async getAllForAccount(accountId, from, to, page) {
+    return request.get(
+      `/entries?accountId=${accountId}&size=${entryCount}${page || page === 0 ? "&page=" + page : ""}${
+        from ? "&from=" + from : ""
+      }${to ? "&to=" + to : ""}`
+    );
   },
   getSingle(id) {
     return request.get(`/entries/${id}`);

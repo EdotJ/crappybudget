@@ -12,6 +12,9 @@
       </div>
       <transition name="slide">
         <div class="goal-list" v-if="show">
+          <div class="goal-button-container">
+            <div class="add-goal-button" @click="toggleGoalModal">Add</div>
+          </div>
           <Goal v-for="goal in goals" :goal="goal" :key="goal.id" @click.native="toggleEdit(goal)" />
         </div>
       </transition>
@@ -85,15 +88,21 @@ export default {
       sortedCategories: "categories/getSortedCategories",
     }),
   },
-  mounted() {
-    this.getGoals();
-  },
 };
 </script>
 
 <style scoped>
 .goals {
-  width: 20%;
+  height: 100vh;
+  padding-top: 3rem;
+  border-left: 1px solid var(--accent-main);
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.goals::-webkit-scrollbar {
+  display: none;
 }
 
 h1 {
@@ -107,11 +116,6 @@ h1 {
 
 .goals-mobile {
   display: none;
-}
-
-.goals {
-  padding-top: 3rem;
-  border-left: 1px solid var(--accent-main);
 }
 
 .goals-top {
@@ -139,10 +143,10 @@ h1 {
   border: 2px solid var(--accent-main-lighter);
 }
 
-@media only screen and (min-width: 961px) and (max-width: 1100px) {
+@media only screen and (min-width: 961px) and (max-width: 1280px) {
   .goals {
-    width: 25%;
     padding-top: 1rem;
+    overflow-y: unset;
   }
 
   .add-goal-button {
@@ -154,8 +158,11 @@ h1 {
 
 @media only screen and (max-width: 960px) {
   .goals {
+    height: unset;
     width: 100%;
-    flex-grow: 1;
+    border: none;
+    overflow-y: unset;
+    padding-top: 1rem;
   }
 
   .goal-list {
@@ -177,7 +184,7 @@ h1 {
 
   .goal-trigger span {
     position: absolute;
-    border-top: 1px solid var(--accent-main-lighter);
+    border-top: 2px solid var(--accent-main-lighter);
     background: black;
     width: 100%;
     transform: translateY(-50%);
@@ -227,6 +234,26 @@ h1 {
 
   .goals-desktop {
     display: none;
+  }
+
+  .goal-button-container {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .add-goal-button {
+    font-size: 1em;
+    border-radius: 8px;
+    width: 4rem;
+    font-family: "Quicksand", sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    text-decoration: none;
+    text-transform: uppercase;
+    cursor: pointer;
+    height: 2rem;
   }
 }
 </style>

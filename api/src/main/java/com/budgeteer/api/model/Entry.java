@@ -4,6 +4,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "entries")
@@ -39,7 +40,10 @@ public class Entry {
     @JoinColumn(name = "account_id")
     private Account account;
 
+    private LocalDateTime created;
+
     public Entry() {
+        created = LocalDateTime.now();
     }
 
     public Long getId() {
@@ -116,5 +120,13 @@ public class Entry {
     public Entry setAccount(Account account) {
         this.account = account;
         return this;
+    }
+
+    public LocalDateTime getCreated() {
+        return created;
+    }
+
+    public void setCreated(LocalDateTime created) {
+        this.created = created;
     }
 }

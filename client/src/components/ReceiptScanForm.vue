@@ -1,6 +1,8 @@
 <template>
   <div>
-    <Spinner v-if="isLoading" />
+    <div class="loader-container" v-if="isLoading">
+      <Spinner />
+    </div>
     <form class="file-form" @submit.prevent="submitFile" v-if="!isLoading && !receipt">
       <div class="drop-container" @drop="handleFileDrop">
         <div class="file-wrapper">
@@ -42,6 +44,7 @@ export default {
   },
   methods: {
     submitFile() {
+      this.$emit("throw-error", "");
       if (!this.file.name && !this.file.size) {
         this.$emit("throw-error", "Please select an image of a receipt to scan");
       } else {
@@ -82,10 +85,6 @@ export default {
         this.fileUrl = e.target.result;
       };
       reader.readAsDataURL(this.file);
-    },
-    setReceipt(newReceipt) {
-      this.receipt = newReceipt;
-      this.isLoading = false;
     },
     handleError(error) {
       this.$emit("throw-error", error);
@@ -167,5 +166,12 @@ svg {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+}
+
+.loader-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
 }
 </style>

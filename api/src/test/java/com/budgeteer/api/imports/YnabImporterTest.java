@@ -74,15 +74,15 @@ public class YnabImporterTest {
     public void testImportingData() throws JsonProcessingException {
         YnabImporterData data = ynabImporter.makeRequest("token");
         ynabImporter.createEntries(data, testUser);
-        List<Entry> entryList = entryRepository.findByUserIdOrderByDateDesc(testUser.getId());
+        List<Entry> entryList = entryRepository.findByUserIdOrderByDateDescAndCreatedDesc(testUser.getId());
         assertEquals(3, entryList.size());
-        Entry entry = entryList.get(0);
+        Entry entry = entryList.get(2);
         assertEquals(new BigDecimal("150.00"), entry.getValue());
         assertEquals("Rent", entry.getName());
         entry = entryList.get(1);
         assertEquals(new BigDecimal("500.00"), entry.getValue());
         assertEquals("Starting Balance", entry.getName());
-        entry = entryList.get(2);
+        entry = entryList.get(0);
         assertEquals(new BigDecimal("7415.00"), entry.getValue());
         assertEquals("Starting Balance", entry.getName());
     }
@@ -94,7 +94,7 @@ public class YnabImporterTest {
         ynabImporter.createEntries(data, testUser);
         List<Account> accounts = accountRepository.findAll();
         assertEquals(2, accounts.size());
-        List<Entry> entries = entryRepository.findByUserIdOrderByDateDesc(testUser.getId());
+        List<Entry> entries = entryRepository.findByUserIdOrderByDateDescAndCreatedDesc(testUser.getId());
         assertEquals(6, entries.size());
     }
 
@@ -105,7 +105,7 @@ public class YnabImporterTest {
         ynabImporter.createEntries(data, testUser);
         List<Category> categories = categoryRepository.findAll();
         assertEquals(39, categories.size());
-        List<Entry> entries = entryRepository.findByUserIdOrderByDateDesc(testUser.getId());
+        List<Entry> entries = entryRepository.findByUserIdOrderByDateDescAndCreatedDesc(testUser.getId());
         assertEquals(6, entries.size());
     }
 

@@ -20,27 +20,35 @@ public interface EntryRepository extends PageableRepository<Entry, Long> {
     @Join(value = "account", type = Join.Type.FETCH)
     @Join(value = "category", type = Join.Type.FETCH)
     @Join(value = "user", type = Join.Type.FETCH)
-    List<Entry> findByUserIdOrderByDateDesc(Long id);
+    List<Entry> findByUserIdOrderByDateDescAndCreatedDesc(Long id);
 
     @Join(value = "account", type = Join.Type.FETCH)
     @Join(value = "category", type = Join.Type.FETCH)
     @Join(value = "user", type = Join.Type.FETCH)
-    Page<Entry> findByUserIdOrderByDateDesc(Long id, @Nullable Pageable pageable);
+    Page<Entry> findByUserIdOrderByDateDescAndCreatedDesc(Long id, @Nullable Pageable pageable);
 
     @Join(value = "account", type = Join.Type.FETCH)
     @Join(value = "category", type = Join.Type.FETCH)
     @Join(value = "user", type = Join.Type.FETCH)
-    Page<Entry> findByAccountIdOrderByDateDesc(Long accountId, @Nullable Pageable pageable);
+    Page<Entry> findByAccountIdOrderByDateDescAndCreatedDesc(Long accountId, @Nullable Pageable pageable);
 
     @Join(value = "account", type = Join.Type.FETCH)
     @Join(value = "category", type = Join.Type.FETCH)
     @Join(value = "user", type = Join.Type.FETCH)
-    Page<Entry> findByAccountIdAndDateBetweenOrderByDateDesc(Long accountId,
-                                                             LocalDate start,
-                                                             LocalDate end,
-                                                             @Nullable Pageable pageable);
+    Page<Entry> findByAccountIdAndDateBetweenOrderByDateDescAndCreatedDesc(Long accountId,
+                                                                           LocalDate start,
+                                                                           LocalDate end,
+                                                                           @Nullable Pageable pageable);
 
     @Query("select sum(case when e.isExpense = true then (e.value * -1) else e.value end)  from Entry e "
             + "where e.user.id = :userId")
     Optional<BigDecimal> findSumValueByUserId(Long userId);
+
+    @Join(value = "account", type = Join.Type.FETCH)
+    @Join(value = "category", type = Join.Type.FETCH)
+    @Join(value = "user", type = Join.Type.FETCH)
+    Page<Entry> findByUserIdAndDateBetweenOrderByDateDescAndCreatedDesc(Long id,
+                                                                        LocalDate from,
+                                                                        LocalDate to,
+                                                                        Pageable page);
 }
