@@ -25,7 +25,6 @@
           {{ page + 1 }}
         </span>
         <span class="page-dots" v-if="totalPages && totalPages > 3">...</span>
-
         <span
           :class="['page-jump', 'page', { active: page === totalPages - 1 }]"
           v-on:click="handlePageChange(totalPages - 1)"

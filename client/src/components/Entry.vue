@@ -84,9 +84,6 @@ export default {
     handleEntryClick() {
       this.$emit("clicked-entry");
     },
-    handleEntryTextClick() {
-      this.$emit("clicked-entry");
-    },
   },
 };
 </script>
