@@ -43,7 +43,7 @@ import DeleteButton from "@/components/DeleteButton";
 export default {
   name: "Entry",
   components: { DeleteButton, ConfirmationModal },
-  props: { entry: Object, index: Number, page: Number, from: Date, to: Date },
+  props: { entry: Object, index: Number, page: Number },
   computed: {
     ...mapState({
       categories: (state) => state.categories.categories,

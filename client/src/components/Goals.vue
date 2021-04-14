@@ -88,16 +88,12 @@ export default {
       sortedCategories: "categories/getSortedCategories",
     }),
   },
-  mounted() {
-    this.getGoals();
-  },
 };
 </script>
 
 <style scoped>
 .goals {
   height: 100vh;
-  width: 20%;
   padding-top: 3rem;
   border-left: 1px solid var(--accent-main);
   overflow-y: auto;
@@ -147,10 +143,10 @@ h1 {
   border: 2px solid var(--accent-main-lighter);
 }
 
-@media only screen and (min-width: 961px) and (max-width: 1100px) {
+@media only screen and (min-width: 961px) and (max-width: 1280px) {
   .goals {
-    width: 25%;
     padding-top: 1rem;
+    overflow-y: unset;
   }
 
   .add-goal-button {
@@ -162,9 +158,11 @@ h1 {
 
 @media only screen and (max-width: 960px) {
   .goals {
+    height: unset;
     width: 100%;
-    flex-grow: 1;
     border: none;
+    overflow-y: unset;
+    padding-top: 1rem;
   }
 
   .goal-list {
