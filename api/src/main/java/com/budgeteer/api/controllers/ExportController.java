@@ -55,12 +55,12 @@ public class ExportController {
         return new StreamedFile(bais, new MediaType("text/csv")).attach(contentDisposition);
     }
 
-    private List<Entry> getEntries(Long fetchId) {
+    private List<Entry> getEntries(Long accountId) {
         List<Entry> entries;
-        if (fetchId == null) {
+        if (accountId == null) {
             entries = entryService.getAllByUser();
         } else {
-            entries = entryService.getAllByAccount(fetchId);
+            entries = entryService.getAllByAccount(accountId);
         }
         return entries;
     }
