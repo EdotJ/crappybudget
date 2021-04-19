@@ -59,7 +59,6 @@ export default {
     },
   },
   mounted() {
-    console.log("mounting home");
     this.getCategories();
     this.getAccounts().then((id) => {
       if (id) {

@@ -1,2 +1,4 @@
 include "client"
 include "api"
+include 'cli'
+
