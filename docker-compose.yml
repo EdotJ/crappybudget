@@ -1,0 +1,24 @@
+version: "3.9"
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.web
+      args:
+        - VUE_APP_API_HOST=
+        - VUE_APP_API_BASE_PATH=/api
+    volumes:
+      - './client:/usr/src/app'
+      - '/usr/src/app/node_modules'
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./docker/config/.env.front
+  backend:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.back
+    ports:
+      - "8081:8081"
+    env_file:
+      - ./docker/config/.env.back
