@@ -186,7 +186,7 @@ public class YnabImporter {
             entry.setAccount(account)
                     .setCategory(categories.get(transaction.getCategoryId()))
                     .setUser(user)
-                    .setValue(amount)
+                    .setValue(amount.abs())
                     .setDescription(transaction.getDescription())
                     .setName(transaction.getName())
                     .setDate(LocalDate.parse(transaction.getDate()))

@@ -123,12 +123,12 @@ public class EntryService extends RestrictedResourceHandler {
         for (ReceiptEntryDto receiptEntry : request.getEntries()) {
             Entry entry = new Entry()
                     .setName(receiptEntry.getName())
-                    .setValue(receiptEntry.getPrice())
+                    .setValue(receiptEntry.getPrice().abs())
                     .setDate(request.getDate())
                     .setCategory(category)
                     .setAccount(account)
                     .setUser(user)
-                    .setIsExpense(true);
+                    .setIsExpense(receiptEntry.getPrice().compareTo(BigDecimal.ZERO) > 0);
             entries.add(entry);
         }
         return StreamSupport

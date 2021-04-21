@@ -93,7 +93,7 @@ public class ImportEntry {
         Entry entry = new Entry()
                 .setName(this.name)
                 .setDate(this.date)
-                .setValue(this.value);
+                .setValue(this.value.abs());
         if (this.value.compareTo(BigDecimal.ZERO) < 0) {
             entry.setIsExpense(true);
         }
