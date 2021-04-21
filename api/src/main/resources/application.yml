@@ -124,4 +124,4 @@ emailprovider:
     username: ${EMAIL_USERNAME}
     password: ${EMAIL_PASSWORD}
     emailaddress: budgetboi@mailtrap.io
-  enabled: false
+  enabled: ${EMAIL_ENABLED:false}
