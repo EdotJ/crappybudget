@@ -4,6 +4,14 @@ micronaut:
   server:
     cors:
       enabled: true
+      all:
+        allowedOrigins: ${ALLOWED_ORIGIN}
+        allowedMethods:
+          - POST
+          - PUT
+          - GET
+          - DELETE
+          - OPTIONS
     port: 8081
     multipart:
       max-file-size: 10485760
