@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.regex.Pattern;
@@ -82,10 +83,17 @@ public class AdvancedCloudVisionReceiptParser
         }
         Pair<Integer, Integer> center = calculateCenter(response.getTextAnnotations().get(0));
 
-        var pricesWithLabels = getPricesWithLabels(response.getTextAnnotations(), prices, orientation, center);
-        for (Pair<String, String> pair : pricesWithLabels) {
+        var pricesWithLabels = getPricesWithLabels(response.getTextAnnotations(), prices, orientation, center).listIterator();
+        while (pricesWithLabels.hasNext()) {
+            Pair<String, String> pair = pricesWithLabels.next();
             BigDecimal price = new BigDecimal(pair.getSecond().replace(",", "."));
-            parseResponse.getEntries().add(new ReceiptParseEntry(pair.getFirst(), price));
+            if (price.compareTo(BigDecimal.ZERO) < 0 && pricesWithLabels.hasPrevious()) {
+                ReceiptParseEntry entry = parseResponse.getEntries().get(pricesWithLabels.previousIndex() - 1);
+                entry.setPrice(entry.getPrice().subtract(price.abs()));
+                pricesWithLabels.remove();
+                continue;
+            }
+            parseResponse.getEntries().add(new ReceiptParseEntry(pair.getFirst().replaceAll("#", ""), price));
         }
         return parseResponse;
     }

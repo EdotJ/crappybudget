@@ -28,7 +28,7 @@ micronaut:
           enabled: true
         generator:
           access-token:
-            expiration: 600
+            expiration: 6000
           refresh-token:
             secret: ${JWT_REFRESH_SECRET:CHANGEMECHANGEMECHANGEMECHANGEME}
         signatures:
