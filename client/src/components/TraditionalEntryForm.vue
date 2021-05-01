@@ -96,7 +96,6 @@ export default {
         ...this.entry,
       })
         .then(() => {
-          this.refreshBalances();
           this.$router.push("/");
         })
         .catch((e) => {

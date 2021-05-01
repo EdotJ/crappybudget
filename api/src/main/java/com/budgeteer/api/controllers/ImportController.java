@@ -66,17 +66,17 @@ public class ImportController extends RestrictedResourceHandler {
     public HttpResponse<Object> importEntries(@Body YnabImportRequest request)
             throws JsonProcessingException {
         ynabImporter.validateRequest(request);
-        YnabImporterData data = ynabImporter.makeRequest(request.getPersonalToken());
+        YnabImporterData data = ynabImporter.getData(request.getPersonalToken());
         Optional<Authentication> auth = securityService.getAuthentication();
 
         if (auth.isEmpty() || auth.get().getAttributes().get("id") == null) {
             throw new AuthorizationException(securityService.getAuthentication().orElse(null));
         }
-        ynabImporter.createEntries(data, userService.getById((Long) auth.get().getAttributes().get("id")));
+        ynabImporter.parse(data, userService.getById((Long) auth.get().getAttributes().get("id")));
         return HttpResponse.ok();
     }
 
-    private Map<String, String> constructCsvMappings(CsvImportRequest importRequest) {
+    protected Map<String, String> constructCsvMappings(CsvImportRequest importRequest) {
         Map<String, String> mappings = new HashMap<>();
         mappings.put(importRequest.getNameHeader(), "name");
         mappings.put(importRequest.getDateHeader(), "date");

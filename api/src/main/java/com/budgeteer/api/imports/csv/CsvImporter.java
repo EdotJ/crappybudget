@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Singleton
-public class CsvImporter implements Importer<CsvImportRequest, CsvImporterData> {
+public class CsvImporter implements Importer<CsvImportRequest, CsvImporterData, ImportResult> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -47,13 +47,13 @@ public class CsvImporter implements Importer<CsvImportRequest, CsvImporterData> 
     private int importBatchSize;
 
     @Inject
-    private EntryService entryService;
+    EntryService entryService;
 
     @Inject
-    private CategoryService categoryService;
+    CategoryService categoryService;
 
     @Inject
-    private SecurityService securityService;
+    SecurityService securityService;
 
     @Override
     public void validateRequest(CsvImportRequest request) {
@@ -123,11 +123,7 @@ public class CsvImporter implements Importer<CsvImportRequest, CsvImporterData> 
         }
     }
 
-    @Override
     public void parse(List<ImportEntry> importEntries, Account account, boolean shouldAddUnknownCategories) {
-        if (securityService.getAuthentication().isEmpty()) {
-            throw new AuthenticationException(new AuthenticationFailed());
-        }
         List<Entry> entries = new ArrayList<>();
         Long userId = (Long) securityService.getAuthentication().get().getAttributes().get("id");
         Map<String, Category> categoriesByName = categoryService.getAll(userId)

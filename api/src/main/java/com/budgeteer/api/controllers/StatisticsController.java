@@ -48,7 +48,7 @@ public class StatisticsController {
         return HttpResponse.ok(yearlyBreakdown);
     }
 
-    Pair<Integer, Integer> getDate(Integer year, Integer month) {
+    private Pair<Integer, Integer> getDate(Integer year, Integer month) {
         LocalDate today = LocalDate.now();
         if (year == null) {
             year = today.getYear();

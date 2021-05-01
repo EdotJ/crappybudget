@@ -205,10 +205,10 @@ public class EntryService extends RestrictedResourceHandler {
         entryRepository.delete(entry);
     }
 
-    public Pair<BigDecimal, BigDecimal> getMonthlyBalance(Long id) {
+    public Pair<BigDecimal, BigDecimal> getMonthlyBalance(Long accountId) {
         LocalDate start = LocalDate.now().withDayOfMonth(1);
         LocalDate end = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
-        List<Entry> entries = this.getAllByAccount(id, start, end);
+        List<Entry> entries = this.getAllByAccount(accountId, start, end);
         Pair<BigDecimal, BigDecimal> pair = new Pair<>(BigDecimal.ZERO, BigDecimal.ZERO);
         for (Entry entry : entries) {
             if (entry.isExpense()) {

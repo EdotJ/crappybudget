@@ -60,6 +60,7 @@ export default {
   },
   mounted() {
     this.getCategories();
+    this.getGoals();
     this.getAccounts().then((id) => {
       if (id) {
         this.selected = this.getAccountById(id);
@@ -72,7 +73,6 @@ export default {
         this.getMonthlyStats(id);
       }
     });
-    this.getGoals();
   },
 };
 </script>

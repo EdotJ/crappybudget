@@ -31,7 +31,7 @@ public class AccountService extends RestrictedResourceHandler {
 
     private final TranslatedMessageSource translatedMessageSource;
 
-    EntryRepository entryRepository;
+    private final EntryRepository entryRepository;
 
     public AccountService(AccountRepository repository,
                           UserService userService,
@@ -94,11 +94,6 @@ public class AccountService extends RestrictedResourceHandler {
 
     public Account save(Account account) {
         return accRepository.save(account);
-    }
-
-    public List<Account> saveAll(Collection<Account> accounts) {
-        return StreamSupport.stream(accRepository.saveAll(accounts).spliterator(), false)
-                .collect(Collectors.toList());
     }
 
     public Account update(Long id, SingleAccountDto request) {

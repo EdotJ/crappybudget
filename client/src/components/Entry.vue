@@ -77,9 +77,9 @@ export default {
     },
     async deleteEntryAfterConfirmation() {
       await this.deleteEntry(this.entry.id);
-      this.showConfirmation = false;
       this.refreshBalances();
       await this.getEntries({ accountId: this.currentAccount, page: this.page });
+      this.showConfirmation = false;
     },
     handleEntryClick() {
       this.$emit("clicked-entry");

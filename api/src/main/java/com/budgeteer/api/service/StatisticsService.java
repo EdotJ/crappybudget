@@ -11,7 +11,7 @@ import io.micronaut.security.utils.SecurityService;
 @Service
 public class StatisticsService extends RestrictedResourceHandler {
 
-    StatisticsRepository statisticsRepository;
+    private final StatisticsRepository statisticsRepository;
 
     public StatisticsService(StatisticsRepository repository, SecurityService securityService) {
         super(securityService);

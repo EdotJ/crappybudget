@@ -1,5 +1,6 @@
 package com.budgeteer.api.imports;
 
+import com.budgeteer.api.base.AuthenticationExtension;
 import com.budgeteer.api.base.DatabaseCleanupExtension;
 import com.budgeteer.api.base.TestUtils;
 import com.budgeteer.api.imports.ynab.YnabClient;
@@ -23,6 +24,7 @@ import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.inject.Inject;
@@ -39,6 +41,9 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(DatabaseCleanupExtension.class)
 public class YnabImporterTest {
+
+    @RegisterExtension
+    AuthenticationExtension authExtension = new AuthenticationExtension();
 
     @Inject
     YnabClient client;
@@ -67,13 +72,13 @@ public class YnabImporterTest {
         when(client.getCategories(any(), any())).thenReturn(categoryResponse.getData().getCategories());
         SuccessResponse transactionResponse = getResponse("ynab_transactions.json", SuccessResponse.class);
         when(client.getTransactions(any(), any())).thenReturn(transactionResponse.getData().getTransactions());
-        testUser = userRepository.save(TestUtils.createTestUser());
+        testUser = userRepository.save(TestUtils.createSecureTestUser());
     }
 
     @Test
     public void testImportingData() throws JsonProcessingException {
-        YnabImporterData data = ynabImporter.makeRequest("token");
-        ynabImporter.createEntries(data, testUser);
+        YnabImporterData data = ynabImporter.getData("token");
+        ynabImporter.parse(data, testUser);
         List<Entry> entryList = entryRepository.findByUserIdOrderByDateDescAndCreatedDesc(testUser.getId());
         assertEquals(3, entryList.size());
         Entry entry = entryList.get(2);
@@ -89,9 +94,9 @@ public class YnabImporterTest {
 
     @Test
     public void testThatNoDuplicateAccountsWereCreated() throws JsonProcessingException {
-        YnabImporterData data = ynabImporter.makeRequest("token");
-        ynabImporter.createEntries(data, testUser);
-        ynabImporter.createEntries(data, testUser);
+        YnabImporterData data = ynabImporter.getData("token");
+        ynabImporter.parse(data, testUser);
+        ynabImporter.parse(data, testUser);
         List<Account> accounts = accountRepository.findAll();
         assertEquals(2, accounts.size());
         List<Entry> entries = entryRepository.findByUserIdOrderByDateDescAndCreatedDesc(testUser.getId());
@@ -100,9 +105,9 @@ public class YnabImporterTest {
 
     @Test
     public void testThatNoDuplicateCategoriesWereCreated() throws JsonProcessingException {
-        YnabImporterData data = ynabImporter.makeRequest("token");
-        ynabImporter.createEntries(data, testUser);
-        ynabImporter.createEntries(data, testUser);
+        YnabImporterData data = ynabImporter.getData("token");
+        ynabImporter.parse(data, testUser);
+        ynabImporter.parse(data, testUser);
         List<Category> categories = categoryRepository.findAll();
         assertEquals(39, categories.size());
         List<Entry> entries = entryRepository.findByUserIdOrderByDateDescAndCreatedDesc(testUser.getId());

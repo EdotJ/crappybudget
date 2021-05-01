@@ -42,7 +42,7 @@ public class CloudVisionClient {
         this.config = config;
     }
 
-    public ApiResponse getAnnotatedImage(InputStream is) throws IOException {
+    public ApiResponse getImageAnnotations(InputStream is) throws IOException {
         Request request = new Request();
         Image image = new Image();
         String base64Encoding = Base64.getEncoder().encodeToString(is.readAllBytes());

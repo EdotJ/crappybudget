@@ -86,10 +86,11 @@ export default {
       createGoal: "goals/create",
       updateGoal: "goals/update",
       deleteGoal: "goals/delete",
-      refreshBalances: "goals/getAll",
+      getGoals: "goals/getAll",
     }),
     closeModal() {
       this.$emit("close-modal");
+      this.error = "";
     },
     submitCreate() {
       this.createGoal({
@@ -97,7 +98,6 @@ export default {
       })
         .then(() => {
           this.closeModal();
-          this.refreshBalances();
         })
         .catch((e) => (this.error = e.data.message));
     },
@@ -107,7 +107,6 @@ export default {
       })
         .then(() => {
           this.closeModal();
-          this.refreshBalances();
         })
         .catch((e) => {
           console.log(e);
@@ -115,8 +114,9 @@ export default {
         });
     },
     submitDelete() {
-      this.deleteGoal(this.goal.id);
-      this.closeModal();
+      this.deleteGoal(this.goal.id).then(() => {
+        this.closeModal();
+      });
     },
   },
 };
