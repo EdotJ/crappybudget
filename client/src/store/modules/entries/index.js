@@ -84,12 +84,11 @@ export const actions = {
       commit("SET_IS_LOADING", false);
     }
   },
-  create: async function ({ commit, dispatch }, entry) {
+  create: async function ({ commit }, entry) {
     try {
       const response = await api.entries.create(entry);
       if (response && response.data && response.status === 201) {
         commit("ADD_ENTRY", response.data);
-        dispatch("getBalance");
         return Promise.resolve();
       }
     } catch (e) {
@@ -103,6 +102,7 @@ export const actions = {
         commit("UPDATE_ENTRY", response.data);
         dispatch("getBalance");
       }
+      return Promise.resolve();
     } catch (e) {
       return Promise.reject(e);
     }

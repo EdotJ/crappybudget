@@ -45,6 +45,7 @@ export const actions = {
       if (response && response.data && response.data.goals) {
         commit("SET_GOALS", response.data.goals);
       }
+      return Promise.resolve();
     } catch (e) {
       return Promise.reject(e);
     } finally {
@@ -59,7 +60,7 @@ export const actions = {
         return response.data;
       }
     } catch (e) {
-      return Promise.reject(e);
+      return Promise.reject(e.response);
     } finally {
       commit("SET_IS_LOADING", false);
     }
@@ -70,8 +71,9 @@ export const actions = {
       if (response && response.data && response.status === 201) {
         commit("ADD_GOAL", response.data);
       }
+      return Promise.resolve();
     } catch (e) {
-      return Promise.reject(e);
+      return Promise.reject(e.response);
     }
   },
   update: async function ({ commit }, goal) {
@@ -80,8 +82,9 @@ export const actions = {
       if (response && response.data && response.status === 200) {
         commit("UPDATE_GOAL", response.data);
       }
+      return Promise.resolve();
     } catch (e) {
-      return Promise.reject(e);
+      return Promise.reject(e.response);
     }
   },
   delete: async function ({ commit }, id) {
@@ -90,6 +93,7 @@ export const actions = {
       if (response && response.status === 204) {
         commit("DELETE_GOAL", id);
       }
+      return Promise.resolve();
     } catch (e) {
       return Promise.reject(e);
     }
@@ -101,7 +105,7 @@ export const actions = {
         commit("SET_GOAL_TYPES", response.data);
       }
     } catch (e) {
-      return Promise.reject(e);
+      return Promise.reject(e.response);
     }
   },
 };

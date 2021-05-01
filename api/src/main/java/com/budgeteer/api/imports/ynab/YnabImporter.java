@@ -1,6 +1,7 @@
 package com.budgeteer.api.imports.ynab;
 
 import com.budgeteer.api.dto.imports.YnabImportRequest;
+import com.budgeteer.api.imports.Importer;
 import com.budgeteer.api.imports.ynab.model.YnabResponseAccount;
 import com.budgeteer.api.imports.ynab.model.Budget;
 import com.budgeteer.api.imports.ynab.model.CategoryGroup;
@@ -15,6 +16,9 @@ import com.budgeteer.api.service.EntryService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.micronaut.core.type.Argument;
 import io.micronaut.core.util.StringUtils;
+import io.micronaut.security.authentication.AuthenticationException;
+import io.micronaut.security.authentication.AuthenticationFailed;
+import io.micronaut.security.utils.SecurityService;
 import io.micronaut.web.router.exceptions.UnsatisfiedRouteException;
 
 import javax.inject.Singleton;
@@ -28,7 +32,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Singleton
-public class YnabImporter {
+public class YnabImporter implements Importer<YnabImportRequest, String, YnabImporterData> {
 
     private final YnabClient client;
 
@@ -38,6 +42,8 @@ public class YnabImporter {
 
     private final EntryService entryService;
 
+    private final SecurityService securityService;
+
     private final YnabAccountRepository ynabAccountRepository;
 
     private final YnabCategoryRepository ynabCategoryRepository;
@@ -46,30 +52,34 @@ public class YnabImporter {
                         AccountService accountService,
                         CategoryService categoryService,
                         EntryService entryService,
+                        SecurityService securityService,
                         YnabAccountRepository ynabAccountRepository,
                         YnabCategoryRepository ynabCategoryRepository) {
         this.client = client;
         this.accountService = accountService;
         this.categoryService = categoryService;
         this.entryService = entryService;
+        this.securityService = securityService;
         this.ynabAccountRepository = ynabAccountRepository;
         this.ynabCategoryRepository = ynabCategoryRepository;
     }
 
+    @Override
     public void validateRequest(YnabImportRequest request) {
         if (!StringUtils.hasText(request.getPersonalToken())) {
             throw UnsatisfiedRouteException.create(Argument.of(String.class, "personalToken"));
         }
     }
 
-    public YnabImporterData makeRequest(String personalToken) throws JsonProcessingException {
+    @Override
+    public YnabImporterData getData(String personalToken) throws JsonProcessingException {
         Budget budget = client.getBudget(personalToken);
         List<CategoryGroup> categories = client.getCategories(budget.getId(), personalToken);
         List<Transaction> transactions = client.getTransactions(budget.getId(), personalToken);
         return new YnabImporterData(budget, categories, transactions);
     }
 
-    public void createEntries(YnabImporterData data, User user) {
+    public void parse(YnabImporterData data, User user) {
         Map<String, Account> accounts = saveAccounts(data.getBudget().getAccounts(), user);
         Map<String, Category> categories = saveCategories(data.getCategories(), user);
         saveEntries(accounts, categories, user, data.getTransactions());
@@ -102,11 +112,11 @@ public class YnabImporter {
         return newAccount;
     }
 
-    private void createYnabAccount(YnabResponseAccount ynabRespnoseAccount, Account account, User user) {
+    private void createYnabAccount(YnabResponseAccount ynabResponseAccount, Account account, User user) {
         YnabAccount ynabAccount = new YnabAccount();
         ynabAccount.setAccount(account);
         ynabAccount.setUser(user);
-        ynabAccount.setYnabId(ynabRespnoseAccount.getId());
+        ynabAccount.setYnabId(ynabResponseAccount.getId());
         ynabAccountRepository.save(ynabAccount);
     }
 

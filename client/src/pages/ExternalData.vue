@@ -2,7 +2,7 @@
   <div class="wrapper">
     <div class="external-data-selection" v-if="!selected">
       <h2>Choose action</h2>
-      <Button @click.native="importing = true; selected = true">Import</Button>
+      <Button @click.native="showImportOptions">Import</Button>
       <Button @click.native="exportData">Export</Button>
     </div>
     <div class="import-source-selection" v-if="importing">
@@ -24,24 +24,28 @@ import Button from "@/components/Button";
 
 export default {
   name: "ExternalData",
-  components: {Button},
+  components: { Button },
   data() {
     return {
       importing: false,
       selected: false,
-    }
+    };
   },
   methods: {
     exportData() {
       this.$api.externalData.exportData().then((res) => {
-        const blob = new Blob([res.data], {type: "text/csv"});
-        const link = document.createElement('a');
+        const blob = new Blob([res.data], { type: "text/csv" });
+        const link = document.createElement("a");
         link.href = window.URL.createObjectURL(blob);
         link.download = "budget-export.csv";
         link.click();
       });
-    }
-  }
+    },
+    showImportOptions() {
+      this.importing = true;
+      this.selected = true;
+    },
+  },
 };
 </script>
 
@@ -94,6 +98,5 @@ export default {
     width: 10rem;
     font-size: 2rem;
   }
-
 }
 </style>

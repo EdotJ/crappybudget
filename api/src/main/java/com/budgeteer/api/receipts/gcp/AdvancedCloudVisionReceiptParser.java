@@ -13,7 +13,6 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.regex.Pattern;
@@ -56,7 +55,7 @@ public class AdvancedCloudVisionReceiptParser
 
     @Override
     public ApiResponse makeRequest(InputStream receipt) throws IOException {
-        return this.client.getAnnotatedImage(receipt);
+        return this.client.getImageAnnotations(receipt);
     }
 
     @Override

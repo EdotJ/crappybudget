@@ -52,7 +52,7 @@ public class BasicCloudVisionReceiptParser
 
     @Override
     public ApiResponse makeRequest(InputStream receipt) throws IOException {
-        return client.getAnnotatedImage(receipt);
+        return client.getImageAnnotations(receipt);
     }
 
     @Override

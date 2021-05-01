@@ -101,7 +101,7 @@ public class YnabClient {
         }
     }
 
-    private void handleError(HttpClientResponseException e) {
+    public void handleError(HttpClientResponseException e) {
         var error = e.getResponse().getBody(ErrorResponse.class);
         if (error.isPresent()) {
             Error ynabError = error.get().getError();
