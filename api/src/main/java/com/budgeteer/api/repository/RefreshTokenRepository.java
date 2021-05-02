@@ -8,7 +8,6 @@ import io.micronaut.data.repository.CrudRepository;
 import io.micronaut.transaction.annotation.TransactionalAdvice;
 
 import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Optional;

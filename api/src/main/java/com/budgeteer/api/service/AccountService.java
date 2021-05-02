@@ -17,10 +17,7 @@ import io.micronaut.security.utils.SecurityService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Service
 public class AccountService extends RestrictedResourceHandler {

@@ -12,8 +12,8 @@ public class GetStatus extends BaseCommand implements Runnable {
     @Override
     public void run() {
         ProcessHandle processHandle = super.getRunningProcess();
-        commandLine.getOut().println(processHandle != null ?
-                "Application is running on PID " + processHandle.pid() :
-                "Application is not running");
+        commandLine.getOut().println(processHandle != null
+                ? "Application is running on PID " + processHandle.pid()
+                : "Application is not running");
     }
 }

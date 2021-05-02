@@ -5,7 +5,7 @@
         <Button @click.native="toggleFormType">{{ isReceiptForm ? "Add single entry" : "Scan a receipt" }}</Button>
       </div>
       <FormError class="error" :value="error" />
-      <TraditionalEntryForm :entry="entry" v-if="!isReceiptForm" v-on:throw-error="handleError" />
+      <TraditionalEntryForm v-if="!isReceiptForm" v-on:throw-error="handleError" />
       <ReceiptScanForm v-if="isReceiptForm" v-on:throw-error="handleError" />
     </div>
   </div>
@@ -25,9 +25,6 @@ export default {
   data() {
     return {
       error: "",
-      entry: {
-        isExpense: true,
-      },
       isReceiptForm: false,
     };
   },
@@ -41,8 +38,6 @@ export default {
   },
   methods: {
     ...mapActions({
-      createEntry: "entries/create",
-      updateEntry: "entries/update",
       getAccounts: "accounts/getAll",
       getCategories: "categories/getAll",
     }),

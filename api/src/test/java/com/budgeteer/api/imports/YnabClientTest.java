@@ -18,6 +18,7 @@ import io.reactivex.Single;
 import io.reactivex.SingleOnSubscribe;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -33,6 +34,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @MicronautTest
+@Tag("Unit")
 public class YnabClientTest {
 
     @Inject

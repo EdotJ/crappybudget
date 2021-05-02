@@ -2,11 +2,13 @@ package com.budgeteer.api;
 
 import io.micronaut.context.annotation.Value;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @MicronautTest
+@Tag("Unit")
 public class TestingConfigurationTest {
 
     @Value("${datasources.default.url}")

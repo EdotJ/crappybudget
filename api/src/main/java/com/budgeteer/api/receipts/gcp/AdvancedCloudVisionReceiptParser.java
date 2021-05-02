@@ -82,7 +82,8 @@ public class AdvancedCloudVisionReceiptParser
         }
         Pair<Integer, Integer> center = calculateCenter(response.getTextAnnotations().get(0));
 
-        var pricesWithLabels = getPricesWithLabels(response.getTextAnnotations(), prices, orientation, center).listIterator();
+        var pricesWithLabels = getPricesWithLabels(response.getTextAnnotations(), prices, orientation, center)
+                .listIterator();
         while (pricesWithLabels.hasNext()) {
             Pair<String, String> pair = pricesWithLabels.next();
             BigDecimal price = new BigDecimal(pair.getSecond().replace(",", "."));

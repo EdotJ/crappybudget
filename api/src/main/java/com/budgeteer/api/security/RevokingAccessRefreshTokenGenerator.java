@@ -6,7 +6,6 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.micronaut.context.BeanContext;
 import io.micronaut.context.annotation.Replaces;
-import io.micronaut.context.event.ApplicationEvent;
 import io.micronaut.context.event.ApplicationEventPublisher;
 import io.micronaut.security.authentication.UserDetails;
 import io.micronaut.security.token.event.AccessTokenGeneratedEvent;

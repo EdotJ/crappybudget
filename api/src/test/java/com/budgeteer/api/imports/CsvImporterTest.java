@@ -16,6 +16,7 @@ import io.micronaut.test.annotation.MockBean;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import io.micronaut.web.router.exceptions.UnsatisfiedRouteException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -41,6 +42,7 @@ import static org.mockito.Mockito.*;
 
 @MicronautTest
 @ExtendWith(MockitoExtension.class)
+@Tag("Unit")
 public class CsvImporterTest {
 
     @Mock

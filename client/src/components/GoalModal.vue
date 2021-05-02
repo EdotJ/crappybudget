@@ -4,32 +4,38 @@
     <template v-slot:content>
       <FormError :value="error" />
       <form v-on:submit.prevent="goal.id ? submitUpdate() : submitCreate()">
-        <div class="current-value" v-if="goal.id">
+        <div class="current-value" v-if="goal && goal.id">
           <span>Current value:</span>
-          <span class="">{{ goal.currentValue }}</span>
+          <div class="current-value-container">
+            <span class="">{{ goal.currentValue }}</span>
+          </div>
         </div>
-        <div class="input-group">
-          <label for="goal-name">Name</label>
-          <input id="goal-name" type="text" required placeholder="Name" autocomplete="false" v-model="goal.name" />
-        </div>
-        <div class="input-group">
-          <label for="goal-description">Description</label>
-          <input
-            id="goal-description"
-            type="text"
-            placeholder="Description"
-            autocomplete="false"
-            v-model="goal.description"
-          />
-        </div>
-        <div class="input-group">
-          <label for="date">Goal Date</label>
-          <input id="date" type="date" required placeholder="Date" v-model="goal.date" />
-        </div>
-        <div class="input-group">
-          <label for="value">Goal Value</label>
-          <input id="value" type="number" step="0.01" min="0" required placeholder="Value" v-model="goal.goalValue" />
-        </div>
+        <StyledInput
+          id="goal-name"
+          type="text"
+          :required="true"
+          :autocomplete="false"
+          placeholder="Name"
+          v-model="goal.name"
+        />
+        <StyledInput
+          id="goal-description"
+          type="text"
+          :textarea="true"
+          :autocomplete="false"
+          placeholder="Description"
+          v-model="goal.description"
+        />
+        <StyledInput id="goal-date" type="date" :required="true" placeholder="Date" v-model="goal.date" />
+        <StyledInput
+          id="goal-value"
+          type="number"
+          step="0.01"
+          min="0"
+          :required="true"
+          placeholder="Value"
+          v-model="goal.goalValue"
+        />
         <div class="input-group">
           <label for="category">Category</label>
           <CategorySelector id="category" v-model="goal.categoryId" :required="true" :clearable="false" />
@@ -47,8 +53,8 @@
             :clearable="false"
           />
         </div>
-        <div class="submit-container">
-          <AccentedSubmitButton type="button" @click.native="submitDelete" text="DELETE" />
+        <div class="submit-container" :class="{ left: !(goal && goal.id) }">
+          <AccentedSubmitButton v-if="goal && goal.id" type="button" @click.native="submitDelete" text="DELETE" />
           <AccentedSubmitButton />
         </div>
       </form>
@@ -63,10 +69,11 @@ import Modal from "@/components/Modal";
 import vSelect from "vue-select";
 import { mapActions, mapGetters, mapState } from "vuex";
 import CategorySelector from "@/components/CategorySelector";
+import StyledInput from "@/components/StyledInput";
 
 export default {
   name: "GoalModal",
-  components: { CategorySelector, FormError, AccentedSubmitButton, Modal, vSelect },
+  components: { StyledInput, CategorySelector, FormError, AccentedSubmitButton, Modal, vSelect },
   props: { goal: Object, show: Boolean },
   data() {
     return {
@@ -131,7 +138,6 @@ form {
   font-size: 1rem;
   display: flex;
   justify-content: space-between;
-  padding: 0 8px;
 }
 
 .submit-container {
@@ -141,10 +147,37 @@ form {
   align-items: center;
 }
 
+.left {
+  justify-content: flex-end;
+}
+
 .selector {
   width: 100%;
   background: var(--input-bg-color);
   border-radius: 8px;
   font-size: 1rem;
+}
+
+.current-value span {
+  display: flex;
+  justify-content: flex-start;
+  width: 29%;
+}
+
+.current-value-container {
+  flex: 1;
+  margin: 0 1.25rem;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.input-group > label {
+  width: 33%;
+  max-width: unset;
+  flex: none;
+}
+
+.input-group {
+  padding: 0.5rem 0;
 }
 </style>
