@@ -20,7 +20,6 @@ public class DatabaseCleanupExtension extends InjectableExtension
     @Override
     public void beforeTestExecution(ExtensionContext context) {
         initializeEntityManager(context);
-
     }
 
     private void initializeEntityManager(ExtensionContext context) {

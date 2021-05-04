@@ -7,12 +7,10 @@ import com.budgeteer.api.dto.ErrorResponse;
 import com.budgeteer.api.dto.account.AccountListDto;
 import com.budgeteer.api.dto.account.SingleAccountDto;
 import com.budgeteer.api.model.Account;
-import com.budgeteer.api.model.Entry;
 import com.budgeteer.api.model.User;
 import com.budgeteer.api.repository.AccountRepository;
 import com.budgeteer.api.repository.EntryRepository;
 import com.budgeteer.api.repository.UserRepository;
-import io.micronaut.data.model.Page;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -22,6 +20,7 @@ import io.micronaut.http.client.annotation.Client;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -35,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @MicronautTest
 @ExtendWith(DatabaseCleanupExtension.class)
+@Tag("Integration")
 public class AccountControllerTest {
 
     @RegisterExtension

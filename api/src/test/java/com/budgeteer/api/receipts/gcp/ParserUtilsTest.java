@@ -4,6 +4,7 @@ import com.budgeteer.api.receipts.gcp.model.response.BoundingPoly;
 import com.budgeteer.api.receipts.gcp.model.response.TextAnnotation;
 import com.budgeteer.api.receipts.gcp.model.response.Vertex;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
@@ -11,6 +12,7 @@ import javax.inject.Inject;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @MicronautTest
+@Tag("Unit")
 public class ParserUtilsTest {
 
     @Inject

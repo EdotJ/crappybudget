@@ -1,6 +1,5 @@
 package com.budgeteer.api.controllers;
 
-import com.budgeteer.api.model.Category;
 import com.budgeteer.api.model.Entry;
 import com.budgeteer.api.service.EntryService;
 import com.opencsv.CSVWriter;

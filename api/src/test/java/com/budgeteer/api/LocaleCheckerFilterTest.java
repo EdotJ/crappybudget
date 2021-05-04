@@ -8,6 +8,7 @@ import io.micronaut.http.HttpRequest;
 import io.micronaut.http.filter.ServerFilterChain;
 import io.micronaut.http.simple.SimpleHttpHeaders;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -23,6 +24,7 @@ import static org.mockito.Mockito.when;
 @MicronautTest
 @ExtendWith(MockitoExtension.class)
 @Property(name = "flyway.enabled", value = "false")
+@Tag("Unit")
 public class LocaleCheckerFilterTest {
 
     @Inject

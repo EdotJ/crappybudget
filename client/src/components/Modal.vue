@@ -133,18 +133,7 @@ select {
   width: 80%;
 }
 
-.submit-container {
-  display: flex;
-  justify-content: flex-end;
-  padding-bottom: 2rem;
-}
-
-.submit-container button {
-  width: 8rem;
-  text-transform: uppercase;
-}
-
-@media only screen and (min-width: 415px) and (max-width: 1280px) {
+@media only screen and (min-width: 490px) and (max-width: 1280px) {
   .modal {
     top: 30%;
     left: 50%;

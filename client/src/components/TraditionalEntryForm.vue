@@ -36,10 +36,9 @@
       <StyledInput
         id="value"
         type="number"
-        step="0.01"
-        min="0"
         :vertical="true"
         :required="true"
+        :autocomplete="false"
         placeholder="Value"
         v-model="entry.value"
       />
@@ -70,10 +69,12 @@ import AccountSelector from "@/components/AccountSelector";
 
 export default {
   name: "TraditionalEntryForm",
-  props: {
-    entry: {
-      type: Object,
-    },
+  data() {
+    return {
+      entry: {
+        isExpense: true,
+      },
+    };
   },
   components: { AccountSelector, CategorySelector, AccentedSubmitButton, StyledInput },
   computed: {

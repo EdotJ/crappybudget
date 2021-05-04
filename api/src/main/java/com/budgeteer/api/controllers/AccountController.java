@@ -1,7 +1,5 @@
 package com.budgeteer.api.controllers;
 
-import com.budgeteer.api.core.Pair;
-import com.budgeteer.api.dto.account.AccountBalanceDto;
 import com.budgeteer.api.dto.account.AccountListDto;
 import com.budgeteer.api.dto.account.SingleAccountDto;
 import com.budgeteer.api.model.Account;
@@ -10,8 +8,6 @@ import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
 import io.micronaut.security.authentication.Authentication;
 
-import java.math.BigDecimal;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 

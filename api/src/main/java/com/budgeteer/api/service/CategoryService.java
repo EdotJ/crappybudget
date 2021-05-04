@@ -63,8 +63,8 @@ public class CategoryService extends RestrictedResourceHandler {
 
     private void checkParent(Category parent) {
         if (parent != null && parent.getParent() != null) {
-                throw new BadRequestException("BAD_CATEGORY", "category_nesting",
-                        "Category's parent already has a parent", "Parent reference already in place");
+            throw new BadRequestException("BAD_CATEGORY", "category_nesting",
+                    "Category's parent already has a parent", "Parent reference already in place");
         }
     }
 

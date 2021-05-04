@@ -13,6 +13,7 @@ import io.micronaut.test.annotation.MockBean;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import io.reactivex.subscribers.TestSubscriber;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
 
@@ -25,6 +26,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @MicronautTest
+@Tag("Unit")
 public class PasswordAuthenticationProviderTest {
 
     @Inject
@@ -40,7 +42,6 @@ public class PasswordAuthenticationProviderTest {
         when(userRepository.findByEmail(not(eq(TestUtils.TEST_USER_EMAIL)))).thenReturn(Optional.empty());
         when(userRepository.findByUsername(eq(TestUtils.TEST_USER_USERNAME))).thenReturn(Optional.of(user));
         when(userRepository.findByUsername(not(eq(TestUtils.TEST_USER_USERNAME)))).thenReturn(Optional.empty());
-
     }
 
     @Test

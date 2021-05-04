@@ -3,6 +3,7 @@ package com.budgeteer.api.core;
 import com.budgeteer.api.base.DatabaseCleanupExtension;
 import io.micronaut.context.annotation.Value;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -13,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @MicronautTest
 @ExtendWith(DatabaseCleanupExtension.class)
+@Tag("Integration")
 public class GoalValueTriggerTest {
 
     @Value("${datasources.default.url}")

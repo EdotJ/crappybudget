@@ -4,7 +4,7 @@ import picocli.CommandLine;
 
 public class ExecutionExceptionHandler implements CommandLine.IExecutionExceptionHandler {
     @Override
-    public int handleExecutionException(Exception ex, CommandLine cmd, CommandLine.ParseResult parseResult) throws Exception {
+    public int handleExecutionException(Exception ex, CommandLine cmd, CommandLine.ParseResult parseResult) {
         // bold red error message
         cmd.getErr().println(cmd.getColorScheme().errorText("<Execution Error> " + ex.getMessage()));
 

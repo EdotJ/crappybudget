@@ -17,7 +17,6 @@ import io.micronaut.http.annotation.*;
 import io.micronaut.security.authentication.Authentication;
 
 import javax.annotation.Nullable;
-import javax.validation.constraints.Null;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
