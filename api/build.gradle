@@ -65,3 +65,7 @@ task dev(type: JavaExec) {
     main = "com.budgeteer.api.Application"
     jvmArgs '-Dmicronaut.environments=dev'
 }
+
+shadowJar {
+    archiveName = "budget-app.${extension}"
+}
