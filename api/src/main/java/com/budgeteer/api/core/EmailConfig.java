@@ -25,7 +25,7 @@ public class EmailConfig {
         this.serverConfig = serverConfig;
     }
 
-    @ConfigurationProperties("server")
+    @ConfigurationProperties("emailprovider.server")
     public static class ServerConfig {
 
         private String host;

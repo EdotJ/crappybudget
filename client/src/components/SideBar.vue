@@ -55,7 +55,7 @@
               <ImportIcon />
             </IconBase>
           </span>
-          <span class="link-title">External data</span>
+          <span class="link-title">External Data</span>
         </router-link>
       </div>
       <div class="link-container">

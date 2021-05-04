@@ -37,11 +37,11 @@
           v-model="goal.goalValue"
         />
         <div class="input-group">
-          <label for="category">Category</label>
+          <label for="category">Category<span>*</span></label>
           <CategorySelector id="category" v-model="goal.categoryId" :required="true" :clearable="false" />
         </div>
         <div class="input-group">
-          <label for="goalType">Goal Type</label>
+          <label for="goalType">Goal Type<span>*</span></label>
           <v-select
             class="selector"
             id="goalType"
@@ -179,5 +179,9 @@ form {
 
 .input-group {
   padding: 0.5rem 0;
+}
+
+label span {
+  color: red;
 }
 </style>

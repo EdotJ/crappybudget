@@ -20,14 +20,18 @@ public class PasswordResetToken {
 
     private LocalDateTime expiration;
 
+    @Column(name = "client_host")
+    private String clientHost;
+
     public PasswordResetToken() {
         expiration = calculateExpiryDate();
     }
 
-    public PasswordResetToken(User user, String token) {
+    public PasswordResetToken(User user, String token, String clientHost) {
         this.user = user;
         this.value = token;
         expiration = calculateExpiryDate();
+        this.clientHost = clientHost;
     }
 
     private LocalDateTime calculateExpiryDate() {
@@ -60,5 +64,13 @@ public class PasswordResetToken {
 
     public void setExpiration(LocalDateTime expiryDate) {
         this.expiration = expiryDate;
+    }
+
+    public String getClientHost() {
+        return clientHost;
+    }
+
+    public void setClientHost(String clientHost) {
+        this.clientHost = clientHost;
     }
 }

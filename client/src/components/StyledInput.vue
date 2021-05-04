@@ -17,6 +17,7 @@
         v-on:input="$emit('input', $event.target.value)"
         v-if="!textarea"
         class="stylable"
+        :maxlength="maxlength"
       />
       <textarea
         :id="id"
@@ -28,11 +29,12 @@
         :step="step"
         :min="min"
         :placeholder="placeholder"
-        :autocomplete="autocomplete"
+        :autocomplete="autocomplete ? 'on' : 'off'"
         v-on:input="$emit('input', $event.target.value)"
         class="stylable"
         v-else
         rows="3"
+        :maxlength="maxlength"
       >
       </textarea>
     </div>
@@ -55,6 +57,7 @@ export default {
     noPadding: { type: Boolean, default: false },
     autocomplete: { type: Boolean, default: true },
     textarea: { type: Boolean, default: false },
+    maxlength: { type: Number, default: 60 },
   },
   data() {
     return {

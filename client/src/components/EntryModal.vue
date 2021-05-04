@@ -122,4 +122,14 @@ export default {
   border-radius: 8px;
   width: 70%;
 }
+
+form {
+  width: 80%;
+  margin-bottom: 1rem;
+}
+
+.submit-container {
+  display: flex;
+  justify-content: flex-end;
+}
 </style>

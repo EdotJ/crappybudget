@@ -118,7 +118,7 @@ jackson:
 api:
   base-path: ${API_BASE_PATH:/api}
   receipt-recognition:
-    enabled: ${RECEIPT_RECOGNITION_ENABLED:true}
+    enabled: ${RECEIPT_RECOGNITION_ENABLED:false}
   localization:
     enabled: false
 

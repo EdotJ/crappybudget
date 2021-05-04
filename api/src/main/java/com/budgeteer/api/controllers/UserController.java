@@ -11,7 +11,10 @@ import com.budgeteer.api.service.UserService;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
 
+import javax.annotation.Nullable;
+import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller("${api.base-path:/api}")
@@ -39,8 +42,9 @@ public class UserController {
     }
 
     @Post(value = "/users", uris = {"/users", "/register"})
-    public HttpResponse<SingleUserDto> create(@Body SingleUserDto request) {
-        User user = userService.create(request);
+    public HttpResponse<SingleUserDto> create(@Body SingleUserDto request, @QueryValue Optional<String> host) {
+        String hostUnwrapped = host.orElse(null);
+        User user = userService.create(request, hostUnwrapped);
         return HttpResponse.created(new SingleUserDto(user));
     }
 
@@ -59,8 +63,8 @@ public class UserController {
     @Get(value = "/email")
     public HttpResponse<Object> activateUser(String token) {
         checkDisabledVerification();
-        userService.activateUser(token);
-        return HttpResponse.ok();
+        String clientHost = userService.activateUser(token);
+        return HttpResponse.redirect(URI.create(clientHost));
     }
 
     @Post(value = "/email")
@@ -79,17 +83,17 @@ public class UserController {
     }
 
     @Get(value = "/passwordReset")
-    public HttpResponse<Object> initResetPassword(String email) {
+    public HttpResponse<Object> initResetPassword(@QueryValue  String email, @QueryValue Optional<String> clientHost) {
         checkDisabledPasswordReset();
-        userService.initiatePasswordReset(email);
+        userService.initiatePasswordReset(email, clientHost.orElse(null));
         return HttpResponse.ok();
     }
 
     @Post(value = "/passwordReset")
     public HttpResponse<Object> resetPassword(@Body ResetPasswordRequest request) {
         checkDisabledPasswordReset();
-        userService.resetPassword(request);
-        return HttpResponse.ok();
+        String clientHost = userService.resetPassword(request);
+        return HttpResponse.redirect(URI.create(clientHost));
     }
 
     private void checkDisabledPasswordReset() {

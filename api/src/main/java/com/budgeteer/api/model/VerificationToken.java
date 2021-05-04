@@ -20,6 +20,9 @@ public class VerificationToken {
 
     private LocalDateTime expiration;
 
+    @Column(name = "client_host")
+    private String clientHost;
+
     public VerificationToken() {
         expiration = calculateExpiryDate();
     }
@@ -54,5 +57,13 @@ public class VerificationToken {
 
     public void setExpiration(LocalDateTime expiration) {
         this.expiration = expiration;
+    }
+
+    public String getClientHost() {
+        return clientHost;
+    }
+
+    public void setClientHost(String clientHost) {
+        this.clientHost = clientHost;
     }
 }

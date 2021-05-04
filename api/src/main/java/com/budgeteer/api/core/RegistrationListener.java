@@ -24,7 +24,7 @@ public class RegistrationListener implements ApplicationEventListener<OnRegistra
     public void onApplicationEvent(OnRegistrationCompleteEvent event) {
         User user = event.getUser();
         String token = UUID.randomUUID().toString();
-        userService.createVerificationToken(user, token);
+        userService.createVerificationToken(user, token, event.getClientHost());
         String recipientEmail = user.getEmail();
         String subject = "Registration Confirmation on Budget Site";
         String confirmationUrl = "<a>" + event.getAppUrl() + "confirm?token=" + token + "</a>";

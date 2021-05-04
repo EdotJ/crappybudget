@@ -40,6 +40,7 @@
         :required="true"
         :autocomplete="false"
         placeholder="Value"
+        :step="0.01"
         v-model="entry.value"
       />
     </div>

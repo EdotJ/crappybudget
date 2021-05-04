@@ -1,8 +1,8 @@
 <template>
   <div class="root">
     <IconBase class="icon-left" @click.native="$router.go(-1)"><LeftArrowIcon /> </IconBase>
-    <FormError :value="error" />
     <form v-on:submit.prevent="$route.params.id ? submitUpdate() : submitCreate()">
+      <FormError :value="error" />
       <StyledInput type="text" :required="true" placeholder="Name" v-model="currentAccount.name" />
       <div class="submit-container">
         <AccentedSubmitButton />
@@ -110,7 +110,7 @@ form {
 
   form {
     margin-top: 20%;
-    width: 60%;
+    width: 80%;
   }
 }
 </style>
