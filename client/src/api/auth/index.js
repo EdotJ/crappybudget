@@ -14,7 +14,7 @@ export default {
       password,
       email,
     };
-    return request.post("users", body);
+    return request.post(`users?host=${document.location.host}`, body);
   },
   refreshToken(token) {
     const body = {
@@ -26,5 +26,36 @@ export default {
         "Content-Type": "application/json",
       },
     });
+  },
+  passwordResetInit(email) {
+    return request.get(`passwordReset?email=${email}`);
+  },
+  passwordResetConfirm(token, newPassword) {
+    const body = {
+      token: token,
+      password: newPassword,
+    };
+    return request.post(`passwordReset`, body, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  },
+  verifyEmail(token) {
+    return request.get(`email?token=${token}`);
+  },
+  resendEmail(email) {
+    return request.post(
+      `email`,
+      { email: email, clientHost: document.location.host },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+  },
+  clearRefreshTokens() {
+    return request.post(``);
   },
 };

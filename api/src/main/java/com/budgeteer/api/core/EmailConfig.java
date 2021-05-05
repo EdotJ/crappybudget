@@ -7,7 +7,15 @@ public class EmailConfig {
 
     private boolean enabled;
 
-    private ServerConfig serverConfig = new ServerConfig();
+    private String host;
+
+    private int port;
+
+    private String username;
+
+    private String password;
+
+    private String emailAddress;
 
     public boolean isEnabled() {
         return enabled;
@@ -17,65 +25,44 @@ public class EmailConfig {
         this.enabled = enabled;
     }
 
-    public ServerConfig getServerConfig() {
-        return serverConfig;
+    public String getHost() {
+        return host;
     }
 
-    public void setServerConfig(ServerConfig serverConfig) {
-        this.serverConfig = serverConfig;
+    public void setHost(String host) {
+        this.host = host;
     }
 
-    @ConfigurationProperties("server")
-    public static class ServerConfig {
+    public void setPort(int port) {
+        this.port = port;
+    }
 
-        private String host;
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-        private int port;
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-        private String username;
+    public void setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
+    }
 
-        private String password;
+    public int getPort() {
+        return port;
+    }
 
-        private String emailAddress;
+    public String getUsername() {
+        return username;
+    }
 
-        public String getHost() {
-            return host;
-        }
+    public String getPassword() {
+        return password;
+    }
 
-        public void setHost(String host) {
-            this.host = host;
-        }
-
-        public void setPort(int port) {
-            this.port = port;
-        }
-
-        public void setUsername(String username) {
-            this.username = username;
-        }
-
-        public void setPassword(String password) {
-            this.password = password;
-        }
-
-        public void setEmailAddress(String emailAddress) {
-            this.emailAddress = emailAddress;
-        }
-
-        public int getPort() {
-            return port;
-        }
-
-        public String getUsername() {
-            return username;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public String getEmailAddress() {
-            return emailAddress;
-        }
+    public String getEmailAddress() {
+        return emailAddress;
     }
 }
+

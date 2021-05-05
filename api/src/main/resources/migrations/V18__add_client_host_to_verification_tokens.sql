@@ -1,0 +1,2 @@
+ALTER TABLE `verification_tokens` ADD COLUMN `client_host` VARCHAR(60) NOT NULL DEFAULT 'localhost';
+ALTER TABLE `password_reset_tokens` ADD COLUMN `client_host` VARCHAR(60) NOT NULL DEFAULT 'localhost';

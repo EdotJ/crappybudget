@@ -11,6 +11,7 @@ import com.budgeteer.api.model.PasswordResetToken;
 import com.budgeteer.api.model.User;
 import com.budgeteer.api.model.VerificationToken;
 import com.budgeteer.api.repository.PasswordTokenRepository;
+import com.budgeteer.api.repository.RefreshTokenRepository;
 import com.budgeteer.api.repository.UserRepository;
 import com.budgeteer.api.repository.VerificationTokenRepository;
 import com.budgeteer.api.security.PasswordManager;
@@ -23,7 +24,6 @@ import io.micronaut.security.utils.SecurityService;
 import org.apache.commons.validator.routines.EmailValidator;
 
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Optional;
@@ -46,6 +46,8 @@ public class UserService extends RestrictedResourceHandler {
 
     private final EmailService emailService;
 
+    private final RefreshTokenRepository refreshTokenRepository;
+
     public UserService(UserRepository repository,
                        PasswordManager passwordManager,
                        SecurityService securityService,
@@ -53,15 +55,17 @@ public class UserService extends RestrictedResourceHandler {
                        EmbeddedServer embeddedServer,
                        VerificationTokenRepository tokenRepository,
                        PasswordTokenRepository passwordTokenRepository,
-                       EmailService emailService) throws MalformedURLException {
+                       EmailService emailService,
+                       RefreshTokenRepository refreshTokenRepository) throws MalformedURLException {
         super(securityService);
         this.repository = repository;
         this.passwordManager = passwordManager;
         this.eventPublisher = eventPublisher;
-        appUrl = new URL("http", embeddedServer.getHost(), "/").toString();
+        appUrl = embeddedServer.getURI().toString() + "/";
         this.emailTokenRepository = tokenRepository;
         this.passwordTokenRepository = passwordTokenRepository;
         this.emailService = emailService;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
     public Collection<User> getAll() {
@@ -95,17 +99,21 @@ public class UserService extends RestrictedResourceHandler {
         return optionalUser.get();
     }
 
-    public User create(SingleUserDto request) {
+    public User create(SingleUserDto request, String host) {
         validateUserCreateRequest(request);
         User user = new User();
         user.setEmail(request.getEmail());
         user.setUsername(request.getUsername());
         user.setPassword(passwordManager.encode(request.getPassword()));
-        if (!emailService.isEnabled()) {
-            user.setIsVerified(true);
-        }
+//        if (!emailService.isEnabled()) {
+//            user.setIsVerified(true);
+//        }
         user = repository.save(user);
-        eventPublisher.publishEvent(new OnRegistrationCompleteEvent(user, appUrl));
+        String realHost = host == null ? appUrl : host;
+        if (!realHost.endsWith("/")) {
+            realHost = realHost + "/";
+        }
+        eventPublisher.publishEvent(new OnRegistrationCompleteEvent(user, appUrl, realHost));
         return user;
     }
 
@@ -144,7 +152,7 @@ public class UserService extends RestrictedResourceHandler {
         if (!StringUtils.hasText(email)) {
             throw new BadRequestException("BAD_EMAIL", "empty", "Please add an email address", "Email is empty");
         }
-        if (!EmailValidator.getInstance().isValid(email)) {
+        if (!EmailValidator.getInstance(false, true).isValid(email)) {
             throw new BadRequestException("BAD_EMAIL", "misformatted", "Invalid email format", "Invalid email format");
         }
     }
@@ -168,15 +176,16 @@ public class UserService extends RestrictedResourceHandler {
         repository.delete(user);
     }
 
-    public void createVerificationToken(User user, String token) {
+    public void createVerificationToken(User user, String token, String clientHost) {
         VerificationToken entity = new VerificationToken();
         entity.setUser(user);
         entity.setValue(token);
+        entity.setClientHost(clientHost);
         entity.setExpiration(LocalDateTime.now().plusMinutes(60 * 24));
         emailTokenRepository.save(entity);
     }
 
-    public void activateUser(String token) {
+    public String activateUser(String token) {
         Optional<VerificationToken> verificationTokenOptional = emailTokenRepository.findByValue(token);
         if (verificationTokenOptional.isEmpty()) {
             String msg = "Verification token not found";
@@ -191,33 +200,40 @@ public class UserService extends RestrictedResourceHandler {
         User user = verificationToken.getUser();
         user.setIsVerified(true);
         repository.update(user);
+        String clientHost = verificationToken.getClientHost();
         emailTokenRepository.delete(verificationToken);
+        return clientHost;
     }
 
     public void resendConfirmationEmail(ResendEmailRequest request) {
         User user;
         try {
             user = this.getByEmail(request.getEmail());
-            eventPublisher.publishEvent(new OnRegistrationCompleteEvent(user, appUrl));
+            eventPublisher.publishEvent(new OnRegistrationCompleteEvent(user, appUrl, request.getClientHost()));
         } catch (ResourceNotFoundException ignored) {
             // We want to avoid showing if a user exists
         }
     }
 
     public void initiatePasswordReset(String email) {
-        User user = getByEmail(email);
+        User user;
+        try {
+            user = getByEmail(email);
+        } catch (ResourceNotFoundException e) {
+            // We want to avoid showing a user exists
+            return;
+        }
         String token = UUID.randomUUID().toString();
         PasswordResetToken passwordToken = new PasswordResetToken(user, token);
         passwordTokenRepository.save(passwordToken);
         String subject = "Reset Your Password on Budget Site";
-        emailService.sendEmail(passwordToken.getUser().getEmail(), subject, getMessage(token, appUrl));
+        emailService.sendEmail(passwordToken.getUser().getEmail(), subject, getMessage(token));
     }
 
-    private String getMessage(String token, String appUrl) {
-        String confirmationUrl = "<a>" + appUrl + "resetConfirmation?token=" + token + "</a>";
+    private String getMessage(String token) {
         return "<h1> You have asked us to reset your password... </h1>"
                 + "<b> If this was not you - please change your password immediately.</b>"
-                + "<p> Otherwise, you can reset your password by clicking on this link: " + confirmationUrl + " </p>";
+                + "<p> Otherwise, you can reset your password by inputting this token: " + token + " </p>";
     }
 
     public void resetPassword(ResetPasswordRequest request) {
@@ -237,6 +253,11 @@ public class UserService extends RestrictedResourceHandler {
         user.setPassword(passwordManager.encode(request.getPassword()));
         repository.update(user);
         passwordTokenRepository.delete(passwordToken);
+    }
+
+    public void clearAllRefreshTokens() {
+        User user = getById(getAuthenticatedUserId());
+        refreshTokenRepository.deleteByUser(user);
     }
 
     private void validatePassword(String password) {

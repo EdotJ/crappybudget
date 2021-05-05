@@ -50,6 +50,13 @@ export const mutations = {
   SET_TOTAL_PAGES(state, totalPages) {
     state.totalPages = totalPages;
   },
+  RESET_STATE(state) {
+    state.entries = [];
+    state.isLoading = false;
+    state.isLoadingBalance = false;
+    state.balance = null;
+    state.totalPages = null;
+  },
 };
 
 export const actions = {

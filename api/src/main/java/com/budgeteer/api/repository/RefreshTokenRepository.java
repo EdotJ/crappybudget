@@ -31,4 +31,6 @@ public abstract class RefreshTokenRepository implements CrudRepository<RefreshTo
     }
 
     public abstract Optional<RefreshToken> findByRefreshToken(@NonNull @NotBlank String refreshToken);
+
+    public abstract void deleteByUser(User user);
 }

@@ -2,6 +2,7 @@
   <div class="wrapper">
     <Paper class="paper">
       <FormError :value="error" />
+      <span class="disclaimer"> (header value count should match filled header names) </span>
       <form @submit.prevent="submit">
         <StyledInput
           type="text"
@@ -221,6 +222,14 @@ svg {
 
 label span {
   color: red;
+}
+
+.disclaimer {
+  font-size: 1rem;
+  padding: 1rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Desktop Styles */

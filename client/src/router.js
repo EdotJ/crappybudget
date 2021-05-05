@@ -1,7 +1,6 @@
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
-import ColorsTestPage from "@/pages/ColorsTestPage";
 import ForgotPassword from "@/pages/ForgotPassword";
 import VueRouter from "vue-router";
 import store from "@/store";
@@ -15,6 +14,8 @@ import CategoriesForm from "@/pages/categories/CategoriesForm";
 import EntryForm from "@/pages/EntryForm";
 import CsvImportForm from "@/pages/CsvImportForm";
 import YnabImportForm from "@/pages/YnabImportForm";
+import ForgotPasswordConfirm from "@/pages/ForgotPasswordConfirm";
+import CompleteVerification from "@/pages/CompleteVerification";
 
 const routes = [
   { path: "/", component: Home },
@@ -34,7 +35,8 @@ const routes = [
   { path: "/login", component: Login, meta: { noAuth: true } },
   { path: "/register", component: Register, meta: { noAuth: true } },
   { path: "/reminder", component: ForgotPassword, meta: { noAuth: true } },
-  { path: "/colortest", component: ColorsTestPage, meta: { noAuth: true } },
+  { path: "/reminder/changePassword", component: ForgotPasswordConfirm, meta: { noAuth: true } },
+  { path: "/confirm", component: CompleteVerification, meta: { noAuth: true } },
   {
     path: "/logout",
     component: () => {

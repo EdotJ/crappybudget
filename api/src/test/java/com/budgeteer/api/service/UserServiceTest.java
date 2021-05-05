@@ -116,16 +116,17 @@ public class UserServiceTest {
     @Test
     public void testCreateVerificationToken() {
         User user = new User();
-        userService.createVerificationToken(user, "token");
+        userService.createVerificationToken(user, "token", "host");
         ArgumentCaptor<VerificationToken> captor = ArgumentCaptor.forClass(VerificationToken.class);
         verify(verificationTokenRepository).save(captor.capture());
         assertEquals("token", captor.getValue().getValue());
+        assertEquals("host", captor.getValue().getClientHost());
         assertEquals(user, captor.getValue().getUser());
     }
 
     @Test
     public void testPasswordResetInit() {
-        userService.initiatePasswordReset("testy@protonmail.com");
+        userService .initiatePasswordReset("testy@protonmail.com");
         ArgumentCaptor<PasswordResetToken> tokenCaptor = ArgumentCaptor.forClass(PasswordResetToken.class);
         verify(passwordTokenRepository).save(tokenCaptor.capture());
         assertNotNull(tokenCaptor.getValue().getUser());

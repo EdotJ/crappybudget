@@ -24,10 +24,10 @@ public class RegistrationListener implements ApplicationEventListener<OnRegistra
     public void onApplicationEvent(OnRegistrationCompleteEvent event) {
         User user = event.getUser();
         String token = UUID.randomUUID().toString();
-        userService.createVerificationToken(user, token);
+        userService.createVerificationToken(user, token, event.getClientHost());
         String recipientEmail = user.getEmail();
         String subject = "Registration Confirmation on Budget Site";
-        String confirmationUrl = "<a>" + event.getAppUrl() + "confirm?token=" + token + "</a>";
+        String confirmationUrl = "<a>" + event.getClientHost() + "confirm?token=" + token + "</a>";
         String message = "<h1> You're one step closer to managing your finances... </h1>"
                 + "<b>Confirm your registration on " + confirmationUrl + "</b>"
                 + "<p><i>This message is absolutely shady on purpose </i></p>";

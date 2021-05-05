@@ -5,6 +5,7 @@ const state = {
   accessToken: "",
   refreshToken: "",
   isLoading: false,
+  isVerified: false,
 };
 
 const getters = {
@@ -26,6 +27,15 @@ export const mutations = {
   SET_IS_LOADING(state, loading) {
     state.isLoading = loading;
   },
+  SET_IS_VERIFIED(state, isVerified) {
+    state.isVerified = isVerified;
+  },
+  RESET_STATE(state) {
+    state.accessToken = "";
+    state.refreshToken = "";
+    state.isLoading = false;
+    state.isVerified = false;
+  },
 };
 
 export const actions = {
@@ -34,8 +44,12 @@ export const actions = {
     try {
       const response = await api.auth.login(credentials.username, credentials.password);
       if (response && response.data) {
-        commit("SET_ACCESS_TOKEN", response.data.access_token);
-        commit("SET_REFRESH_TOKEN", response.data.refresh_token);
+        const isVerified = response.data.roles.includes("ROLE_VERIFIED");
+        commit("SET_IS_VERIFIED", isVerified);
+        if (isVerified) {
+          commit("SET_ACCESS_TOKEN", response.data.access_token);
+          commit("SET_REFRESH_TOKEN", response.data.refresh_token);
+        }
       }
       return Promise.resolve();
     } catch (e) {

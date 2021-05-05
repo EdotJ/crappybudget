@@ -1,6 +1,6 @@
 <template>
   <form class="entry-form" @submit.prevent="submitEntries">
-    <Modal :show="showModal" v-on:close-modal="handleModal">
+    <Modal :show="showModal" v-on:close-modal="handleModal" class="image-modal">
       <template v-slot:header> Receipt</template>
       <template v-slot:content>
         <img class="receipt-image" :src="file" alt="file" v-if="file" />
@@ -266,8 +266,8 @@ form {
 }
 
 .receipt-image {
-  max-width: 90%;
-  max-height: 90%;
+  max-width: 70%;
+  max-height: 70%;
 }
 
 .picture-container {

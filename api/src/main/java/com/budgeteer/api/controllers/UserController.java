@@ -12,6 +12,7 @@ import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller("${api.base-path:/api}")
@@ -39,8 +40,9 @@ public class UserController {
     }
 
     @Post(value = "/users", uris = {"/users", "/register"})
-    public HttpResponse<SingleUserDto> create(@Body SingleUserDto request) {
-        User user = userService.create(request);
+    public HttpResponse<SingleUserDto> create(@Body SingleUserDto request, @QueryValue Optional<String> host) {
+        String hostUnwrapped = host.orElse(null);
+        User user = userService.create(request, hostUnwrapped);
         return HttpResponse.created(new SingleUserDto(user));
     }
 
@@ -79,16 +81,22 @@ public class UserController {
     }
 
     @Get(value = "/passwordReset")
-    public HttpResponse<Object> initResetPassword(String email) {
+    public HttpResponse<Object> initResetPassword(@QueryValue  String email) {
         checkDisabledPasswordReset();
         userService.initiatePasswordReset(email);
-        return HttpResponse.ok();
+        return HttpResponse.noContent();
     }
 
     @Post(value = "/passwordReset")
     public HttpResponse<Object> resetPassword(@Body ResetPasswordRequest request) {
         checkDisabledPasswordReset();
         userService.resetPassword(request);
+        return HttpResponse.ok();
+    }
+
+    @Post(value = "clear-tokens")
+    public HttpResponse<Object> clearTokens() {
+        userService.clearAllRefreshTokens();
         return HttpResponse.ok();
     }
 

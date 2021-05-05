@@ -30,7 +30,7 @@ export default {
   padding: 0 8px;
   min-height: 40px;
   max-height: 200px;
-  overflow-y: scroll;
+  overflow-y: hidden;
   text-overflow: ellipsis;
 }
 

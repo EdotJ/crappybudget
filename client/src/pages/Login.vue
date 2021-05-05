@@ -51,6 +51,7 @@ export default {
     ...mapGetters(["auth/getAccessToken"]),
     ...mapState({
       isLoading: (state) => state.auth.isLoading,
+      isVerified: (state) => state.auth.isVerified,
     }),
   },
   methods: {
@@ -58,6 +59,10 @@ export default {
       this.$store
         .dispatch("auth/login", { username: this.username, password: this.password })
         .then(() => {
+          if (!this.isVerified) {
+            this.error = "You need to verify your account first before using the system";
+            return;
+          }
           this.$router.push("/");
           this.error = "";
         })

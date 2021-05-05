@@ -36,8 +36,8 @@ public class RegistrationListenerTest {
     public void testEventHandling() {
         User user = new User();
         user.setEmail("testemail@email.com");
-        publisher.publishEvent(new OnRegistrationCompleteEvent(user, "http://localhost/"));
-        verify(userService).createVerificationToken(eq(user), any());
+        publisher.publishEvent(new OnRegistrationCompleteEvent(user, "http://localhost:8081", "http://localhost"));
+        verify(userService).createVerificationToken(eq(user), any(), any());
         ArgumentCaptor<String> emailCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> subjectCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> messageCaptor = ArgumentCaptor.forClass(String.class);
