@@ -126,7 +126,7 @@ public class UserServiceTest {
 
     @Test
     public void testPasswordResetInit() {
-        userService.initiatePasswordReset("testy@protonmail.com");
+        userService.initiatePasswordReset("testy@protonmail.com", "localhost");
         ArgumentCaptor<PasswordResetToken> tokenCaptor = ArgumentCaptor.forClass(PasswordResetToken.class);
         verify(passwordTokenRepository).save(tokenCaptor.capture());
         assertNotNull(tokenCaptor.getValue().getUser());
@@ -141,7 +141,7 @@ public class UserServiceTest {
         user.setUsername("veryuniqueusername");
         user.setEmail("anewmail@email.com");
         user.setPassword("superduperpassword");
-        PasswordResetToken passwordResetToken = new PasswordResetToken(user, "token");
+        PasswordResetToken passwordResetToken = new PasswordResetToken(user, "token", "localhost");
         when(passwordTokenRepository.findByValue("token")).thenReturn(Optional.of(passwordResetToken));
         userService.resetPassword(passwordRequest);
         verify(passwordTokenRepository, times(1)).delete(passwordResetToken);
@@ -151,7 +151,7 @@ public class UserServiceTest {
     public void shouldFailPasswordResetWhenPasswordTooShort() {
         ResetPasswordRequest passwordRequest = new ResetPasswordRequest("token", "paswd");
         User user = new User();
-        PasswordResetToken passwordResetToken = new PasswordResetToken(user, "token");
+        PasswordResetToken passwordResetToken = new PasswordResetToken(user, "token", "localhost");
         when(passwordTokenRepository.findByValue("token")).thenReturn(Optional.of(passwordResetToken));
         PasswordValidationException e = assertThrows(PasswordValidationException.class, () ->
                 userService.resetPassword(passwordRequest));
@@ -162,7 +162,7 @@ public class UserServiceTest {
     public void shouldFailResetWhenTokenNotFound() {
         ResetPasswordRequest passwordRequest = new ResetPasswordRequest("token1", "passwordpassword");
         User user = new User();
-        PasswordResetToken passwordResetToken = new PasswordResetToken(user, "token");
+        PasswordResetToken passwordResetToken = new PasswordResetToken(user, "token", "localhost");
         when(passwordTokenRepository.findByValue("token")).thenReturn(Optional.of(passwordResetToken));
         assertThrows(ResourceNotFoundException.class, () ->
                 userService.resetPassword(passwordRequest));
@@ -172,7 +172,7 @@ public class UserServiceTest {
     public void shouldFailResetWhenTokenExpired() {
         ResetPasswordRequest passwordRequest = new ResetPasswordRequest("token", "passwordpassword");
         User user = new User();
-        PasswordResetToken passwordResetToken = new PasswordResetToken(user, "token");
+        PasswordResetToken passwordResetToken = new PasswordResetToken(user, "token", "localhost");
         passwordResetToken.setExpiration(LocalDateTime.now().minusHours(1));
         when(passwordTokenRepository.findByValue("token")).thenReturn(Optional.of(passwordResetToken));
         TokenExpiredException e = assertThrows(TokenExpiredException.class, () ->
