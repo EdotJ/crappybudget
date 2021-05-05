@@ -21,12 +21,11 @@ jpa:
         enable_lazy_load_no_trans: true
 
 emailprovider:
-  server:
-    host: ${EMAIL_HOST:smtp.mailtrap.io}
-    port: ${EMAIL_PORT:2525}
-    username: ${EMAIL_USERNAME}
-    password: ${EMAIL_PASSWORD}
-    emailaddress: budgetboi@mailtrap.io
+  host: ${EMAIL_HOST:smtp.mailtrap.io}
+  port: ${EMAIL_PORT:2525}
+  username: ${EMAIL_USERNAME:}
+  password: ${EMAIL_PASSWORD:}
+  emailaddress: budgetboi@mailtrap.io
   enabled: false
 
 api:

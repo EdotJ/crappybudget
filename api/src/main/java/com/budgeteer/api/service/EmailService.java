@@ -23,13 +23,12 @@ public class EmailService {
         fromEmail = "";
         if (emailConfig.isEnabled()) {
             try {
-                EmailConfig.ServerConfig serverConfig = emailConfig.getServerConfig();
-                fromEmail = serverConfig.getEmailAddress();
+                fromEmail = emailConfig.getEmailAddress();
                 mailer = MailerBuilder
-                        .withSMTPServer(serverConfig.getHost(),
-                                serverConfig.getPort(),
-                                serverConfig.getUsername(),
-                                serverConfig.getPassword()).buildMailer();
+                        .withSMTPServer(emailConfig.getHost(),
+                                emailConfig.getPort(),
+                                emailConfig.getUsername(),
+                                emailConfig.getPassword()).buildMailer();
             } catch (Exception e) {
                 // we don't want to fail during bean initialization
             }

@@ -45,6 +45,14 @@ export const mutations = {
     state.currentExpenses = obj.data.expenses;
     state.currentNet = obj.data.net;
   },
+  RESET_STATE(state) {
+    state.accounts = [];
+    state.isLoading = false;
+    state.currentAccount = null;
+    state.currentIncome = 0;
+    state.currentExpenses = 0;
+    state.currentNet = 0;
+  },
 };
 
 export const actions = {

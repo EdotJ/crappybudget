@@ -39,6 +39,10 @@ export const mutations = {
   DELETE_CATEGORY(state, id) {
     state.categories.delete(id);
   },
+  RESET_STATE(state) {
+    state.categories = new Map();
+    state.isLoading = false;
+  },
 };
 
 export const actions = {

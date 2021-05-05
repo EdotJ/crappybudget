@@ -11,8 +11,6 @@ import com.budgeteer.api.service.UserService;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
 
-import javax.annotation.Nullable;
-import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -63,8 +61,8 @@ public class UserController {
     @Get(value = "/email")
     public HttpResponse<Object> activateUser(String token) {
         checkDisabledVerification();
-        String clientHost = userService.activateUser(token);
-        return HttpResponse.redirect(URI.create(clientHost));
+        userService.activateUser(token);
+        return HttpResponse.ok();
     }
 
     @Post(value = "/email")
@@ -83,17 +81,23 @@ public class UserController {
     }
 
     @Get(value = "/passwordReset")
-    public HttpResponse<Object> initResetPassword(@QueryValue  String email, @QueryValue Optional<String> clientHost) {
+    public HttpResponse<Object> initResetPassword(@QueryValue  String email) {
         checkDisabledPasswordReset();
-        userService.initiatePasswordReset(email, clientHost.orElse(null));
-        return HttpResponse.ok();
+        userService.initiatePasswordReset(email);
+        return HttpResponse.noContent();
     }
 
     @Post(value = "/passwordReset")
     public HttpResponse<Object> resetPassword(@Body ResetPasswordRequest request) {
         checkDisabledPasswordReset();
-        String clientHost = userService.resetPassword(request);
-        return HttpResponse.redirect(URI.create(clientHost));
+        userService.resetPassword(request);
+        return HttpResponse.ok();
+    }
+
+    @Post(value = "clear-tokens")
+    public HttpResponse<Object> clearTokens() {
+        userService.clearAllRefreshTokens();
+        return HttpResponse.ok();
     }
 
     private void checkDisabledPasswordReset() {

@@ -28,6 +28,11 @@ const actions = {
   },
   async logout({ commit }) {
     commit("auth/CLEAR_TOKENS");
+    commit("auth/RESET_STATE");
+    commit("accounts/RESET_STATE");
+    commit("categories/RESET_STATE");
+    commit("entries/RESET_STATE");
+    commit("goals/RESET_STATE");
     await localStorage.clear();
     await sessionStorage.clear();
     return Promise.resolve();

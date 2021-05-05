@@ -35,6 +35,10 @@ export const mutations = {
   SET_GOAL_TYPES(state, types) {
     state.goalTypes = types;
   },
+  RESET_STATE(state) {
+    state.goals = [];
+    state.isLoading = false;
+  },
 };
 
 export const actions = {

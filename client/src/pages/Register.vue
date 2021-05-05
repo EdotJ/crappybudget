@@ -29,6 +29,15 @@
         type="password"
         placeholder="Password"
       />
+
+      <SlidingPlaceholderInput
+        class="input"
+        id="repeat-password"
+        required="true"
+        v-model="repeatPassword"
+        type="password"
+        placeholder="Repeat Password"
+      />
       <div class="links">
         <div>
           <span>Already have an account? </span>
@@ -53,6 +62,7 @@ export default {
     return {
       username: "",
       password: "",
+      repeatPassword: "",
       email: "",
       error: "",
     };
@@ -60,6 +70,10 @@ export default {
   computed: mapState({ isLoading: (state) => state.auth.isLoading }),
   methods: {
     register() {
+      if (this.password !== this.repeatPassword) {
+        this.error = "Passwords do not match!";
+        return;
+      }
       this.$store
         .dispatch("auth/register", { username: this.username, password: this.password, email: this.email })
         .then(() => {

@@ -1,9 +1,7 @@
 <template>
   <div class="container">
-    <h1 class="desktop-title">No worries... We've got you covered!</h1>
-    <h1 class="mobile-title">What was it again?</h1>
-    <h2 class="mobile-title">Remind password</h2>
-    <form @submit.prevent="execute">
+    <Spinner v-if="isLoading" />
+    <form @submit.prevent="execute" v-if="!isLoading">
       <FormError class="form-error" :value="error" />
       <SlidingPlaceholderInput
         class="input"
@@ -14,25 +12,23 @@
         placeholder="Email Address"
       />
 
-      <AccentedSubmitButton @click="execute" :is-loading="isLoading" />
+      <AccentedSubmitButton :is-loading="isLoading" />
     </form>
   </div>
 </template>
 
 <script>
-import SlidingPlaceholderInput from "@/components/SlidingPlaceholderInput";
-import { mapState } from "vuex";
-import AccentedSubmitButton from "@/components/AccentedSubmitButton";
 import FormError from "@/components/FormError";
+import AccentedSubmitButton from "@/components/AccentedSubmitButton";
+import SlidingPlaceholderInput from "@/components/SlidingPlaceholderInput";
+import Spinner from "@/components/Spinner";
 
 export default {
-  name: "ForgotPassword",
-  components: { FormError, AccentedSubmitButton, SlidingPlaceholderInput },
-  computed: {
-    ...mapState({ isLoading: (state) => state.auth.isLoading }),
-  },
+  name: "CompleteVerification",
+  components: { Spinner, FormError, AccentedSubmitButton, SlidingPlaceholderInput },
   data() {
     return {
+      isLoading: false,
       email: "",
       error: "",
     };
@@ -40,20 +36,25 @@ export default {
   methods: {
     execute() {
       if (!this.email) {
-        this.error = "Please input an email";
-      } else {
-        this.$api.auth
-          .passwordResetInit(this.email)
-          .then(() => this.$router.push("/reminder/changePassword"))
-          .catch((e) => {
-            console.log(e.response.data.message);
-            this.error =
-              e && e.response && e.response.data && e.response.data.message
-                ? e.response.data.message
-                : "Something went wrong";
-          });
+        this.error = "Please enter an email!";
       }
+      this.$api.auth.resendEmail(this.email);
     },
+  },
+  mounted() {
+    this.isLoading = true;
+    if (!this.$route.query.token) {
+      this.$router.push("/login");
+    }
+    this.$api.auth
+      .verifyEmail(this.$route.query.token)
+      .then(() => {
+        this.$router.push("/login");
+      })
+      .catch(() => {
+        this.isLoading = false;
+        this.error = "Unable to verify your account. Enter your email if you'd like to try again";
+      });
   },
 };
 </script>

@@ -99,6 +99,7 @@ export default {
   display: flex;
   align-items: center;
   flex-direction: column;
+  padding: 1rem;
 }
 
 .input-group {
