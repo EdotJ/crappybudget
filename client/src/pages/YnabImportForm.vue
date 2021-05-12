@@ -1,12 +1,18 @@
 <template>
   <div class="wrapper">
     <Paper class="paper">
-      <FormError :value="error"/>
+      <FormError :value="error" />
       <form @submit.prevent="submit">
-        <StyledInput type="text" required="true" :value="token" v-model="token"
-                     placeholder="Personal Token"/>
+        <StyledInput
+          type="text"
+          required="true"
+          :value="token"
+          v-model="token"
+          placeholder="Personal Token"
+          :maxlength="128"
+        />
         <div class="submit-container">
-          <AccentedSubmitButton :isLoading="isLoading"/>
+          <AccentedSubmitButton :isLoading="isLoading" />
         </div>
       </form>
     </Paper>
@@ -21,13 +27,13 @@ import FormError from "@/components/FormError";
 
 export default {
   name: "YnabImportForm",
-  components: {AccentedSubmitButton, Paper, StyledInput, FormError},
+  components: { AccentedSubmitButton, Paper, StyledInput, FormError },
   data() {
     return {
       token: "",
       error: "",
       isLoading: false,
-    }
+    };
   },
   methods: {
     submit() {
@@ -36,17 +42,21 @@ export default {
       } else {
         this.error = "";
         this.isLoading = true;
-        this.$api.externalData.importYnab(this.token).then(() => {
-          this.$router.push("/");
-        }).catch((e) => {
-          if (e && e.response && e.response.data && e.response.data.message) {
-            this.error = e.response.data.message;
-          }
-        }).finally(() => this.isLoading = false)
+        this.$api.externalData
+          .importYnab(this.token)
+          .then(() => {
+            this.$router.push("/");
+          })
+          .catch((e) => {
+            if (e && e.response && e.response.data && e.response.data.message) {
+              this.error = e.response.data.message;
+            }
+          })
+          .finally(() => (this.isLoading = false));
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>

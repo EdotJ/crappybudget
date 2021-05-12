@@ -1,5 +1,6 @@
 package com.budgeteer.api.controllers;
 
+import com.budgeteer.api.exception.ResourceNotFoundException;
 import com.budgeteer.api.model.Entry;
 import com.budgeteer.api.service.EntryService;
 import com.opencsv.CSVWriter;
@@ -38,6 +39,9 @@ public class ExportController {
     @Produces("text/csv")
     public StreamedFile exportData(@Nullable Long fetchId) {
         List<Entry> entries = getEntries(fetchId);
+        if (entries.size() == 0) {
+            throw new ResourceNotFoundException("NOT_FOUND", "ENTRY", "No entries are present", "No entries for user");
+        }
         String username = entries.get(0).getUser().getUsername();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         CSVWriter writer = new CSVWriter(new OutputStreamWriter(baos));
