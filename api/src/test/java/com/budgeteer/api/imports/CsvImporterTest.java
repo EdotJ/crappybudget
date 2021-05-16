@@ -92,7 +92,7 @@ public class CsvImporterTest {
         ImportEntry importEntry = result.getImportedEntries().get(0);
         assertNotNull(importEntry);
         assertEquals("Potato", importEntry.getName());
-        assertEquals(0, new BigDecimal("10.561").compareTo(importEntry.getValue()));
+        assertEquals(0, BigDecimal.valueOf(10.561).compareTo(importEntry.getValue()));
         assertEquals("2020-01-30", importEntry.getDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         assertNull(importEntry.getDescription());
         assertNull(importEntry.getCategory());
@@ -116,7 +116,7 @@ public class CsvImporterTest {
         ImportEntry importEntry = result.getImportedEntries().get(0);
         assertNotNull(importEntry);
         assertEquals("Potato", importEntry.getName());
-        assertEquals(0, new BigDecimal("10.561").compareTo(importEntry.getValue()));
+        assertEquals(0, BigDecimal.valueOf(10.561).compareTo(importEntry.getValue()));
         assertEquals("2020-01-30", importEntry.getDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         assertNotNull(importEntry.getDescription());
     }

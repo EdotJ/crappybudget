@@ -3,7 +3,11 @@
     <Modal :show="showModal" v-on:close-modal="handleModal" class="image-modal">
       <template v-slot:header> Receipt</template>
       <template v-slot:content>
-        <img class="receipt-image" :src="file" alt="file" v-if="file" />
+        <img class="receipt-image" :style="`transform: rotate(${rotation}deg);`" :src="file" alt="file" v-if="file" />
+        <div class="controls">
+          <Button @click.native="rotate(-90)" type="button">Rotate Left</Button>
+          <Button @click.native="rotate(90)" type="button">Rotate Right</Button>
+        </div>
       </template>
     </Modal>
     <div class="picture-container">
@@ -35,7 +39,7 @@
             {{
               this.receipt && this.receipt.entries
                 ? this.receipt.entries
-                    .map((e) => e.price)
+                    .map((e) => (e && e.price ? e.price : 0))
                     .reduce((total, curr) => total + curr, 0)
                     .toFixed(2)
                 : 0
@@ -44,7 +48,7 @@
         </div>
       </div>
       <div class="entries-list">
-        <div class="entry" v-for="(entry, index) in receipt.entries" :key="index">
+        <div :class="['entry', entry.discount ? '' : '']" v-for="(entry, index) in receipt.entries" :key="index">
           <StyledInput
             class="entry-input"
             type="text"
@@ -55,7 +59,7 @@
             placeholder="Name"
           />
           <StyledInput
-            class="entry-input price-input"
+            :class="['entry-input', 'price-input', entry.discount ? 'discount' : '']"
             type="number"
             required="true"
             v-model.number="entry.price"
@@ -63,6 +67,7 @@
             :step="0.01"
             :label="false"
             placeholder="Price"
+            :min="-500"
           />
           <div class="actions">
             <DeleteButton class="delete-button" @click.native="handleEntryDelete(index)" />
@@ -107,6 +112,7 @@ export default {
     return {
       submittedIds: false,
       showModal: false,
+      rotation: 0,
     };
   },
   computed: {
@@ -140,9 +146,9 @@ export default {
     },
     handleEntryAdd() {
       if (this.receipt && this.receipt.entries) {
-        this.receipt.entries.push({});
+        this.receipt.entries.push({ name: "", price: 0, isDiscount: false });
       } else {
-        this.receipt.entries = [{}];
+        this.receipt.entries = [{ name: "", price: 0, isDiscount: false }];
       }
     },
     handleNext() {
@@ -161,6 +167,9 @@ export default {
     },
     handleModal() {
       this.showModal = !this.showModal;
+    },
+    rotate(degrees) {
+      this.rotation += degrees;
     },
   },
 };
@@ -266,8 +275,9 @@ form {
 }
 
 .receipt-image {
-  max-width: 70%;
-  max-height: 70%;
+  max-width: 60%;
+  max-height: 60%;
+  margin-bottom: 1rem;
 }
 
 .picture-container {
@@ -276,8 +286,13 @@ form {
   justify-content: flex-end;
 }
 
-.child-category {
-  margin-left: 1rem;
+.controls {
+  display: flex;
+}
+
+.discount >>> input {
+  background: #13c20022;
+  border-radius: 8px;
 }
 
 @media only screen and (min-width: 961px) {

@@ -13,7 +13,7 @@
         :step="step"
         :min="min"
         :placeholder="placeholder"
-        :autocomplete="autocomplete"
+        :autocomplete="autocomplete ? 'on' : 'off'"
         v-on:input="$emit('input', $event.target.value)"
         v-if="!textarea"
         class="stylable"

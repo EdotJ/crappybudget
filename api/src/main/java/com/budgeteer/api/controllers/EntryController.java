@@ -5,6 +5,7 @@ import com.budgeteer.api.dto.BalanceDto;
 import com.budgeteer.api.dto.account.AccountBalanceDto;
 import com.budgeteer.api.dto.entry.EntryListDto;
 import com.budgeteer.api.dto.entry.ReceiptEntriesDto;
+import com.budgeteer.api.dto.entry.ReceiptEntryDto;
 import com.budgeteer.api.dto.entry.SingleEntryDto;
 import com.budgeteer.api.exception.BadRequestException;
 import com.budgeteer.api.model.Entry;
@@ -19,7 +20,9 @@ import io.micronaut.security.authentication.Authentication;
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.stream.Collectors;
 
 @Controller("${api.base-path}/entries")
@@ -66,11 +69,24 @@ public class EntryController {
 
     @Post("/receipt")
     public HttpResponse<EntryListDto> create(ReceiptEntriesDto request) {
+        filterOutDiscounts(request);
         List<Entry> entryList = service.createAll(request);
         List<SingleEntryDto> entries = entryList.stream()
                 .map(SingleEntryDto::new)
                 .collect(Collectors.toList());
         return HttpResponse.created(new EntryListDto(entries));
+    }
+
+    private void filterOutDiscounts(ReceiptEntriesDto request) {
+        ListIterator<ReceiptEntryDto> entryIterator = request.getEntries().listIterator();
+        while (entryIterator.hasNext()) {
+            ReceiptEntryDto entry = entryIterator.next();
+            if (entry.isDiscount()) {
+                ReceiptEntryDto nonDiscountEntry = request.getEntries().get(entryIterator.previousIndex() - 1);
+                nonDiscountEntry.setPrice(nonDiscountEntry.getPrice().subtract(entry.getPrice().abs()));
+                entryIterator.remove();
+            }
+        }
     }
 
     @Put("/{id}")

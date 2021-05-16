@@ -187,6 +187,30 @@ public class EntryControllerTest {
     }
 
     @Test
+    public void shouldCreateEntryFromReceiptRequestWithDiscounts() {
+        ReceiptEntriesDto dto = new ReceiptEntriesDto();
+        dto.setAccountId(testAccount.getId());
+        dto.setCategoryId(testCategory.getId());
+        dto.setDate(LocalDate.of(2020, 11, 11));
+        dto.getEntries().add(new ReceiptEntryDto("Entry", BigDecimal.valueOf(5.50)));
+        dto.getEntries().add(new ReceiptEntryDto("Entry Discount", BigDecimal.valueOf(1.20), true));
+        MutableHttpRequest<ReceiptEntriesDto> request = HttpRequest.POST("/entries/receipt", dto)
+                .headers(authExtension.getAuthHeader());
+        HttpResponse<EntryListDto> response = client.toBlocking().exchange(request, EntryListDto.class);
+        assertEquals(HttpStatus.CREATED, response.getStatus());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().isPresent());
+        EntryListDto responseDto = response.getBody().get();
+        assertEquals(1, responseDto.getCount());
+        SingleEntryDto responseEntry = responseDto.getList().get(0);
+        assertEquals("Entry", responseEntry.getName());
+        assertEquals(LocalDate.of(2020, 11, 11), responseEntry.getDate());
+        assertEquals(BigDecimal.valueOf(4.30), responseEntry.getValue());
+        assertEquals(testAccount.getId(), responseEntry.getAccountId());
+        assertEquals(testCategory.getId(), responseEntry.getCategoryId());
+    }
+
+    @Test
     public void shouldUpdateEntry() {
         Entry entry = TestUtils.createTestEntry();
         entry.setUser(testUser);

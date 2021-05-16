@@ -61,6 +61,7 @@ export default {
       entries: receipt.entries.map((e) => ({
         name: e.label,
         price: e.price,
+        discount: e.discount,
       })),
     };
     return request.post(`/entries/receipt`, body);
