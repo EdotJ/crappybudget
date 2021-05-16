@@ -15,6 +15,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Locale;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -87,13 +88,13 @@ public class AdvancedCloudVisionReceiptParser
         while (pricesWithLabels.hasNext()) {
             Pair<String, String> pair = pricesWithLabels.next();
             BigDecimal price = new BigDecimal(pair.getSecond().replace(",", "."));
-            if (price.compareTo(BigDecimal.ZERO) < 0 && pricesWithLabels.hasPrevious()) {
-                ReceiptParseEntry entry = parseResponse.getEntries().get(pricesWithLabels.previousIndex() - 1);
-                entry.setPrice(entry.getPrice().subtract(price.abs()));
-                pricesWithLabels.remove();
-                continue;
+            boolean isDiscount = (price.compareTo(BigDecimal.ZERO) < 0 && pricesWithLabels.hasPrevious())
+                    || (pair.getFirst().toLowerCase(Locale.ROOT).contains("nuolaida") && pair.getFirst().contains("%"));
+            if (isDiscount && price.compareTo(BigDecimal.ZERO) > 0) {
+                price = price.negate();
             }
-            parseResponse.getEntries().add(new ReceiptParseEntry(pair.getFirst().replaceAll("#", ""), price));
+            ReceiptParseEntry entry = new ReceiptParseEntry(pair.getFirst().replaceAll("#", ""), price, isDiscount);
+            parseResponse.getEntries().add(entry);
         }
         return parseResponse;
     }

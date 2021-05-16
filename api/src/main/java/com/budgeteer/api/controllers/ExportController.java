@@ -71,14 +71,14 @@ public class ExportController {
     private void writeEntries(List<Entry> entries, CSVWriter writer) {
         for (Entry entry : entries) {
             StringBuilder sb = new StringBuilder(entry.getDate().format(formatter));
-            sb.append(",").append(entry.getName()).append(",").append(entry.getValue()).append(",");
+            sb.append(",\"").append(entry.getName()).append("\",").append(entry.getValue()).append(",");
             if (entry.getCategory() != null) {
-                sb.append(entry.getCategory().getName());
+                sb.append("\"").append(entry.getCategory().getName()).append("\"");
             }
-            sb.append(",");
-            sb.append(entry.getAccount().getName());
+            sb.append(",\"");
+            sb.append(entry.getAccount().getName()).append("\"");
 
-            writer.writeNext(sb.toString().split(","));
+            writer.writeNext(sb.toString().split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)"));
         }
     }
 }

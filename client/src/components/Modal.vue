@@ -88,6 +88,7 @@ export default {
   align-items: center;
   justify-content: center;
   border-radius: 0 8px 0 0;
+  cursor: pointer;
 }
 
 .exit-button:hover {

@@ -8,13 +8,20 @@ public class ReceiptParseEntry {
 
     private BigDecimal price;
 
+    private boolean isDiscount;
+
     public ReceiptParseEntry() {
 
     }
 
     public ReceiptParseEntry(String label, BigDecimal price) {
+        this(label, price, false);
+    }
+
+    public ReceiptParseEntry(String label, BigDecimal price, boolean isDiscount) {
         this.label = label;
         this.price = price;
+        this.isDiscount = isDiscount;
     }
 
     public String getLabel() {
@@ -31,5 +38,13 @@ public class ReceiptParseEntry {
 
     public void setPrice(BigDecimal price) {
         this.price = price;
+    }
+
+    public boolean isDiscount() {
+        return isDiscount;
+    }
+
+    public void setDiscount(boolean discount) {
+        isDiscount = discount;
     }
 }
