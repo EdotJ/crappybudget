@@ -221,7 +221,7 @@ svg {
 }
 
 label span {
-  color: red;
+  color: var(--red-replacement);
 }
 
 .disclaimer {

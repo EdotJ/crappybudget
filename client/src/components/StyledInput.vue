@@ -87,7 +87,7 @@ export default {
 }
 
 label span {
-  color: red;
+  color: var(--red-replacement);
 }
 
 .stylable {

@@ -1,5 +1,5 @@
 <template>
-  <div class="entry" @click="handleEntryClick">
+  <div :class="['entry', entry.isExpense ? 'expense-entry' : 'income-entry']" @click="handleEntryClick">
     <div class="left">
       <div class="title">
         {{ entry.name }}
@@ -99,6 +99,7 @@ export default {
   border-radius: 8px;
   box-shadow: 0 1px 1px -1px gray;
   cursor: pointer;
+  border-left: 0.5rem solid;
 }
 
 .entry:hover {
@@ -171,6 +172,14 @@ h1 {
   width: 32px;
   height: 32px;
   padding: 4px;
+}
+
+.expense-entry {
+  border-color: var(--expense-color);
+}
+
+.income-entry {
+  border-color: var(--income-color);
 }
 
 /* Smaller Desktop Styles */

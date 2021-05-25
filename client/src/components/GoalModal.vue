@@ -182,6 +182,6 @@ form {
 }
 
 label span {
-  color: red;
+  color: var(--red-replacement);
 }
 </style>

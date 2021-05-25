@@ -40,7 +40,7 @@ export default {
 }
 
 .cross-icon {
-  color: red;
+  color: var(--red-replacement);
   margin-right: 8px;
   height: 1rem;
   width: 1rem;

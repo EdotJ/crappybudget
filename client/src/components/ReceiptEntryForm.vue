@@ -18,11 +18,11 @@
     <div class="starting-form" v-if="receipt && !submittedIds">
       <h3>Choose account and category</h3>
       <div class="input-group">
-        <label for="account">Account<span style="color: red">*</span></label>
+        <label for="account">Account<span class="required-star">*</span></label>
         <AccountSelector id="account" :clearable="false" v-model="receipt.accountId" />
       </div>
       <div class="input-group">
-        <label for="category">Category<span style="color: red">*</span></label>
+        <label for="category">Category<span class="required-star">*</span></label>
         <CategorySelector id="category" :clearable="false" v-model="receipt.categoryId" />
       </div>
       <div class="submit-container">
@@ -293,6 +293,10 @@ form {
 .discount >>> input {
   background: #13c20022;
   border-radius: 8px;
+}
+
+.required-star {
+  color: var(--red-replacement);
 }
 
 @media only screen and (min-width: 961px) {

@@ -48,11 +48,11 @@
       <StyledInput id="date" type="date" required="true" placeholder="Date" vertical="true" v-model="entry.date" />
     </div>
     <div class="input-group">
-      <label for="account">Account<span style="color: red">*</span></label>
+      <label for="account">Account<span class="required-star">*</span></label>
       <AccountSelector id="account" v-model="entry.accountId" :clearable="false" />
     </div>
     <div class="input-group">
-      <label for="category">Category<span style="color: red">*</span></label>
+      <label for="category">Category<span class="required-star">*</span></label>
       <CategorySelector id="category" v-model="entry.categoryId" />
     </div>
     <div class="submit-container">
@@ -163,6 +163,10 @@ form {
 
 .child-category {
   margin-left: 1rem;
+}
+
+.required-star {
+  color: var(--red-replacement);
 }
 
 @media only screen and (min-width: 415px) and (max-width: 960px) {
