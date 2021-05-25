@@ -28,13 +28,14 @@ export default {
   --foreground-accent: #fefefe;
   --error-color: #ffbaba;
   --foreground-error: #b00900;
-  --expense-color: #d90000;
-  --income-color: #13c200;
+  --expense-color: #ae140d;
+  --income-color: #369c4d;
   --main-fg-color-transparent: #201b22aa;
   --input-bg-color: #22223b33;
   --default-selector-bg-color: #fcfcfc;
   --entry-bg: #fcfcfc;
   --entry-hover: #cccccc;
+  --red-replacement: #ae140d;
 }
 
 html {

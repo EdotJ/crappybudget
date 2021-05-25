@@ -45,15 +45,15 @@ public class AdvancedCloudVisionReceiptParserTest {
         assertNotNull(apiResponse);
         var receiptResponse = parser.parseReceipt(apiResponse);
         assertTrue(receiptResponse.getEntries().size() > 0);
-        assertEquals(new BigDecimal("1.80"), receiptResponse.getEntries().get(0).getPrice());
-//        assertEquals(new BigDecimal("-0.78"), receiptResponse.getEntries().get(1).getPrice());
-        assertEquals(new BigDecimal("1.60"), receiptResponse.getEntries().get(1).getPrice());
-        assertEquals(new BigDecimal("1.45"), receiptResponse.getEntries().get(2).getPrice());
-        assertEquals(new BigDecimal("2.48"), receiptResponse.getEntries().get(3).getPrice());
-        assertEquals(new BigDecimal("1.99"), receiptResponse.getEntries().get(4).getPrice());
-        assertEquals(new BigDecimal("1.32"), receiptResponse.getEntries().get(5).getPrice());
-//        assertEquals(new BigDecimal("-0.57"), receiptResponse.getEntries().get(7).getPrice());
-        assertEquals(new BigDecimal("0.86"), receiptResponse.getEntries().get(6).getPrice());
+        assertEquals(new BigDecimal("2.58"), receiptResponse.getEntries().get(0).getPrice());
+        assertEquals(new BigDecimal("-0.78"), receiptResponse.getEntries().get(1).getPrice());
+        assertEquals(new BigDecimal("1.60"), receiptResponse.getEntries().get(2).getPrice());
+        assertEquals(new BigDecimal("1.45"), receiptResponse.getEntries().get(3).getPrice());
+        assertEquals(new BigDecimal("2.48"), receiptResponse.getEntries().get(4).getPrice());
+        assertEquals(new BigDecimal("1.99"), receiptResponse.getEntries().get(5).getPrice());
+        assertEquals(new BigDecimal("1.89"), receiptResponse.getEntries().get(6).getPrice());
+        assertEquals(new BigDecimal("-0.57"), receiptResponse.getEntries().get(7).getPrice());
+        assertEquals(new BigDecimal("0.86"), receiptResponse.getEntries().get(8).getPrice());
     }
 
     @Test
@@ -69,9 +69,9 @@ public class AdvancedCloudVisionReceiptParserTest {
         assertEquals(new BigDecimal("1.45"), receiptResponse.getEntries().get(3).getPrice());
         assertEquals(new BigDecimal("2.48"), receiptResponse.getEntries().get(4).getPrice());
         assertEquals(new BigDecimal("1.99"), receiptResponse.getEntries().get(5).getPrice());
-        assertEquals(new BigDecimal("1.32"), receiptResponse.getEntries().get(6).getPrice());
-//        assertEquals(new BigDecimal("-0.57"), receiptResponse.getEntries().get(7).getPrice());
-        assertEquals(new BigDecimal("0.86"), receiptResponse.getEntries().get(7).getPrice());
+        assertEquals(new BigDecimal("1.89"), receiptResponse.getEntries().get(6).getPrice());
+        assertEquals(new BigDecimal("-0.57"), receiptResponse.getEntries().get(7).getPrice());
+        assertEquals(new BigDecimal("0.86"), receiptResponse.getEntries().get(8).getPrice());
     }
 
     @Test

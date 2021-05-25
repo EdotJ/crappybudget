@@ -66,7 +66,7 @@ export default {
 }
 
 .warning {
-  color: red;
+  color: var(--red-replacement);
   font-weight: bold;
   padding: 1rem 0;
 }
